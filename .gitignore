@@ -1,0 +1,4 @@
+*.nes
+*.deb
+*.out
+bin/
