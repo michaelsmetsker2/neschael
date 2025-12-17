@@ -52,7 +52,7 @@
   LDA     sprite, x
   STA     $0200, x         ; Write to OAM buffer in CPU RAMPPU
   INX
-  CPX     #16
+  CPX     #24
   BNE     @loadSpritesLoop
   RTS
 .ENDPROC

@@ -16,7 +16,7 @@ assemble: neschael.s
 
 # .o -> .bin
 link: bin/neschael.o
-	$(LINKER) bin/neschael.o $(LINKFLAGS)
+	$(LINKER) -o bin/neschael.link $(LINKFLAGS) bin/neschael.o
 
 # This target entry concatenates the .bin ROM files into a .nes iNES emulator-compatible ROM file
 build: bin/hdr.bin bin/prg.bin bin/chr.bin
@@ -24,7 +24,7 @@ build: bin/hdr.bin bin/prg.bin bin/chr.bin
 
 # Cleans bin directory
 clean:
-	$(RM) bin/*.bin bin/*.o neschael.nes a.out
+	$(RM) bin/*.bin bin/*.o bin/neschael.link neschael.nes a.out
 
 # End of Makefile
 	

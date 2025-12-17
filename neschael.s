@@ -9,33 +9,25 @@
 .SEGMENT "HEADER"
 .INCLUDE "data/header/header.inc"
 
+;-------------------------------------------------------------------------------
+; System Memory Map
+;-------------------------------------------------------------------------------
+; $00-$1F:    Subroutine Scratch Memory
+;             Volatile Memory used for parameters, return values, and temporary
+;             / scratch data.
+; $20-$FF:    The Remainder of the zero page is reserved for high I/O
+;             variables, see data/zeropage.inc
+;-------------------------------------------------------------------------------
+; $100-$1FF:  The Stack
+;-------------------------------------------------------------------------------
+; $200-$2FF:  OAM Sprite Memory
+;-------------------------------------------------------------------------------
+; $300-$7FF:  General Purpose RAM
+;-------------------------------------------------------------------------------
+.INCLUDE "data/zeropage.inc"
+
 ; =================================================================================================
-;  ZeroPage, first 256 bytes of RAM for quick access
-; =================================================================================================
-
-.SEGMENT "ZEROPAGE"
-  ; RAM VARIABLES
-
-      ; gameFlags holds major flags for the state of the Game
-      ; bit 0-6: unused
-      ; bit 7:   renderFlag, indivates that state updates are complete and vram can be updated
-  GAME_FLAGS:   .res 1  
-
-  POINTER_LOW:  .res 1   ; General purpose 16bit pointer low and high bits
-  POINTER_HIGH: .res 1
-
-      ; use buttom masks to see what is held
-  BTN_PRESSED:  .res 1  ; New button presses this frame
-  BTN_DOWN:     .res 1  ; All buttons currently being pressed
-
-  playerX:      .res 1  ; Player X position
-  playerY:      .res 1  ; Player Y position
-  playerSpeedX: .res 1  ; Player speed in x direction
-  playerSpeedY: .res 1  ; Player speed in y direction
-
-; this stands for rocket propelled grenade
-; =================================================================================================
-;  ROM (RPG) Data
+;  ROM (PRG) Data
 ; =================================================================================================
 .SEGMENT "CODE"
 
@@ -45,12 +37,14 @@
 .INCLUDE "lib/system/ppu.inc"  ; only constants 
 .INCLUDE "lib/system/ppu.s"
 
-.include "lib/game.s"
+.INCLUDE "lib/game.s"
 
 ; Interrupt service routines
 .INCLUDE "lib/isr/reset.s"
 .INCLUDE "lib/isr/nmi.s"
 .INCLUDE "lib/isr/custom.s"
+
+.INCLUDE "lib/player.s"
 
 .PROC main
   JSR Game::init
@@ -58,6 +52,8 @@
 
 game_loop:
   JSR Game::read_joypad_1
+  JSR Player::Movement::update
+  JSR Player::Sprite::update
 
   ; Move LEFT
   LDA BTN_DOWN
@@ -87,6 +83,7 @@ game_loop:
 .INCLUDE "lib/sprite/basic_movement.s"
 .INCLUDE "data/background/background.inc" ; this will be redone when scrolling is a thing
 
+
 ; Palette data
 .SEGMENT "PALETTE"
 .INCLUDE "data/palette/example.inc"
@@ -94,10 +91,11 @@ game_loop:
 ; Sprite data
 .SEGMENT "SPRITES"
 .INCLUDE "data/sprites/small_luigi.inc"
+.INCLUDE "data/sprites/player.inc"
 
 ; Graphics tile data, used by the sprites
 .SEGMENT "TILES"
-.INCBIN "data/tiles/mario.chr"
+.INCBIN "data/tiles/neschael.chr"
 
 .SEGMENT "VECTORS"
 ; Addresses must be in this order
