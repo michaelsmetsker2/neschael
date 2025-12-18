@@ -48,6 +48,7 @@
 
 .PROC main
   JSR Game::init
+  JSR Player::init
   EnableVideoOutput
 
 game_loop:
@@ -56,24 +57,24 @@ game_loop:
   JSR Player::Sprite::update
 
   ; Move LEFT
-  LDA BTN_DOWN
+  LDA btnDown
   AND #_BUTTON_LEFT
   BEQ @skip_left
-  JSR MoveLuigiLeft
+  ;JSR MoveiuigiLeft
 @skip_left:
 
   ; Move RIGHT
-  LDA BTN_DOWN
+  LDA btnDown
   AND #_BUTTON_RIGHT
   BEQ @skip_right
-  JSR MoveLuigiRight
+  ;JSR MoveLuigiRight
 @skip_right:
 
 
 
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
-  BIT GAME_FLAGS
+  BIT gameFlags
   BMI @wait_for_render
   JMP game_loop
   RTS                   ; shouldn't ever get called
@@ -90,7 +91,6 @@ game_loop:
 
 ; Sprite data
 .SEGMENT "SPRITES"
-.INCLUDE "data/sprites/small_luigi.inc"
 .INCLUDE "data/sprites/player.inc"
 
 ; Graphics tile data, used by the sprites

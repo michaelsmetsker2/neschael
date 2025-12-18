@@ -40,18 +40,18 @@ _RAM_CLEAR_PATTERN_1	= $00
 _RAM_CLEAR_PATTERN_2	= $FE
 
 ; Write #$01 and #$00 to latch controllers, then read from them one by one reference https://www.nesdev.org/wiki/Controller_reading
-_JOYPAD_1               = $4016
-_JOYPAD_2               = $4017
+_JOYPAD_1             = $4016
+_JOYPAD_2             = $4017
 
 ; Button mask bits
-_BUTTON_RIGHT = %00000001
-_BUTTON_LEFT  = %00000010
-_BUTTON_DOWN  = %00000100
-_BUTTON_UP    = %00001000
-_BUTTON_START = %00010000
-_BUTTON_SELECT= %00100000
-_BUTTON_B     = %01000000
-_BUTTON_A     = %10000000
+_BUTTON_RIGHT  = %00000001
+_BUTTON_LEFT   = %00000010
+_BUTTON_DOWN   = %00000100
+_BUTTON_UP     = %00001000
+_BUTTON_START  = %00010000
+_BUTTON_SELECT = %00100000
+_BUTTON_B      = %01000000
+_BUTTON_A      = %10000000
 
 ; CPU flags (i dont trust these because the button masks misbehaved with this syntax)
 _FLAG_C = %00000001  ; Carry

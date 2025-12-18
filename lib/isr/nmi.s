@@ -5,7 +5,7 @@
 ; non maskable interrupt, this is called during vblank and is where graphis are updated
 ;
 .PROC ISR_NMI
-  BIT GAME_FLAGS
+  BIT gameFlags 
   BPL drop_frame       ; return early if game logic hasn't been updated yet (drop frame)
   
     ; Refresh DRAM-stored sprite data before it decays.

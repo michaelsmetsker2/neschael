@@ -172,4 +172,30 @@ _OAMDATA    = $2004           ; Reference: https://wiki.nesdev.com/w/index.php/P
 ; ------+-----+---------------------------------------------------------------
 _OAMDMA     = $4014            ; Reference: https://wiki.nesdev.com/w/index.php/PPU_registers#OAMDMA
 
+; - Byte 0 (Y Position)
+_OAM_Y    = 0
+
+; - Byte 1 (Tile Index)
+;
+; 76543210
+; ||||||||
+; |||||||+- Bank ($0000 or $1000) of tiles
+; +++++++-- Tile number of top of sprite (0 to 254; bottom half gets the next tile)
+_OAM_TILE = 1
+
+; - Byte 2 (Attributes)
+;
+; 76543210
+; ||||||||
+; ||||||++- Palette (4 to 7) of sprite
+; |||+++--- Unimplemented
+; ||+------ Priority (0: in front of background; 1: behind background)
+; |+------- Flip sprite horizontally
+; +-------- Flip sprite vertically
+_OAM_ATTR = 2
+
+; - Byte 3 (X Position)
+_OAM_X    = 3
+
+
 ; End of lib/system/ppu.inc

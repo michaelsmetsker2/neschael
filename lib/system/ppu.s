@@ -46,17 +46,6 @@
   RTS
 .ENDPROC 
 
-.PROC load_sprite_data
-  LDX     #$00
-@loadSpritesLoop:
-  LDA     sprite, x
-  STA     $0200, x         ; Write to OAM buffer in CPU RAMPPU
-  INX
-  CPX     #24
-  BNE     @loadSpritesLoop
-  RTS
-.ENDPROC
-
 .PROC load_background_data ; loads all starting background name and attribute tables
   LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
   LDA #$20
