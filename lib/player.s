@@ -11,8 +11,8 @@
   I_POSX_HI    = $03
   I_POSY_LO    = $F0
   I_POSY_HI    = $08
-  I_SPRITE_X   = 110
-  I_SPRITE_Y   = 110
+  I_SPRITE_X   = 143
+  I_SPRITE_Y   = 143
 
   targetVelocityX   = $20   ; Signed Fixed Point 4.4
   velocityX         = $21   ; Signed Fixed Point 4.4
@@ -42,12 +42,12 @@
     Still = 0
     Walk = 1
     Pivot = 2 ; actively turning around
-    Airborne = 3
+    Airborne = 3 
     Sliding = 4
   .ENDENUM
 
   .SCOPE Jump
-    FLOOR_HEIGHT = 175
+    FLOOR_HEIGHT = 143
     INITIAL_VELOCITY = $C8
     MAX_FALL_SPEED = $40
     FALL_SPEED_LO  = $01   ; deceleration while holding A
@@ -143,7 +143,7 @@
 
     .PROC update_jump_velocity
       ; Determine if velocity decelerates slow or fest based on button hold
-      LDY #5
+      LDY #Jump::FALL_SPEED_HI
       LDA velocityY
       CMP #Jump::DECELERATION_THRESHOLD
       BPL @decelerate ; fast fall if velocity over threshhold
@@ -204,20 +204,30 @@
       LDA $00
       STA spriteY
 
-    @check_landing: ; TEMP -------------------------------------------------
-      CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
+    @check_landing: ; This will need to be changed for collision
+          CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
       BCS @land
       RTS
-    @land: ; also temp ----------------------------------------------------
-      ;JSR init_y
-      LDA #I_POSY_LO
-      STA positionY
-      LDA #I_POSY_HI
-      STA positionY+1
+@land:
+    ; clamp position to the landing height
+    LDA #00
+    STA positionY + 1 ; clear high byte
+    LDA #Jump::FLOOR_HEIGHT ; this will eventually be swapped with the
+                              ; landing place of collided surface
+    ASL A
+    ROL positionY + 1
+    ASL A
+    ROL positionY + 1
+    ASL A
+    ROL positionY + 1
+    ASL A
+    ROL positionY + 1 
+    STA positionY
 
-      LDA #MotionState::Still ; I feel the motion state change should be more involved thatn this
-      STA motionState
-      RTS
+    LDA #MotionState::Still ; update motion state, idk how this will
+                              ; end up working with movement
+    STA motionState
+    RTS
     .ENDPROC
 
   .ENDSCOPE
