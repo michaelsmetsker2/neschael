@@ -10,6 +10,11 @@ LINKFLAGS = --config config/nes.cfg
 
 default: assemble link build
 
+dev: assemble link build test
+# Builds and opens it in the emulator i use for debugging
+test: 
+	mesen neschael.nes
+
 # Assemble .s -> .o
 assemble: neschael.s
 	$(ASSEMBLER) $(ASMFLAGS) -o bin/neschael.o neschael.s

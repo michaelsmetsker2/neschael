@@ -7,30 +7,30 @@
     ; Initialization values
   I_VELOCITY_X = 0
   I_VELOCITY_Y = 0
-  I_POSX_LO    = $E0
-  I_POSX_HI    = $06
-  I_POSY_LO    = $E0
-  I_POSY_HI    = $06
+  I_POSX_LO    = $00
+  I_POSX_HI    = $03
+  I_POSY_LO    = $F0
+  I_POSY_HI    = $08
   I_SPRITE_X   = 110
   I_SPRITE_Y   = 110
 
-  targetVelocityX   = $30   ; Signed Fixed Point 4.4
-  velocityX         = $31   ; Signed Fixed Point 4.4
-  velocityY         = $32   ; Signed Fixed Point 4.4
+  targetVelocityX   = $20   ; Signed Fixed Point 4.4
+  velocityX         = $21   ; Signed Fixed Point 4.4
+  velocityY         = $22   ; Signed Fixed Point 4.4
   
     ; these will not overflow for about 8 screens in either direction
-  positionX         = $33   ; Unsigned Fixed Point 12.4
-  positionY         = $35   ; Unsigned Fixed Point 12.4
+  positionX         = $23   ; Unsigned Fixed Point 12.4
+  positionY         = $25   ; Unsigned Fixed Point 12.4
 
-  spriteX           = $37   ; Unsigned Screen Coordinates
-  spriteY           = $38   ; Unsigned Screen Coordinates
+  spriteX           = $27   ; Unsigned Screen Coordinates
+  spriteY           = $28   ; Unsigned Screen Coordinates
 
     ; these could be combinded if there are less than 8 motion states
-  heading           = $39   ; See `.enum Heading`, below...
-  motionState       = $3A   ; See `.enum MotionState`, below...
+  heading           = $29   ; See `.enum Heading`, below...
+  motionState       = $2A   ; See `.enum MotionState`, below...
 
-  animationFrame    = $3B
-  animationTimer    = $3C
+  animationFrame    = $2B
+  animationTimer    = $2C
 
 
   .ENUM Heading
@@ -47,11 +47,11 @@
   .ENDENUM
 
   .SCOPE Jump
-    FLOOR_HEIGHT = 200
-    INITIAL_VELOCITY = $E0
-    MAX_FALL_SPEED = $150
-    FALL_SPEED_LO  = 1   ; deceleration while holding A
-    FALL_SPEED_HI  = 5   ; deceleration while free falling
+    FLOOR_HEIGHT = 175
+    INITIAL_VELOCITY = $C8
+    MAX_FALL_SPEED = $40
+    FALL_SPEED_LO  = $01   ; deceleration while holding A
+    FALL_SPEED_HI  = $04   ; deceleration while free falling
     DECELERATION_THRESHOLD = $E0 ; greater than this velocity, slow falling
                                       ; will no longer be possible, 
                                       ; TODO: tweak this to liking
@@ -59,7 +59,7 @@
 
   .PROC init
     JSR init_x
-    JSR init_x
+    JSR init_y
     JSR init_sprite
   .ENDPROC
 
@@ -79,12 +79,12 @@
   .ENDPROC
 
   .PROC init_y
-    ; start with no velocity
+      ; start with no velocity
     LDA #I_VELOCITY_Y
     STA velocityY 
       ; Sets initial Y-position to 110 or $06E0 in 12.4 fixed point
     LDA #I_SPRITE_Y
-    STA spriteX
+    STA spriteY
     LDA #I_POSY_LO
     STA positionY
     LDA #I_POSY_HI
@@ -96,12 +96,15 @@
     LDX #$00
   @loop:
     LDA player_sprite, x
-    STA $0200, x         ; Write to OAM buffer in CPU RAMPPU
+    STA $0200, x         ; Write to OAM buffer in CPU RAM
     INX
     CPX #4
     BNE @loop
     RTS
   .ENDPROC
+
+    player_sprite:
+  .BYTE Player::I_SPRITE_Y, $0, %00000000, Player::I_SPRITE_X
 
   .SCOPE Movement
 
@@ -109,6 +112,7 @@
       JSR update_vertical_motion
       ;JSR set_target_velocity_x
       ;JSR accelerate_x
+      ;JSR apply_velocity_x
       ;JSR bound_position_x
       RTS
     .ENDPROC
@@ -121,8 +125,8 @@
       LDA btnPressed
       AND #_BUTTON_A
       BNE @begin_jump            ; branch if a new jump is detected
-      ;LDA #0
-      ;STA velocityY    ; clear Y velocity in case landing? idk disabled temporarily see if it causes issues
+      LDA #0
+      STA velocityY    ; clear Y velocity in case landing? idk disabled temporarily see if it causes issues
       RTS
     @begin_jump:
       LDA #Jump::INITIAL_VELOCITY
@@ -139,7 +143,7 @@
 
     .PROC update_jump_velocity
       ; Determine if velocity decelerates slow or fest based on button hold
-      LDY #Jump::FALL_SPEED_HI
+      LDY #5
       LDA velocityY
       CMP #Jump::DECELERATION_THRESHOLD
       BPL @decelerate ; fast fall if velocity over threshhold
@@ -159,6 +163,7 @@
 
     .PROC apply_velocity_y ; 6502 handles negative values automatically apparently?
       LDA velocityY
+      BMI @negative
       CLC
       ADC positionY
       STA positionY
@@ -166,6 +171,20 @@
       ADC positionY + 1 ; add the carry to the high byte of positionY
       STA positionY + 1
       RTS
+    @negative:
+      LDA #0
+      SEC
+      SBC velocityY
+      STA $00
+      LDA positionY
+      SEC
+      SBC $00
+      STA positionY
+      LDA positionY + 1
+      SBC #0
+      STA positionY + 1
+      RTS
+
     .ENDPROC
 
     .PROC bound_position_y
@@ -185,16 +204,21 @@
       LDA $00
       STA spriteY
 
-  @check_landing: ; TEMP -------------------------------------------------
-    CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
-    BCS @land
-    RTS
-  @land: ; also temp ----------------------------------------------------
-    JSR init_y
-    LDA #MotionState::Still ; I feel the motion state change should be more involved thatn this
-    STA motionState
-    RTS
-  .ENDPROC
+    @check_landing: ; TEMP -------------------------------------------------
+      CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
+      BCS @land
+      RTS
+    @land: ; also temp ----------------------------------------------------
+      ;JSR init_y
+      LDA #I_POSY_LO
+      STA positionY
+      LDA #I_POSY_HI
+      STA positionY+1
+
+      LDA #MotionState::Still ; I feel the motion state change should be more involved thatn this
+      STA motionState
+      RTS
+    .ENDPROC
 
   .ENDSCOPE
 
@@ -210,8 +234,6 @@
     .ENDPROC
 
 
-
-
     .PROC update_sprite_position
       LDA spriteX
       ;STA $0200 + _OAM_X
@@ -220,12 +242,7 @@
       RTS
     .ENDPROC
 
-
-
   .ENDSCOPE
-
-
-
 
 .ENDSCOPE
 

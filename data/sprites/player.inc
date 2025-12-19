@@ -4,8 +4,8 @@
 ;
 
     ; Y TILE ATTR X
-player_sprite:
-.BYTE Player::I_SPRITE_Y, $0, %00000000, Player::I_SPRITE_X
+;player_sprite:
+;.BYTE Player::I_SPRITE_Y, $0, %00000000, Player::I_SPRITE_X
 
 blario_sprite:
 ; small luigi

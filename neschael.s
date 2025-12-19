@@ -56,6 +56,15 @@ game_loop:
   JSR Player::Movement::update
   JSR Player::Sprite::update
 
+
+  SetRenderFlag
+@wait_for_render:       ; Loop until NMI has finished for the current frame
+  BIT gameFlags
+  BMI @wait_for_render
+  JMP game_loop
+  RTS                   ; shouldn't ever get called
+.ENDPROC  
+
   ; Move LEFT
   LDA btnDown
   AND #_BUTTON_LEFT
@@ -70,15 +79,6 @@ game_loop:
   ;JSR MoveLuigiRight
 @skip_right:
 
-
-
-  SetRenderFlag
-@wait_for_render:       ; Loop until NMI has finished for the current frame
-  BIT gameFlags
-  BMI @wait_for_render
-  JMP game_loop
-  RTS                   ; shouldn't ever get called
-.ENDPROC  
 
 ; Temporary includes
 .INCLUDE "lib/sprite/basic_movement.s"
