@@ -2,23 +2,18 @@
 ; neschael
 ; lib/player.s
 ;
+; this handles the players movement
+;
+
+;reminder, may need to worry about walking off platforms
 
 .SCOPE Player
-    ; Initialization values
-  I_VELOCITY_X = 0
-  I_VELOCITY_Y = 0
-  I_POSX_LO    = $00
-  I_POSX_HI    = $03
-  I_POSY_LO    = $F0
-  I_POSY_HI    = $08
-  I_SPRITE_X   = 143
-  I_SPRITE_Y   = 143
-
+    ; --- Memory constants ---
   targetVelocityX   = $20   ; Signed Fixed Point 4.4
   velocityX         = $21   ; Signed Fixed Point 4.4
   velocityY         = $22   ; Signed Fixed Point 4.4
   
-    ; these will not overflow for about 8 screens in either direction
+    ; these will overflow at around 8 screens
   positionX         = $23   ; Unsigned Fixed Point 12.4
   positionY         = $25   ; Unsigned Fixed Point 12.4
 
@@ -26,14 +21,40 @@
   spriteY           = $28   ; Unsigned Screen Coordinates
 
     ; these could be combinded if there are less than 8 motion states
-  heading           = $29   ; See `.enum Heading`, below...
-  motionState       = $2A   ; See `.enum MotionState`, below...
+  heading           = $29   ; See `.ENUM Heading`
+  motionState       = $2A   ; See `.ENUM MotionState`
 
   animationFrame    = $2B
   animationTimer    = $2C
 
+    ; Initialization values
+  .SCOPE Initial
+    VELOCITY_X = 0
+    VELOCITY_Y = 0
+    POSX_LO    = $00
+    POSX_HI    = $03
+    POSY_LO    = $F0
+    POSY_HI    = $08
+    SPRITE_X   = 143
+    SPRITE_Y   = 143
+  .ENDSCOPE
 
-  .ENUM Heading
+  .SCOPE Jump
+    FLOOR_HEIGHT = 143
+    INITIAL_VELOCITY = $C8
+    MAX_FALL_SPEED = $40
+    SLOW_FALL_SPEED  = $02   ; deceleration while holding A
+    BASE_FALL_SPEED  = $05   ; deceleration while free falling
+    DECELERATION_THRESHOLD = $E0 ; greater than this velocity, slow falling
+                                      ; will no longer be possible, 
+  .ENDSCOPE
+
+  .SCOPE Velocities
+    RIGHT_WALK_TARGET = $28 ; signed 4.4 fixed point
+    LEFT_WALK_TARGET  = $D8 ; signed 4.4 fixed point
+  .ENDSCOPE
+
+  .ENUM Heading ; direction player is facing
     Right = 0
     Left = 1
   .ENDENUM
@@ -46,17 +67,6 @@
     Sliding = 4
   .ENDENUM
 
-  .SCOPE Jump
-    FLOOR_HEIGHT = 143
-    INITIAL_VELOCITY = $C8
-    MAX_FALL_SPEED = $40
-    FALL_SPEED_LO  = $01   ; deceleration while holding A
-    FALL_SPEED_HI  = $04   ; deceleration while free falling
-    DECELERATION_THRESHOLD = $E0 ; greater than this velocity, slow falling
-                                      ; will no longer be possible, 
-                                      ; TODO: tweak this to liking
-  .ENDSCOPE
-
   .PROC init
     JSR init_x
     JSR init_y
@@ -65,29 +75,29 @@
 
   .PROC init_x
       ; Start with no velocity
-    LDA #I_VELOCITY_X
+    LDA #Initial::VELOCITY_X
     STA targetVelocityX
     STA velocityX 
       ; Sets initial X-position to 110 or $06E0 in 12.4 fixed point
-    LDA #I_SPRITE_X
+    LDA #Initial::SPRITE_X
     STA spriteX
-    LDA #I_POSX_LO
+    LDA #Initial::POSX_LO
     STA positionX
-    LDA #I_POSX_HI
+    LDA #Initial::POSX_HI
     STA positionX + 1
     RTS    
   .ENDPROC
 
   .PROC init_y
       ; start with no velocity
-    LDA #I_VELOCITY_Y
+    LDA #Initial::VELOCITY_Y
     STA velocityY 
       ; Sets initial Y-position to 110 or $06E0 in 12.4 fixed point
-    LDA #I_SPRITE_Y
+    LDA #Initial::SPRITE_Y
     STA spriteY
-    LDA #I_POSY_LO
+    LDA #Initial::POSY_LO
     STA positionY
-    LDA #I_POSY_HI
+    LDA #Initial::POSY_HI
     STA positionY + 1
     RTS
   .ENDPROC
@@ -103,17 +113,17 @@
     RTS
   .ENDPROC
 
-    player_sprite:
-  .BYTE Player::I_SPRITE_Y, $0, %00000000, Player::I_SPRITE_X
+  player_sprite:
+    .BYTE Player::Initial::SPRITE_Y, $0, %00000000, Player::Initial::SPRITE_X
 
   .SCOPE Movement
 
     .PROC update
       JSR update_vertical_motion
-      ;JSR set_target_velocity_x
-      ;JSR accelerate_x
-      ;JSR apply_velocity_x
-      ;JSR bound_position_x
+      JSR set_target_velocity_x
+      JSR accelerate_x
+      JSR apply_velocity_x
+      JSR bound_position_x
       RTS
     .ENDPROC
 
@@ -142,21 +152,21 @@
     .endproc
 
     .PROC update_jump_velocity
-      ; Determine if velocity decelerates slow or fest based on button hold
-      LDY #Jump::FALL_SPEED_HI
+        ; Determine if velocity decelerates slow or fest based on button hold
+      LDY #Jump::BASE_FALL_SPEED
       LDA velocityY
       CMP #Jump::DECELERATION_THRESHOLD
       BPL @decelerate ; fast fall if velocity over threshhold
       LDA btnDown
       AND #_BUTTON_A
       BEQ @decelerate ; fast fall if a is not held down
-      LDY #Jump::FALL_SPEED_LO
+      LDY #Jump::SLOW_FALL_SPEED
     @decelerate:
-      ; Perform the deceleration
+        ; Perform the deceleration
       TYA
       CLC
       ADC velocityY
-      ; If I want to cap max fall speed, do it here -----------------------
+        ; If I want to cap max fall speed, do it here -----------------------
       STA velocityY ; store velocity
       RTS
     .ENDPROC
@@ -205,29 +215,135 @@
       STA spriteY
 
     @check_landing: ; This will need to be changed for collision
-          CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
+      CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
       BCS @land
       RTS
-@land:
-    ; clamp position to the landing height
-    LDA #00
-    STA positionY + 1 ; clear high byte
-    LDA #Jump::FLOOR_HEIGHT ; this will eventually be swapped with the
-                              ; landing place of collided surface
-    ASL A
-    ROL positionY + 1
-    ASL A
-    ROL positionY + 1
-    ASL A
-    ROL positionY + 1
-    ASL A
-    ROL positionY + 1 
-    STA positionY
+    @land:
+        ; clamp position to the landing height
+      LDA #00
+      STA positionY + 1 ; clear high byte
+      LDA #Jump::FLOOR_HEIGHT ; this will eventually be swapped with the
+                                ; landing place of collided surface
+      ASL A
+      ROL positionY + 1
+      ASL A
+      ROL positionY + 1
+      ASL A
+      ROL positionY + 1
+      ASL A
+      ROL positionY + 1 
+      STA positionY
 
-    LDA #MotionState::Still ; update motion state, idk how this will
-                              ; end up working with movement
-    STA motionState
-    RTS
+      LDA #MotionState::Still ; update motion state, idk how this will
+                                ; end up working with movement
+      STA motionState
+      RTS
+    .ENDPROC
+
+    .PROC set_target_velocity_x ; TODO change values if aurborne or not =====================================================================
+      ; check input
+      LDA btnDown
+      AND #_BUTTON_RIGHT
+      BEQ @check_left
+      LDA #Velocities::RIGHT_WALK_TARGET
+      STA targetVelocityX
+      RTS
+    @check_left:
+      LDA btnDown
+      AND #_BUTTON_LEFT
+      BEQ @no_direction
+      LDA #Velocities::LEFT_WALK_TARGET
+      STA targetVelocityX
+      RTS
+    @no_direction:
+      LDA #0
+      STA targetVelocityX
+      RTS
+    .ENDPROC
+
+    .PROC accelerate_x
+      LDA motionState
+      CMP #MotionState::Airborne
+      BNE @accelerate
+    @airborne:
+      ; No friction in the air, ignore zero velocity
+      LDA targetVelocityX
+      BNE @check_directional_velocity  
+      RTS 
+    @check_directional_velocity:
+      LDA velocityX
+      BMI @negative
+    @positive:
+      ; Only accelerate if the target velocity is higher
+      CMP targetVelocityX
+      BCC @accelerate
+      RTS
+    @negative:
+      CMP targetVelocityX
+      BCS @accelerate
+      RTS
+    @accelerate:
+      LDA velocityX
+      SEC
+      SBC targetVelocityX
+      BNE @check_greater
+      RTS ; at current targer velocity
+    @check_greater: ; player is grounded and needs to slow down
+      BMI @lesser
+      DEC velocityX ; lookup table should be made for different accelerations ===================================================================================
+      RTS
+    @lesser: ; velocity needs to raise
+      INC velocityX ; lookup table should be made for different accelerations ===================================================================================
+      RTS
+    .ENDPROC
+      
+    .PROC apply_velocity_x
+      ; Check to see the direction were moving in
+      LDA velocityX
+      BMI @negative
+    @positive:
+      ; add the 4.4 to the 12.4
+      CLC
+      ADC positionX
+      STA positionX
+      LDA #0
+      ADC positionX + 1
+      STA positionX + 1
+      RTS
+    @negative:
+      ; probably is a better way to do this, inverts negative then subtracts it
+      LDA #0
+      SEC
+      SBC velocityX
+      STA $00
+      LDA positionX
+      SEC
+      SBC $00
+      STA positionX
+      LDA positionX + 1
+      SBC #0
+      STA positionX + 1
+      RTS
+    .ENDPROC
+
+    .PROC bound_position_x
+      ; convert fixed point position into screen coords
+      LDA positionX
+      STA $00
+      LDA positionX + 1
+      STA $01
+      LSR $01
+      ROR $00
+      LSR $01
+      ROR $00
+      LSR $01
+      ROR $00
+      LSR $01
+      ROR $00
+      
+      LDA $00
+      STA spriteX
+    RTS ; bounding would go here ========================================================================================
     .ENDPROC
 
   .ENDSCOPE
@@ -246,7 +362,7 @@
 
     .PROC update_sprite_position
       LDA spriteX
-      ;STA $0200 + _OAM_X
+      STA $0200 + _OAM_X
       LDA spriteY
       STA $0200 + _OAM_Y
       RTS

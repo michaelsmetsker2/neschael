@@ -63,22 +63,7 @@ game_loop:
   BMI @wait_for_render
   JMP game_loop
   RTS                   ; shouldn't ever get called
-.ENDPROC  
-
-  ; Move LEFT
-  LDA btnDown
-  AND #_BUTTON_LEFT
-  BEQ @skip_left
-  ;JSR MoveiuigiLeft
-@skip_left:
-
-  ; Move RIGHT
-  LDA btnDown
-  AND #_BUTTON_RIGHT
-  BEQ @skip_right
-  ;JSR MoveLuigiRight
-@skip_right:
-
+.ENDPROC
 
 ; Temporary includes
 .INCLUDE "lib/sprite/basic_movement.s"

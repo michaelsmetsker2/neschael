@@ -4,16 +4,18 @@
 #
 
 ASSEMBLER = ca65
-LINKER = ld65
-ASMFLAGS = --cpu 6502
-LINKFLAGS = --config config/nes.cfg
+LINKER    = ld65
+EMU       = mesen
+
+ASMFLAGS  = --cpu 6502
+LINKFLAGS = --config config/nes.cfg --dbgfile bin/neschael.dbg
 
 default: assemble link build
 
 dev: assemble link build test
 # Builds and opens it in the emulator i use for debugging
 test: 
-	mesen neschael.nes
+	$(EMU) neschael.nes
 
 # Assemble .s -> .o
 assemble: neschael.s
