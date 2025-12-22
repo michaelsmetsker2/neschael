@@ -5,10 +5,10 @@
   POINTER_HIGH: .res 1
 
 ; --- player data $20-2F ----------------------------------------------------------
-  PLAYER_DATA: .res 16    ; includes player states and animations, see lib/player.s
+  PLAYER_DATA: .res 32    ; includes player states and animations, see lib/player.s
 
 
-; --- game data $30-$FF -----------------------------------------------------------
+; --- game data $40-$FF -----------------------------------------------------------
       ; gameFlags holds major flags for the state of the Game
       ; bit 0-6: unused
       ; bit 7:   renderFlag, indivates that state updates are complete and vram can be updated
