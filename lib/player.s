@@ -225,8 +225,8 @@
       RTS
     .ENDPROC
 
-    .PROC set_target_velocity_x ; TODO change values if aurborne or not =====================================================================
-      ; check input
+    .PROC set_target_velocity_x
+        ; check input
       LDA btnDown
       AND #_BUTTON_RIGHT
       BEQ @check_left
@@ -248,92 +248,67 @@
     @no_direction:
       LDA #0
       STA targetVelocityX
+      STA targetVelocityX+1
       RTS
     .ENDPROC
 
     .PROC accelerate_x
+        ;NOTE this check is probably wastes cpu cycles being at the beginning of this subroutine
+          ;but it makes it less complicated
+        ; Having a target of 0 (holding nothing) in air will not slow you down
+      LDA targetVelocityX         
+      ORA targetVelocityX+1
+      BNE @accelerate             ;branch if target is not zero
       LDA motionState
       CMP #MotionState::Airborne
-      BNE @accelerate
-    @airborne:
-      ; No friction in the air, ignore zero velocity
-      LDA targetVelocityX
-      BNE @check_directional_velocity  
-      RTS 
-    @check_directional_velocity:
-      LDA velocityX
-      BMI @negative
-    @positive:
-      ; Only accelerate if the target velocity is higher
-      CMP targetVelocityX
-      BCC @accelerate
-      RTS
-    @negative:
-      CMP targetVelocityX
-      BCS @accelerate
-      RTS
+      BNE @accelerate             ; branch if on the ground
+      RTS                         ; return early
     @accelerate:
-      LDA velocityX
+        ; find the difference between the target and current velocities
       SEC
-      SBC targetVelocityX
-      BNE @check_greater
-      RTS ; at current targer velocity
-    @check_greater: ; player is grounded and needs to slow down
-      BMI @lesser
-      DEC velocityX ; lookup table should be made for different accelerations ===================================================================================
+      LDA targetVelocityX
+      SBC velocityX
+      STA $00
+      LDA targetVelocityX+1
+      SBC velocityX+1
+
+      BNE @acc_left     ; difference > 0
+      BMI @acc_right    ; difference < 0
+      LDA $00
+      BNE @acc_right    ; fractional difference
       RTS
-    @lesser: ; velocity needs to raise
-      INC velocityX ; lookup table should be made for different accelerations ===================================================================================
+
+
+    ;this is all temp, replace with a lookup table of accelerations and have the sign be an offset
+    @acc_right:
+      INC velocityX
+      BNE @done          ; if no carry, done
+      INC velocityX+1    ; if low byte overflowed inc
       RTS
+    @acc_left:
+      DEC velocityX
+      BNE @done          ; if low byte didn’t underflow, done
+      DEC velocityX+1    ; low byte wrapped dec
+    @done:
+      RTS
+
     .ENDPROC
       
     .PROC apply_velocity_x
-      ; Check to see the direction were moving in
-      LDA velocityX
-      BMI @negative
-    @positive:
-      ; add the 4.4 to the 12.4
+        ; simple 16 bit addition
       CLC
-      ADC positionX
-      STA positionX
-      LDA #0
-      ADC positionX + 1
-      STA positionX + 1
-      RTS
-    @negative:
-      ; probably is a better way to do this, inverts negative then subtracts it
-      LDA #0
-      SEC
-      SBC velocityX
-      STA $00
       LDA positionX
-      SEC
-      SBC $00
+      ADC velocityX
       STA positionX
-      LDA positionX + 1
-      SBC #0
-      STA positionX + 1
-      RTS
+      LDA positionX+1
+      ADC velocityX+1
+      STA positionX+1
     .ENDPROC
 
     .PROC bound_position_x
-      ; convert fixed point position into screen coords
-      LDA positionX
-      STA $00
-      LDA positionX + 1
-      STA $01
-      LSR $01
-      ROR $00
-      LSR $01
-      ROR $00
-      LSR $01
-      ROR $00
-      LSR $01
-      ROR $00
-      
-      LDA $00
+      LDA positionX+1
       STA spriteX
-    RTS ; bounding would go here ========================================================================================
+      RTS ; bounding would go here ========================================================================================
     .ENDPROC
 
   .ENDSCOPE
