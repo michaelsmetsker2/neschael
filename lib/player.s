@@ -44,14 +44,14 @@
   .SCOPE Jump
     FLOOR_HEIGHT           = 143   ; screen cords temp ============================
     INITIAL_VELOCITY       = $FC00 ; signed fixed point 8.8 
-    SLOW_FALL_DECCEL       = $50   ; deceleration while holding A
-    BASE_FALL_DECCEL       = $70   ; deceleration while free falling
+    SLOW_FALL_DECCEL       = $20   ; deceleration while holding A
+    BASE_FALL_DECCEL       = $50   ; deceleration while free falling
     DECELERATION_THRESHOLD = $E0   ; greater than this velocity, slow falling
   .ENDSCOPE
 
   .SCOPE Velocities
-    RIGHT_WALK_TARGET = $0028 ; signed 8.8 fixed point
-    LEFT_WALK_TARGET  = $80D8 ; signed 8.8 fixed point
+    RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
+    LEFT_WALK_TARGET  = $FFB0 ; signed 8.8 fixed point
   .ENDSCOPE
 
   .ENUM Heading ; direction player is facing
@@ -268,32 +268,50 @@
       SEC
       LDA targetVelocityX
       SBC velocityX
-      STA $00
+      STA $02
       LDA targetVelocityX+1
       SBC velocityX+1
+      STA $03
 
-      BNE @acc_left     ; difference > 0
-      BMI @acc_right    ; difference < 0
-      LDA $00
-      BNE @acc_right    ; fractional difference
-      RTS
+      ORA $02             ; exit if the player is at the target velocity
+      BEQ @done
 
+        ; here we would determing what acceleration values to actually use depending on the surface
+        ; we would use a lookup table
+    
+        ;and we would load the correct accecleration bytes into memory
+      LDA #<TEST_ACC
+      STA $04
+      LDA #>TEST_ACC
+      STA $05
+      
+        ; check sign of difference
+      BIT $03
+      BPL @apply_acceleration ; if the difference is positive, accelerate to the right
 
-    ;this is all temp, replace with a lookup table of accelerations and have the sign be an offset
-    @acc_right:
-      INC velocityX
-      BNE @done          ; if no carry, done
-      INC velocityX+1    ; if low byte overflowed inc
-      RTS
-    @acc_left:
-      DEC velocityX
-      BNE @done          ; if low byte didn’t underflow, done
-      DEC velocityX+1    ; low byte wrapped dec
+        ; invert the acceleration if we're accelerating left
+      SEC
+      LDA #0
+      SBC $04
+      STA $04
+      LDA #0
+      SBC $05
+      STA $05
+
+    @apply_acceleration:
+        ;add teh acceleration to the velocity
+      CLC
+      LDA velocityX
+      ADC $04
+      STA velocityX
+      LDA velocityX+1
+      ADC $05
+      STA velocityX+1
     @done:
       RTS
-
     .ENDPROC
-      
+    TEST_ACC = $0001 ; temp ====================================================================================================== 
+
     .PROC apply_velocity_x
         ; simple 16 bit addition
       CLC
