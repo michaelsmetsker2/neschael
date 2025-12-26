@@ -44,20 +44,15 @@
   .SCOPE Jump
     FLOOR_HEIGHT           = 143   ; screen cords temp ============================
     INITIAL_VELOCITY       = $FC00 ; signed fixed point 8.8 
-    SLOW_FALL_DECCEL       = $20   ; deceleration while holding A
-    BASE_FALL_DECCEL       = $50   ; deceleration while free falling
-    DECELERATION_THRESHOLD = $E0   ; greater than this velocity, slow falling
+    SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
+    BASE_FALL_DECCEL       = $66   ; deceleration while free falling
+    DECELERATION_THRESHOLD = $FE   ; greater than this velocity, slow falling
   .ENDSCOPE
 
   .SCOPE Velocities
     RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
     LEFT_WALK_TARGET  = $FFB0 ; signed 8.8 fixed point
   .ENDSCOPE
-
-  .ENUM Heading ; direction player is facing
-    Right = 0
-    Left = 1
-  .ENDENUM
 
   .ENUM MotionState
     Still = 0
@@ -170,10 +165,12 @@
       AND #_BUTTON_A
       BEQ @newly_fast             ; branch if A isn't held
         ; check velocity threshold
+
       LDA velocityY+1
-      CMP #Jump::DECELERATION_THRESHOLD    ; NOTE: this only works as both are negative
-      BPL @newly_fast             ; branch if velocity is past threshhold
+      CMP #Jump::DECELERATION_THRESHOLD
+      BPL @newly_fast             ; branch if velocity is past threshold
       LDY #2                      ; SLOW_FALL_SPEED offset
+      JMP @decelerate
     @newly_fast:                  ; for first times using fast falling set flag
       LDA playerFlags             ; updates the flag to save cpu cycles
       AND #%01111111
@@ -194,7 +191,7 @@
       .BYTE <Jump::SLOW_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
     .ENDPROC
 
-    .PROC apply_velocity_y ; 6502 handles negative values automatically
+    .PROC apply_velocity_y ; add current velocity to the position
       CLC
       LDA velocityY     ; low byte
       ADC positionY     ; add signed velocity low
@@ -253,9 +250,8 @@
     .ENDPROC
 
     .PROC accelerate_x
-        ;NOTE this check is probably wastes cpu cycles being at the beginning of this subroutine
-          ;but it makes it less complicated
         ; Having a target of 0 (holding nothing) in air will not slow you down
+        ;NOTE probably inneficient to check this first
       LDA targetVelocityX         
       ORA targetVelocityX+1
       BNE @accelerate             ;branch if target is not zero
@@ -284,11 +280,11 @@
       STA $04
       LDA #>TEST_ACC
       STA $05
-      
-        ; check sign of difference
+       ; all of that is temp ====================================================================================
+
+        ; check sign of velocity difference
       BIT $03
       BPL @apply_acceleration ; if the difference is positive, accelerate to the right
-
         ; invert the acceleration if we're accelerating left
       SEC
       LDA #0
@@ -299,7 +295,7 @@
       STA $05
 
     @apply_acceleration:
-        ;add teh acceleration to the velocity
+        ; add the acceleration to the velocity
       CLC
       LDA velocityX
       ADC $04
@@ -307,13 +303,31 @@
       LDA velocityX+1
       ADC $05
       STA velocityX+1
+
+        ; recompute updated difference between velocity and target
+      SEC
+      LDA targetVelocityX
+      SBC velocityX
+      STA $06                 ; storing stuff like this is for debugging mostly, it uses cycles so if i need performance, remove
+      LDA targetVelocityX+1
+      SBC velocityX+1
+      STA $07
+        ; if the sign of the difference has flipped, then velocity was overshot
+      EOR $03
+      BPL @done
+        ; clamp to the target on overshoot
+      LDA targetVelocityX
+      STA velocityX
+      LDA targetVelocityX+1
+      STA velocityX+1
+
     @done:
       RTS
     .ENDPROC
-    TEST_ACC = $0001 ; temp ====================================================================================================== 
+    TEST_ACC = $0003 ; temp ====================================================================================================== 
 
     .PROC apply_velocity_x
-        ; simple 16 bit addition
+        ; adds the velocity to the position, simple 16 bit addition
       CLC
       LDA positionX
       ADC velocityX
@@ -341,7 +355,6 @@
       JSR update_sprite_position
       RTS
     .ENDPROC
-
 
     .PROC update_sprite_position
       LDA spriteX
