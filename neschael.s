@@ -56,7 +56,6 @@ game_loop:
   JSR Player::Movement::update
   JSR Player::Sprite::update
 
-
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
   BIT gameFlags
@@ -66,9 +65,7 @@ game_loop:
 .ENDPROC
 
 ; Temporary includes
-.INCLUDE "lib/sprite/basic_movement.s"
 .INCLUDE "data/background/background.inc" ; this will be redone when scrolling is a thing
-
 
 ; Palette data
 .SEGMENT "PALETTE"

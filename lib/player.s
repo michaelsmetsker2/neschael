@@ -3,9 +3,6 @@
 ; lib/player.s
 ;
 ; this handles the players movement
-;1010000011101100
-
-;reminder, may need to worry about walking off platforms
 
 .SCOPE Player
     ; --- Memory constants ---
@@ -277,7 +274,6 @@
       LDA playerFlags
       ORA #%10000000               ; set the holding jump flag
       STA playerFlags
-
         ; add vertical velocity
       LDA #<Jump::INITIAL_VELOCITY ; update vertical velocity
       STA velocityY
@@ -286,6 +282,11 @@
       LDA #MotionState::Airborne   ; set motionState to airborne
       STA motionState
     @horizontal_boost:
+        ; don't apply horizontal boost if the player is standstill
+      LDA velocityX
+      BEQ @airborne 
+      LDA velocityX+1
+      BEQ @airborne
         ; add vertical velocity boost in heading direction
       LDA #<Jump::HORIZONRAL_BOOST
       STA $07

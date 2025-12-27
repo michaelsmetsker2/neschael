@@ -20,6 +20,37 @@
   STA _PPUADDR       ; high byte of VRAM address
   STA _PPUADDR       ; low byte of VRAM address
 
+  
+  INC scroll
+swap_check:
+  LDA scroll
+  BNE check_done ; load nametable
+swap:
+  LDA nametable
+  EOR #$01 ; flip
+  STA nametable  
+
+check_done:
+  STA _PPUSCROLL ; increment horizontal scroll
+  LDA #$00
+  STA _PPUSCROLL ; no verticle scrolling
+
+
+
+
+
+    ;macro will be outdated with the introduction of nametable swapping
+  ;EnableVideoOutput ; incase it was turned off for updating vram
+
+  ;;This is the PPU clean up section, so rendering the next frame starts properly.
+  LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+  ORA nametable    ; select correct nametable for bit 0
+  STA _PPUCTRL
+  
+  LDA #%00011110   ; enable sprites, enable background, no clipping on left side
+  STA _PPUMASK
+
+
   UnsetRenderFlag
 
 drop_frame:

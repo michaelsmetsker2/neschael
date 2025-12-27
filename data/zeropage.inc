@@ -15,5 +15,9 @@
   gameFlags:   .res 1
   
       ; use buttom masks to see what is held
-  btnPressed:  .res 1  ; New button presses this frame
-  btnDown:     .res 1  ; All buttons currently being pressed
+  btnPressed:   .res 1  ; New button presses this frame
+  btnDown:      .res 1  ; All buttons currently being pressed
+
+  nametable:    .res 1  ; which primary nametable to use, 0 or 1
+  columnNumber: .res 1  ; which column of level data to draw
+  scroll:       .res 1  ; pixel position offset of the left side of the screen 

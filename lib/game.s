@@ -7,15 +7,15 @@
 
 .SCOPE Game
 
-  ; === Initialize rendering and starting graphics ===
   .PROC init
+      ; Initialize rendering and starting graphics
     JSR load_palette_data
     JSR load_background_data  
 
   .ENDPROC
 
-  ; === read button presses from joypad 1 and find what are new presses ===
   .PROC read_joypad_1
+      ; read button presses from joypad 1 and find what are new presses
     LDA btnDown
     tay              ; store previousely held inputs in Y
     LDA #1
@@ -37,7 +37,7 @@
 
 .ENDSCOPE
 
-; === update the render flag so the game logic will wait on NMI ===
+; update the render flag so the game logic will wait on NMI
 .MACRO SetRenderFlag
   LDA #%10000000
   ORA gameFlags
