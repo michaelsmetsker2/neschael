@@ -14,9 +14,11 @@
 .ENDMACRO
 
 .MACRO EnableVideoOutput
-  LDA #%10010000  ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+  LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+  ORA nametable    ; select correct nametable for bit 0
   STA _PPUCTRL
-  LDA #%00011110  ; enable sprites, enable background, no clipping on left side
+  
+  LDA #%00011110   ; enable sprites, enable background, no clipping on left side
   STA _PPUMASK
 .ENDMACRO
 
@@ -46,28 +48,29 @@
   RTS
 .ENDPROC 
 
+  ; fills the starting nametable with background tiles 
 .PROC initialize_nametables
+  LDA #$01
+  STA nametable     ; draw_column draws to hidden nametable, so flip the current on to draw to it
   LDA #$00
-  STA nametable
-  LDA #$00
-  STA scroll
-  STA columnNumber
+  STA scroll        ; reset scroll
+  STA columnNumber  ; start from the biginning column
 @loop:
   JSR draw_column
   LDA scroll
   CLC
-  ADC #$08         ; increment to next column
-  STA scroll
-  INC columnNumber ; increment column number
+  ADC #$08
+  STA scroll        ; increment to next column
+  INC columnNumber  ; increment column number
   LDA columnNumber
   CMP #$20
-  BNE @loop        ; draw 32 rows (the whole nametable)
+  BNE @loop         ; draw 32 rows (width of the screen)
 
     ; draw the first column of the second nametable
-  LDA #$01
+  LDA #$00          ; set the original nametable to current
   STA nametable
   LDA #$00
-  STA scroll
+  STA scroll        ; clear scroll
   JSR draw_column
   INC columnNumber
 
@@ -77,6 +80,7 @@
 .ENDPROC
 
 .PROC initialize_attributes
+  RTS  ; temporarily disabled ================================================================================================
 
   LDA #$00
   STA nametable
@@ -110,42 +114,41 @@ InitializeAttributesLoop:
 
 
 ; temp ========================================================
-columnLow = $00        ; points to the start of the address in ppu to draw to     
-columnHigh = $01
-sourceLow = $02        ; points to the start of the tile data in rom
-sourceHigh = $03
+columnLow = $05        ; points to the start of the address in ppu to draw to     
+columnHigh = $06
+sourceLow = $07        ; points to the start of the tile data in rom
+sourceHigh = $08
 
 .PROC draw_column
-  ; drawsa  new collumn directly offscreen to the right
+  ; draws  new collumn directly offscreen to the right
   LDA scroll       ; find the PPU address of the new column's start
   LSR A
   LSR A
   LSR A            ; shift right 3 times to devide by 8 (tile width)
   STA columnLow    ; $00 to $1F, screen is 32 tiles wide
 
-  LDA nametable    ; find the high bit using the current nametable
-  EOR #$01         ; flip bit
+  LDA nametable    ; find the high byte (the nametable we are drawing to)
+  EOR #$01         ; flip bit of the current nametable
   ASL A
   ASL A            ; shift up to $00 or $04
   CLC 
   ADC #$20         ; add high byte of ase nametable adress ($2000)
   STA columnHigh   ; so high byte should be $20 or $24
 
-  LDA columnNumber ; columnNumber * 32 is column data offset (in row column form)
-  
+  LDA columnNumber ; columnNumber * 32 is the column's offset in the tile data
   ASL A
   ASL A
   ASL A
   ASL A
   ASL A             
-  STA sourceLow
+  STA sourceLow      ; 210-----
   LDA columnNumber
   LSR A
   LSR A
   LSR A
-  STA sourceHigh
+  STA sourceHigh     ; ---76543
   
-  LDA sourceLow       ; column data start + offset = address to load column data from
+  LDA sourceLow      ; start of teh tile data + offset = address to load column data from
   CLC 
   ADC #<canvas
   STA sourceLow
@@ -157,11 +160,11 @@ DrawColumn:
   LDA #%00000100        ; set to increment +32 mode
   STA _PPUCTRL
   
-  LDA _PPUSTATUS             ; read PPU status to reset the high/low latch
+  LDA _PPUSTATUS        ; read PPU status to reset the high/low latch
   LDA columnHigh
-  STA _PPUADDR             ; write the high byte of column address
+  STA _PPUADDR          ; write the high byte of column address
   LDA columnLow
-  STA _PPUADDR             ; write the low byte of column address
+  STA _PPUADDR          ; write the low byte of column address
   LDX #$1E              ; copy 30 bytes
   LDY #$00
 DrawColumnLoop:

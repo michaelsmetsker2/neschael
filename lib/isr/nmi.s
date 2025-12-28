@@ -9,6 +9,30 @@
   BIT gameFlags 
   BPL drop_frame       ; return early if game logic hasn't been updated yet (drop frame)
   
+  INC scroll ; temp, increments the horizontal scroll by one pixel ===========================
+
+swap_check:      ; check to see if the scroll has reached the end of the nametables, if so swap them
+  LDA scroll
+  BNE check_done ; load nametable
+swap:
+  LDA nametable
+  EOR #$01       ; flip
+  STA nametable  
+check_done:
+
+  NewColumnCheck:
+    LDA scroll
+    AND #%00000111            ; throw away higher bits to check for multiple of 8
+    BNE NewColumnCheckDone    ; done if lower bits != 0
+    JSR draw_column           ; if lower bits = 0, draw a new column
+    
+    lda columnNumber
+    clc
+    adc #$01             ; go to next column
+    and #%01111111       ; only 128 columns of data, throw away top bit to wrap
+    sta columnNumber
+  NewColumnCheckDone:
+
     ; Refresh DRAM-stored sprite data before it decays.
   LDA     #$00
   STA     _OAMADDR               ; Set the low byte (00) of the RAM address
@@ -21,60 +45,13 @@
   STA _PPUADDR       ; high byte of VRAM address
   STA _PPUADDR       ; low byte of VRAM address
 
-  
-  INC scroll
-swap_check:
   LDA scroll
-  BNE check_done ; load nametable
-swap:
-  LDA nametable
-  EOR #$01 ; flip
-  STA nametable  
+  STA _PPUSCROLL        ; write the horizontal scroll count register
 
-check_done:
-  STA _PPUSCROLL ; increment horizontal scroll
-  LDA #$00
-  STA _PPUSCROLL ; no verticle scrolling
+  LDA #$00         ; no vertical scrolling
+  STA _PPUSCROLL
 
-
-
-
-  NewAttribCheck:
-    LDA scroll
-    AND #%00011111            ; check for multiple of 32
-    BNE NewAttribCheckDone    ; if low 5 bits = 0, time to write new attribute bytes
-    jsr draw_new_attributes
-  NewAttribCheckDone:
-
-
-  NewColumnCheck:
-    LDA scroll
-    AND #%00000111            ; throw away higher bits to check for multiple of 8
-    BNE NewColumnCheckDone    ; done if lower bits != 0
-    JSR draw_column         ; if lower bits = 0, time for new column
-    
-    lda columnNumber
-    clc
-    adc #$01             ; go to next column
-    and #%01111111       ; only 128 columns of data, throw away top bit to wrap
-    sta columnNumber
-  NewColumnCheckDone:
-
-
-
-
-    ;macro will be outdated with the introduction of nametable swapping
-  ;EnableVideoOutput ; incase it was turned off for updating vram
-
-  ;;This is the PPU clean up section, so rendering the next frame starts properly.
-  LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
-  ORA nametable    ; select correct nametable for bit 0
-  STA _PPUCTRL
-  
-  LDA #%00011110   ; enable sprites, enable background, no clipping on left side
-  STA _PPUMASK
-
-
+  EnableVideoOutput ; incase it was turned off for updating vram
   UnsetRenderFlag
 
 drop_frame:

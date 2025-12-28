@@ -47,6 +47,7 @@
 .INCLUDE "lib/player.s"
 
 .PROC main
+    ; initialize basic systems and enable visuals
   JSR Game::init
   JSR Player::init
   EnableVideoOutput
@@ -65,7 +66,6 @@ game_loop:
 .ENDPROC
 
 ; Temporary includes
-.INCLUDE "data/background/background.inc" ; this will be redone when scrolling is a thing
 .INCLUDE "data/background/canvas.asm"
 
 ; Palette data
