@@ -4,6 +4,7 @@
 ;
 ; non maskable interrupt, this is called during vblank and is where graphis are updated
 ;
+
 .PROC ISR_NMI
   BIT gameFlags 
   BPL drop_frame       ; return early if game logic hasn't been updated yet (drop frame)
@@ -35,6 +36,29 @@ check_done:
   LDA #$00
   STA _PPUSCROLL ; no verticle scrolling
 
+
+
+
+  NewAttribCheck:
+    LDA scroll
+    AND #%00011111            ; check for multiple of 32
+    BNE NewAttribCheckDone    ; if low 5 bits = 0, time to write new attribute bytes
+    jsr draw_new_attributes
+  NewAttribCheckDone:
+
+
+  NewColumnCheck:
+    LDA scroll
+    AND #%00000111            ; throw away higher bits to check for multiple of 8
+    BNE NewColumnCheckDone    ; done if lower bits != 0
+    JSR draw_column         ; if lower bits = 0, time for new column
+    
+    lda columnNumber
+    clc
+    adc #$01             ; go to next column
+    and #%01111111       ; only 128 columns of data, throw away top bit to wrap
+    sta columnNumber
+  NewColumnCheckDone:
 
 
 

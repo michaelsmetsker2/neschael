@@ -66,6 +66,7 @@ game_loop:
 
 ; Temporary includes
 .INCLUDE "data/background/background.inc" ; this will be redone when scrolling is a thing
+.INCLUDE "data/background/canvas.asm"
 
 ; Palette data
 .SEGMENT "PALETTE"

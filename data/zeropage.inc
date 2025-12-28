@@ -1,9 +1,6 @@
 .SEGMENT "ZEROPAGE"
 ; --- scratch data $00-$1F --------------------------------------------------------
-  SCRATCH: .res 30
-  POINTER_LOW:  .res 1   ; General purpose 16bit pointer low and high bits
-  POINTER_HIGH: .res 1
-
+  SCRATCH: .res 32
 ; --- player data $20-2F ----------------------------------------------------------
   PLAYER_DATA: .res 32    ; includes player states and animations, see lib/player.s
 

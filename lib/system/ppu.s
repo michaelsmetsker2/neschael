@@ -20,7 +20,7 @@
   STA _PPUMASK
 .ENDMACRO
 
-; waits for the vblank flag, this is slightly inconsist and and
+; waits for the vblank flag, this is slightly inconsist and
   ; NMI should be used instead
 .PROC wait_for_vblank
   @vblank_wait_loop:
@@ -46,36 +46,10 @@
   RTS
 .ENDPROC 
 
-.PROC load_background_data ; loads all starting background name and attribute tables
-  LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
-  LDA #$20
-  STA _PPUADDR             ; write high and low bytes of address  $2000 
-  LDa #$00
-  STA _PPUADDR
-  
-  LDA #<background         ; point to address of background label
-  STA POINTER_LOW
-  LDA #>background
-  STA POINTER_HIGH
-  LDX #$00
-  LDY #$00
-@loop:
-  LDA (POINTER_LOW),Y      ; copy one background/attribute byte from address in pointer + Y
-  STA _PPUDATA             ; runs 256*4 times
-  INY                      ; inside loop counter / byte offset
-  CPY #$00                
-  BNE @loop         ; run inside loop 256 times before continuing
-  INC POINTER_HIGH         ; increment high byte
-  INX                      ; increment outside loop counter
-  CPX #$08                 ; needs to happen $04 times, to copy 1KB data
-  BNE @loop
-  RTS
-
-.ENDPROC
-
 .PROC initialize_nametables
   LDA #$00
   STA nametable
+  LDA #$00
   STA scroll
   STA columnNumber
 @loop:
@@ -102,6 +76,39 @@
   RTS
 .ENDPROC
 
+.PROC initialize_attributes
+
+  LDA #$00
+  STA nametable
+  LDA #$00
+  STA scroll
+  STA columnNumber
+InitializeAttributesLoop:
+  JSR draw_new_attributes     ; draw attribs
+  LDA scroll                ; go to next column
+  CLC
+  ADC #$20
+  STA scroll
+
+  LDA columnNumber      ; repeat for first nametable 
+  CLC 
+  ADC #$04
+  STA columnNumber
+  CMP #$20
+  BNE InitializeAttributesLoop
+  
+  LDA #$00
+  STA nametable
+  LDA #$00
+  STA scroll
+  JSR draw_new_attributes     ; draw first column of second nametable
+
+  LDA #$21
+  STA  columnNumber
+  RTS
+.ENDPROC
+
+
 ; temp ========================================================
 columnLow = $00        ; points to the start of the address in ppu to draw to     
 columnHigh = $01
@@ -124,7 +131,7 @@ sourceHigh = $03
   ADC #$20         ; add high byte of ase nametable adress ($2000)
   STA columnHigh   ; so high byte should be $20 or $24
 
-  LDA columnNumber ; columnNumber * 32 is column data offset
+  LDA columnNumber ; columnNumber * 32 is column data offset (in row column form)
   
   ASL A
   ASL A
@@ -140,26 +147,26 @@ sourceHigh = $03
   
   LDA sourceLow       ; column data start + offset = address to load column data from
   CLC 
-  ADC #LOW(columnData)
+  ADC #<canvas
   STA sourceLow
   LDA sourceHigh
-  ADC #HIGH(columnData)
+  ADC #>canvas
   STA sourceHigh
 
 DrawColumn:
   LDA #%00000100        ; set to increment +32 mode
-  STA $2000
+  STA _PPUCTRL
   
-  LDA $2002             ; read PPU status to reset the high/low latch
+  LDA _PPUSTATUS             ; read PPU status to reset the high/low latch
   LDA columnHigh
-  STA $2006             ; write the high byte of column address
+  STA _PPUADDR             ; write the high byte of column address
   LDA columnLow
-  STA $2006             ; write the low byte of column address
+  STA _PPUADDR             ; write the low byte of column address
   LDX #$1E              ; copy 30 bytes
   LDY #$00
 DrawColumnLoop:
-  LDA [sourceLow], y
-  STA $2007
+  LDA (sourceLow), y
+  STA _PPUDATA
   INY
   DEX
   BNE DrawColumnLoop
@@ -167,5 +174,71 @@ DrawColumnLoop:
   RTS
   
 .ENDPROC
+
+.PROC draw_new_attributes
+
+  LDA nametable
+  EOR #$01          ; invert low bit, A = $00 or $01
+  ASL A             ; shift up, A = $00 or $02
+  ASL A             ; $00 or $04
+  CLC
+  ADC #$23          ; add high byte of attribute base address ($23C0)
+  STA columnHigh    ; now address = $23 or $27 for nametable 0 or 1
+  
+  LDA scroll
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  CLC
+  ADC #$C0
+  STA columnLow     ; attribute base + scroll / 32
+
+  LDA columnNumber  ; (column number / 4) * 8 = column data offset
+  AND #%11111100
+  ASL A
+  STA sourceLow
+  LDA columnNumber
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  STA sourceHigh
+  
+  LDA sourceLow       ; column data start + offset = address to load column data from
+  CLC 
+  ADC #<attrib_data
+  STA sourceLow
+  LDA sourceHigh
+  ADC #>attrib_data
+  STA sourceHigh
+
+  LDY #$00
+  LDA $2002             ; read PPU status to reset the high/low latch
+DrawNewAttributesLoop:
+  LDA columnHigh
+  STA $2006             ; write the high byte of column address
+  LDA columnLow
+  STA $2006             ; write the low byte of column address
+  LDA (sourceLow), y    ; copy new attribute byte
+  STA $2007
+  
+  INY
+  CPY #$08              ; copy 8 attribute bytes
+  BEQ DrawNewAttributesLoopDone
+  
+  LDA columnLow         ; next attribute byte is at address + 8
+  CLC
+  ADC #$08
+  STA columnLow
+  JMP DrawNewAttributesLoop
+DrawNewAttributesLoopDone:
+  RTS
+.ENDPROC
+
 
 ; End of lib/shared_code/ppu.s

@@ -1,4 +1,10 @@
+# rom stuff
 *.nes
 *.deb
+
+# build stuff
 *.out
 bin/*
+
+# local file system stuff
+make.bat
