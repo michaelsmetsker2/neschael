@@ -6,7 +6,7 @@
 ;
 
 
-; enables and disable various rendering flags
+  ; enables and disable various rendering flags
 .MACRO DisableVideoOutput
   LDA #%00000000
   STA _PPUCTRL    ; disable NMI
@@ -22,6 +22,16 @@
   STA _PPUMASK
 .ENDMACRO
 
+  ; Refresh DRAM-stored sprite data before it decays.
+    ; sprites are copies from memory $0200
+.MACRO SpriteDMA
+  LDA     #$00
+  STA     _OAMADDR               ; Set the low byte (00) of the RAM address
+  LDA     #$02
+  STA     _OAMDMA                ; set the high byte (02) of the RAM address
+                                  ; This automatically starts the transfer
+.ENDMACRO
+
 ; waits for the vblank flag, this is slightly inconsist and
   ; NMI should be used instead
 .PROC wait_for_vblank
@@ -31,7 +41,7 @@
   RTS
 .ENDPROC
 
-; loads color and position information to RAM
+  ; loads color and position information to RAM
 .PROC load_palette_data
   LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
   LDA #$3F

@@ -6,8 +6,9 @@
 ;
 
 .PROC ISR_NMI
-  BIT gameFlags 
-  BPL drop_frame       ; return early if game logic hasn't been updated yet (drop frame)
+    ; return early if game logic hasn't been updated yet (drop frame)
+  BIT gameFlags
+  BPL drop_frame       
   
   INC scroll ; temp, increments the horizontal scroll by one pixel ===========================
 
@@ -20,35 +21,34 @@ swap:
   STA nametable  
 check_done:
 
-  NewColumnCheck:
-    LDA scroll
-    AND #%00000111            ; throw away higher bits to check for multiple of 8
-    BNE NewColumnCheckDone    ; done if lower bits != 0
-    JSR draw_column           ; if lower bits = 0, draw a new column
-    
-    lda columnNumber
-    clc
-    adc #$01             ; go to next column
-    and #%01111111       ; only 128 columns of data, throw away top bit to wrap
-    sta columnNumber
-  NewColumnCheckDone:
 
-    ; Refresh DRAM-stored sprite data before it decays.
-  LDA     #$00
-  STA     _OAMADDR               ; Set the low byte (00) of the RAM address
-  LDA     #$02
-  STA     _OAMDMA                ; set the high byte (02) of the RAM address
-                                  ; This automatically starts the transfer
+NewColumnCheck:
+  LDA scroll
+  AND #%00000111            ; throw away higher bits to check for multiple of 8
+  BNE NewColumnCheckDone    ; done if lower bits != 0
+  JSR draw_column           ; if lower bits = 0, draw a new column
+  
+  lda columnNumber
+  clc
+  adc #$01             ; go to next column
+  and #%01111111       ; only 128 columns of data, throw away top bit to wrap
+  sta columnNumber
+NewColumnCheckDone:
+
+
+
+
+  SpriteDMA          ; refresh sprites
 
   BIT _PPUSTATUS     ; reset VBlank flag & PPU latch
-  LDA #$00
-  STA _PPUADDR       ; high byte of VRAM address
-  STA _PPUADDR       ; low byte of VRAM address
+  LDA #$00           ; reset VRAM address pointer
+  STA _PPUADDR       ; high byte
+  STA _PPUADDR       ; low byte
 
+set_scroll:          ; set the scroll as writes to VRAM will offest it
   LDA scroll
-  STA _PPUSCROLL        ; write the horizontal scroll count register
-
-  LDA #$00         ; no vertical scrolling
+  STA _PPUSCROLL
+  LDA #$00
   STA _PPUSCROLL
 
   EnableVideoOutput ; incase it was turned off for updating vram

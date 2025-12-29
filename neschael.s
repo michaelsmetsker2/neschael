@@ -12,23 +12,25 @@
 ;-------------------------------------------------------------------------------
 ; System Memory Map
 ;-------------------------------------------------------------------------------
-; $00-$1F:    Subroutine Scratch Memory
-;             Volatile Memory used for parameters, return values, and temporary
-;             / scratch data.
-; $20-$FF:    The Remainder of the zero page is reserved for high I/O
-;             variables, see data/zeropage.inc
+; $00-$1F:      Subroutine Scratch Memory
 ;-------------------------------------------------------------------------------
-; $100-$1FF:  The Stack
+; $20-$FF:      Reserved for high I/O variables, see data/zeropage.inc
 ;-------------------------------------------------------------------------------
-; $200-$2FF:  OAM Sprite Memory
+; $0100-$01FF:  The Stack
 ;-------------------------------------------------------------------------------
-; $300-$7FF:  General Purpose RAM
+; $0200-$02FF:  OAM Sprite Memory
 ;-------------------------------------------------------------------------------
-.INCLUDE "data/zeropage.inc"
+; $0300-$034D:  Horizontal scroll buffer, see data/scrollBuffer.inc
+;-------------------------------------------------------------------------------
+; $034E-$07FF:  General Purpose RAM
+;-------------------------------------------------------------------------------
+.INCLUDE "data/zeropage.inc"     ; a more detailed map of the zeropage, and constants
+.INCLUDE "data/scrollBuffer.inc"
 
 ; =================================================================================================
 ;  ROM (PRG) Data
 ; =================================================================================================
+
 .SEGMENT "CODE"
 
   ; system related subroutines constants and macros
@@ -65,7 +67,7 @@ game_loop:
   RTS                   ; shouldn't ever get called
 .ENDPROC
 
-; Temporary includes
+; Temporary includes ===========================================================================
 .INCLUDE "data/background/canvas.asm"
 
 ; Palette data
@@ -81,7 +83,7 @@ game_loop:
 .INCBIN "data/tiles/neschael.chr"
 
 .SEGMENT "VECTORS"
-; Addresses must be in this order
+  ; Addresses for interrupts, must be in this order
 .WORD ISR_NMI
 .WORD isr_reset
 .WORD isr_custom
