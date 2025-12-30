@@ -127,8 +127,8 @@ _PPUSCROLL  = $2005         ; Reference: https://wiki.nesdev.com/w/index.php/PPU
 ; ------+-----+---------------------------------------------------------------
 ; $2006 | W   | PPU Memory Address
 ;       |     | Used to set the address of PPU Memory to be accessed via
-;       |     | $2007. The first write to this register will set 8 lower
-;       |     | address bits. The second write will set 6 upper bits. The
+;       |     | $2007. The first write to this register will set 6 upper adress
+;       |     | bits. The second write will set 8 lower bits.
 ;       |     | address will increment either by 1 or by 32 after each
 ;       |     | access to $2007.
 ; ------+-----+---------------------------------------------------------------

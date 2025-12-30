@@ -14,8 +14,9 @@
 
 ; --- game data $40-$FF -----------------------------------------------------------
       ; gameFlags holds major flags for the state of the Game
-      ; bit 0-6: unused
-      ; bit 7:   renderFlag, indivates that state updates are complete and vram can be updated
+      ; bit 0-5: unused
+      ; bit 6:   drawFlag, set when data from the scroll buffer should be copied to VRAM next NMI
+      ; bit 7:   renderFlag, indicates that logic is complete and vram can be updated
   gameFlags:   .res 1
   
       ; use buttom masks to see what is held

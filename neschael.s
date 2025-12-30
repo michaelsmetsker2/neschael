@@ -25,7 +25,7 @@
 ; $034E-$07FF:  General Purpose RAM
 ;-------------------------------------------------------------------------------
 .INCLUDE "data/zeropage.inc"     ; a more detailed map of the zeropage, and constants
-.INCLUDE "data/scrollBuffer.inc"
+.INCLUDE "data/scrollBuff.inc"
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -34,26 +34,24 @@
 .SEGMENT "CODE"
 
   ; system related subroutines constants and macros
-.INCLUDE "lib/system/cpu.s"
-.INCLUDE "lib/system/apu.s"
 .INCLUDE "lib/system/ppu.inc"  ; only constants 
 .INCLUDE "lib/system/ppu.s"
+.INCLUDE "lib/system/cpu.s"
+.INCLUDE "lib/system/apu.s"
 
+  ; main libraries
 .INCLUDE "lib/game.s"
-
-; Interrupt service routines
-.INCLUDE "lib/isr/reset.s"
-.INCLUDE "lib/isr/nmi.s"
-.INCLUDE "lib/isr/custom.s"
-
 .INCLUDE "lib/player.s"
+.INCLUDE "lib/scrolling.s"
 
+  ; main entry point after the syste from reset interrupt
 .PROC main
     ; initialize basic systems and enable visuals
   JSR Game::init
   JSR Player::init
   EnableVideoOutput
 
+  ; the main game loop
 game_loop:
   JSR Game::read_joypad_1
   JSR Player::Movement::update
@@ -63,9 +61,15 @@ game_loop:
 @wait_for_render:       ; Loop until NMI has finished for the current frame
   BIT gameFlags
   BMI @wait_for_render
+
   JMP game_loop
   RTS                   ; shouldn't ever get called
 .ENDPROC
+
+; Interrupt service routines
+.INCLUDE "lib/isr/reset.s"
+.INCLUDE "lib/isr/nmi.s"
+.INCLUDE "lib/isr/custom.s"
 
 ; Temporary includes ===========================================================================
 .INCLUDE "data/background/canvas.asm"
