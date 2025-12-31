@@ -8,14 +8,16 @@
 
 .SCOPE scrolling
 
-
 .ENDSCOPE
 
-  ; These are macros to be used in NMI, subroutines have more overhead
-.MACRO drawOffscreenTiles
+; ==============================================================================
+; These macros are to be used in NMI to draw from the buffer
+; ==============================================================================
+
+.MACRO DrawOffscreenTiles
     ; copy uncompressed nametable data to the PPU at the correct memory location
 
-    ; this causes slight inneficiency later when reseting _PPUCTRL
+    ; TODO this causes slight inneficiency later when reseting _PPUCTRL
   LDA #%00000100        ; set to increment +32 mode
   STA _PPUCTRL
 
@@ -23,12 +25,12 @@
     ; set the PPU to write to the correct nametable and the top of the left column
   LDA ScrollBuffer::addrHigh
   STA _PPUADDR
-  LDA SCrollBuffer::addrLowLeft
+  LDA ScrollBuffer::addrLowLeft
   STA _PPUADDR
 
   LDY #$00
 @left_loop: ; loop through the whole column
-  LDA ScrollBuffer::colLeft,Y
+  LDA ScrollBuffer::colLeft, y
   STA _PPUDATA
   INY
 
@@ -38,12 +40,12 @@
      ; set the PPU to write to the correct nametable and the top of the right column
   LDA ScrollBuffer::addrHigh
   STA _PPUADDR
-  LDA SCrollBuffer::addrLowRight
+  LDA ScrollBuffer::addrLowRight
   STA _PPUADDR
 
   LDY #$00
-@left_loop: ; loop through the whole column
-  LDA ScrollBuffer::colRight,Y
+@right_loop: ; loop through the whole column
+  LDA ScrollBuffer::colRight, y
   STA _PPUDATA
   INY
 
@@ -52,8 +54,34 @@
 
 .ENDMACRO
 
-.MACRO drawOffscreenAttributes
-    ; copy uncompressed attribute data to the PPU at the correct memory location
+.MACRO DrawOffscreenAttributes
+  ; copy uncompressed attribute data to the PPU at the correct memory location
+
+    ; derive the attribute collumn offset from the tile column offset
+  LDA ScrollBuffer::addrLowLeft ; left or right, doesn't matter data is truncated
+  AND #%00011111                ; keep only the tile x, 0-31
+  LSR
+  LSR
+    
+  CLC
+  ADC ATTRIBUTE_TABLE_OFFSET ; add the low byte of the attribute table
+  
+  LDY #$00
+
+  LDX ScrollBuffer::addrHigh ; nametable high byte
+@loop:
+  STX _PPUADDR
+
+  STA _PPUADDR ; low byte offset
+  CLC
+  ADC #$08
+
+  LDA ScrollBuffer::attribute, y
+  STA _PPUDATA
+  INY
+
+  CPY #$08
+  BNE @loop
 
 .ENDMACRO
 

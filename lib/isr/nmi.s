@@ -8,8 +8,10 @@
 .PROC ISR_NMI
 
   BIT gameFlags
-  BPL drop_frame ; renderFlag is clear, game logic hasn't been updated yet, return early
-  
+  BMI @continue ; return early if logic hasn't finished this frame (drop frame)
+  RTI
+@continue:
+
   INC scroll ; temp, increments the horizontal scroll by one pixel =================================================================
 
 ;TODO make logic actually work in more than this single insance =============================================================
@@ -26,11 +28,14 @@ check_done:
   BVC skip_draw   ; drawFlag is clear, skip drawing
   
     ; Copy the data from the scrolling buffer to the PPU
-  drawOffscreenTiles
-  drawOffscreenAttributes
-  EnableVideoOutput
+      ; Macros are defined in data/scrolling.s
+  DrawOffscreenTiles
+  DrawOffscreenAttributes
+
+  EnableVideoOutput ; resets the ppu draw thing to 1 byte (inneficient?)
 skip_draw:
 
+;TEMP================================================================================
 NewColumnCheck:
   LDA scroll
   AND #%00000111            ; throw away higher bits to check for multiple of 8
@@ -43,6 +48,7 @@ NewColumnCheck:
   and #%01111111       ; only 128 columns of data, throw away top bit to wrap
   sta columnNumber
 NewColumnCheckDone:
+;TEMP================================================================================
 
   SpriteDMA          ; refresh sprites
 
@@ -60,7 +66,6 @@ set_scroll:          ; set the scroll as writes to VRAM will offest it
   EnableVideoOutput ; incase it was turned off for updating vram
   UnsetRenderFlag ; THIS IS a duplicate macro call, temp ======================
 
-drop_frame:
   RTI                             ; Return from interrupt 
 .ENDPROC
 
