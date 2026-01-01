@@ -5,11 +5,13 @@
 ; Horizontal scroll buffer, this section of ram will contain uncompressed background data proccessed out of VBLANK to
 ; be copied to VRAM during NMI.
 ;
-  ATTRIBUTE_TABLE_OFFSET = $C0
-  COLUMN_LENGTH          = $1E
+
+  COLUMN_LENGTH          = $1E  ; the amount of tiles per the column
+  ATTRIBUTE_TABLE_OFFSET = $C0  ; the low byte offset for the start of the attribute table relative to the
+                                  ; start of the nametable
+
 .SEGMENT "SCROLL_BUFF"
 .SCOPE ScrollBuffer
-
 
 		; addresses in the ppu to place the top tile of each column
 			; both left and right addresses are needed as the NMI doesnt know what way we are scrolling

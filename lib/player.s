@@ -17,15 +17,13 @@
     ; Screen location
   spriteX           = $2A   ; Unsigned Screen Coordinates
   spriteY           = $2B   ; Unsigned Screen Coordinates 
-    ; world position
-  scrollX           = $2C   ; Unisgned Fixed point 16.8
 
-  motionState       = $2F   ; See `.ENUM MotionState`
+  motionState       = $2C   ; See `.ENUM MotionState`
 
-  animationFrame    = $30
-  animationTimer    = $31
+  animationFrame    = $2D
+  animationTimer    = $2E
 
-  playerFlags       = $32   ; holds various player flags in various bit positions
+  playerFlags       = $2F   ; holds various player flags in various bit positions
                             ; 0-5 unused 
                             ; 6   heading, 0 for right, 1 for left
                             ; 7   if the player has been holding A since the start of the jump
@@ -187,15 +185,13 @@
       ORA $02             ; exit if the player is at the target velocity
       BEQ @done
 
-        ; here we would determing what acceleration values to actually use depending on the surface
-        ; we would use a lookup table
-    
+        ; TODO here we would determing what acceleration values to actually use depending on the surface
         ;and we would load the correct accecleration bytes into memory
       LDA #<TEST_ACC
       STA $04
       LDA #>TEST_ACC
       STA $05
-       ; all of that is temp ====================================================================================
+       ; TODO all of that is temp ====================================================================================
 
         ; check sign of velocity difference
       BIT $03
@@ -392,10 +388,22 @@
     .PROC update
       ;JSR update_motion_state
       ;JSR update_animation_frame
-      ;JSR update_heading
+      JSR update_heading
       ;JSR update_sprite_tiles
       JSR update_sprite_position
       RTS
+    .ENDPROC
+
+
+    .PROC update_heading
+        ; heading is already set during x movement
+      LDA playerFlags
+      AND #%01000000
+      STA $0B
+      LDA $0200 + _OAM_ATTR
+      AND #%10111111
+      ORA $0B
+      STA $0200 + _OAM_ATTR
     .ENDPROC
 
     .PROC update_sprite_position
