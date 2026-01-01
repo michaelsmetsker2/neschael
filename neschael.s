@@ -73,6 +73,7 @@ game_loop:
 
 ; Temporary includes ===========================================================================
 .INCLUDE "data/background/canvas.asm"
+.INCLUDE "data/background/testLevel.inc"
 
 ; Palette data
 .SEGMENT "PALETTE"

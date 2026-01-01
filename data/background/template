@@ -1,0 +1,33 @@
+background_0z:
+  .WORD column0z_1,column0z_2,column0z_3,column0z_4,column0z_5,column0z_6,column0z_7,column0z_8
+  .WORD column0z_9,column0z_10,column0z_11,column0z_12,column0z_13,column0z_14,column0z_15,column0z_16
+
+column0z_1:
+column0z_2:
+column0z_3:
+column0z_4:
+column0z_5:
+column0z_6:
+column0z_7:
+column0z_8:
+column0z_9:
+column0z_10:
+column0z_11:
+column0z_12:
+column0z_13:
+column0z_14:
+column0z_15:
+column0z_16:
+
+attrib_0z:
+  .WORD a_column0z_1,a_column0z_2,a_column0z_3,a_column0z_4,a_column0z_5,a_column0z_6,a_column0z_7,a_column0z_8
+
+a_column0z_1:
+a_column0z_2:
+a_column0z_3:
+a_column0z_4:
+a_column0z_5:
+a_column0z_6:
+a_column0z_7:
+a_column0z_8:
+

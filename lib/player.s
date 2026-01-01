@@ -407,6 +407,7 @@
     .ENDPROC
 
     .PROC update_sprite_position
+        ; copies the sprite x and y variables to the players data
       LDA spriteX
       STA $0200 + _OAM_X
       LDA spriteY
