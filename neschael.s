@@ -41,7 +41,13 @@
 
   ; main libraries
 .INCLUDE "lib/game.s"
-.INCLUDE "lib/player.s"
+
+.SCOPE Player
+  .INCLUDE "lib/player/init.s"
+  .INCLUDE "lib/player/movement.s"
+  .INCLUDE "lib/player/sprite.s"
+.ENDSCOPE
+
 .INCLUDE "lib/scrolling.s"
 
   ; main entry point after the syste from reset interrupt
@@ -56,15 +62,6 @@ game_loop:
   JSR Game::read_joypad_1
   JSR Player::Movement::update
   JSR Player::Sprite::update
-
-;=============================================================================================================================
-  CLC
-  LDA screenPosX
-  ADC #01
-  STA screenPosX
-  LDA screenPosX+1
-  ADC $0
-  STA screenPosX+1
 
   ;check nametable swap
   swap_check:      ; check to see if the scroll has reached the end of the nametables, if so swap them

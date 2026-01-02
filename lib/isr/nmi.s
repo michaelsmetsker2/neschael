@@ -11,30 +11,16 @@
   BMI @continue ; return early if logic hasn't finished this frame (drop frame)
   RTI
 @continue:
+  BVC @skip_draw           ; if drawFlag is clear, skip drawing
 
-    ; Overflow flag is unneffected since the gameFlags check
-  BVC skip_draw   ; drawFlag is clear, skip drawing
-  
-    ; Copy the data from the scrolling buffer to the PPU, see lib/scrolling.s
-  DrawOffscreenTiles
-  ; TODO DrawOffscreenAttributes
+  DrawOffscreenTiles       ; copy buffer data to PPU. see lib/scrolling.s
+  DrawOffscreenAttributes
+  ResetDrawFlag
 
-  ; reset drawing flag
-    LDA gameFlags
-    AND #%10111111
-    STA gameFlags
-
-skip_draw:
-
-  SpriteDMA          ; refresh sprites
-
-  BIT _PPUSTATUS     ; reset VBlank flag & PPU latch
-  LDA #$00           ; reset VRAM address pointer
-  STA _PPUADDR       ; high byte
-  STA _PPUADDR       ; low byte
-
-  SetScroll
-
+@skip_draw:
+  SpriteDMA         ; refresh sprites
+  ResetPPUAddress
+  SetScroll         ; sets the scroll as vram writes offset it
   EnableVideoOutput ; incase it was turned off for updating vram
 
   UnsetRenderFlag

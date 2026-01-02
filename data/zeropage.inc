@@ -10,7 +10,7 @@
   SCRATCH: .res 32
 
 ; --- player data $20-3F ----------------------------------------------------------
-  PLAYER_DATA: .res 32    ; includes player states and animations, see lib/player.s
+  PLAYER_DATA: .res 32    ; includes player states and animations, see lib/player/init.s
 
 ; --- game data $40-$FF -----------------------------------------------------------
     ; gameFlags holds major flags for the state of the Game
@@ -26,8 +26,5 @@
   nametable:    .res 1  ; which primary nametable to use, 0 or 1
 
   screenPosX:   .res 2  ; 16 bit, pixel position o fthe left side of the screen relative to the world start
-
-  columnNumber: .res 1  ; which column of level data to draw
-  scroll:       .res 1  ; TODO LEGACY get rid o this.   pixel position offset of the left side of the screen 
 
 ; End of data/zeropage.inc

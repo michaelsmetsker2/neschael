@@ -21,8 +21,8 @@
   STA _PPUMASK
 .ENDMACRO
 
-  ; Refresh DRAM-stored sprite data before it decays.
-    ; sprites are copies from memory $0200
+; Refresh DRAM-stored sprite data before it decays.
+  ; sprites are copies from memory $0200
 .MACRO SpriteDMA
   LDA     #$00
   STA     _OAMADDR               ; Set the low byte (00) of the RAM address
@@ -39,7 +39,13 @@
   STA _PPUSCROLL
 .ENDMACRO
 
-
+; resets ppu flags and the vram latch
+.MACRO ResetPPUAddress
+  BIT _PPUSTATUS     ; reset VBlank flag & PPU latch
+  LDA #$00           ; reset VRAM address pointer
+  STA _PPUADDR       ; high byte
+  STA _PPUADDR       ; low byte
+.ENDMACRO
 
 ; waits for the vblank flag, this is slightly inconsist and
   ; NMI should be used instead
@@ -68,11 +74,11 @@
 .ENDPROC 
 
 .PROC initialize_nametables
-  RTS
+  RTS ;TODO
 .ENDPROC
 
 .PROC initialize_attributes
-  RTS
+  RTS ;TODO
 .ENDPROC
 
 ; End of lib/shared_code/ppu.s

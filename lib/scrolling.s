@@ -12,11 +12,9 @@
 
 .MACRO DrawOffscreenTiles
     ; copy uncompressed nametable data to the PPU at the correct memory location
-
-    ; TODO this causes slight inneficiency later when reseting _PPUCTRL
+    
   LDA #%00000100        ; set to increment +32 mode
   STA _PPUCTRL
-
   
 @left:
     ; set the PPU to write to the correct nametable and the top of the left column
@@ -48,7 +46,6 @@
 
   CPY #COLUMN_LENGTH
   BNE @right_loop
-
 .ENDMACRO
 
 .MACRO DrawOffscreenAttributes
@@ -79,7 +76,13 @@
 
   CPY #$08
   BNE @loop
+.ENDMACRO
 
+; resets the draw gameflag
+.MACRO ResetDrawFlag
+  LDA gameFlags
+  AND #%10111111
+  STA gameFlags
 .ENDMACRO
 
 ; ================================================================================================
@@ -95,7 +98,7 @@
 
   .PROC fill_scroll_buffer
 
-    ; dividing the scroll position by 16 gives the index of the current metatile
+      ; dividing the scroll position by 16 gives the index of the current metatile
     LDA screenPosX
     STA tmpMetatileIndex
     LDA screenPosX+1
@@ -180,103 +183,102 @@
   .PROC locate_tile_data
       ; update the bufferPointer to point to the location of the column we will draw to the buffer 
 
-      ; behavior depends on scroll direction
     LDA Player::velocityX+1
-    BMI @left
+    BMI @left           ; branch based on scroll direction
   @right:
 
-    ; data wil be pulled from the next background from our current on
-  LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
-  INY              ; increment as we buffer the data from the next one
-  TYA
-  ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
-  TAY
+      ; data wil be pulled from the next background from our current on
+    LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
+    INY              ; increment as we buffer the data from the next one
+    TYA
+    ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
+    TAY
 
-  LDA background_index, Y   ; load pointer to the correct background
-  STA bufferPointer
-  INY
-  LDA background_index, Y
-  STA bufferPointer+1
+    LDA background_index, Y   ; load pointer to the correct background
+    STA bufferPointer
+    INY
+    LDA background_index, Y
+    STA bufferPointer+1
 
-    ; now point to the correct metacolumn, it is the same index as our current one
-  LDA tmpMetatileIndex
-  AND #%00001111        ; mask so we get the index of our metatile relative to background
-  ASL A                 ; multiply by two to get address offset
-  TAY
+      ; now point to the correct metacolumn, it is the same index as our current one
+    LDA tmpMetatileIndex
+    AND #%00001111        ; mask so we get the index of our metatile relative to background
+    ASL A                 ; multiply by two to get address offset
+    TAY
 
-    ; point to the correct metacolumn from the background's lookup table
-  LDA (bufferPointer), Y
-  TAX
-  INY
-  LDA (bufferPointer), Y
+      ; point to the correct metacolumn from the background's lookup table
+    LDA (bufferPointer), Y
+    TAX
+    INY
+    LDA (bufferPointer), Y
 
-  STX bufferPointer
-  STA bufferPointer+1
-  
-  RTS
-@left:
-  ; were gonna pull data from the current screen unless we are at metatile index 0
-  
-  LDA tmpMetatileIndex
-  AND #%00001111        ; get index of current metatile relative to background
-  BEQ @prev_background  ; if we are at the beginning of a nametable, use the previous
-@cur_background:
-    ; use the current background
-  TAX                   ; store masked metatile position for use later
+    STX bufferPointer
+    STA bufferPointer+1
+    
+    RTS
+  @left:
+    ; were gonna pull data from the current screen unless we are at metatile index 0
+    
+    LDA tmpMetatileIndex
+    AND #%00001111        ; get index of current metatile relative to background
+    BEQ @prev_background  ; if we are at the beginning of a nametable, use the previous
+  @cur_background:
+      ; use the current background
+    TAX                   ; store masked metatile position for use later
 
-    ; use the current background
-  LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
-  ASL A                 ; * 2 to get byte offset in backgrounds lookup table
-  TAY
+      ; use the current background
+    LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
+    ASL A                 ; * 2 to get byte offset in backgrounds lookup table
+    TAY
 
-  LDA background_index, Y   ; load pointer to the current background
-  STA bufferPointer
-  INY
-  LDA background_index, Y
-  STA bufferPointer+1
+    LDA background_index, Y   ; load pointer to the current background
+    STA bufferPointer
+    INY
+    LDA background_index, Y
+    STA bufferPointer+1
 
-    ; now load pointer to the current
-  DEX                   ; decrement the metatile index as we are loading one to the left
-  TXA
-  ASL A                 ; *2 to get the byte offset for metacolumn lookup table
-  TAY
+      ; now load pointer to the current
+    DEX                   ; decrement the metatile index as we are loading one to the left
+    TXA
+    ASL A                 ; *2 to get the byte offset for metacolumn lookup table
+    TAY
 
-    ; point to the correct metacolumn from the background's lookup table
-  LDA (bufferPointer), Y
-  TAX
-  INY
-  LDA (bufferPointer), Y
+      ; point to the correct metacolumn from the background's lookup table
+    LDA (bufferPointer), Y
+    TAX
+    INY
+    LDA (bufferPointer), Y
 
-  STX bufferPointer
-  STA bufferPointer+1
+    STX bufferPointer
+    STA bufferPointer+1
 
-  RTS
-@prev_background:
-    ; use the previous backgound
-  LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background; 
-  TAX
-  DEX                   ; decrement to the previous background
-  TXA
-  ASL A                 ; *2 for byte offset in background lookup table
-  TAY
-    ; load pointer to the previous background
-  LDA background_index, Y
-  STA bufferPointer
-  INY
-  LDA background_index, Y
-  STA bufferPointer+1
+    RTS
+  @prev_background:
+      ; use the previous backgound
+    LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background; 
+    TAX
+    DEX                   ; decrement to the previous background
+    TXA
+    ASL A                 ; *2 for byte offset in background lookup table
+    TAY
+      ; load pointer to the previous background
+    LDA background_index, Y
+    STA bufferPointer
+    INY
+    LDA background_index, Y
+    STA bufferPointer+1
 
-  LDY #$20          ; last column on the background (16) * 2 is $20
-    ; point to the last column in the background
-  LDA (bufferPointer), Y
-  TAX
-  INY
-  LDA (bufferPointer), Y
+    LDY #$20          ; last column on the background (16) * 2 is $20
+      ; point to the last column in the background
+    LDA (bufferPointer), Y
+    TAX
+    INY
+    LDA (bufferPointer), Y
 
-  STX bufferPointer
-  STA bufferPointer+1
+    STX bufferPointer
+    STA bufferPointer+1
 
-  RTS
+    RTS
   .ENDPROC
 
   .PROC fill_tile_data
