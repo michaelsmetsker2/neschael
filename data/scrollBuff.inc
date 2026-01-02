@@ -6,7 +6,7 @@
 ; be copied to VRAM during NMI.
 ;
 
-  COLUMN_LENGTH          = $1E  ; the amount of tiles per the column
+  COLUMN_LENGTH          = $1C  ; the amount of tiles per the column
   ATTRIBUTE_TABLE_OFFSET = $C0  ; the low byte offset for the start of the attribute table relative to the
                                   ; start of the nametable
 
@@ -18,8 +18,8 @@
   addrHigh:     .res 1  ; nametable address
   addrLowLeft:  .res 1  ; offset left
   addrLowRight: .res 1
-  colLeft:      .res 30 ; uncompressed tile data for left column
-  colRight:     .res 30
+  colLeft:      .res 28 ; uncompressed tile data for left column
+  colRight:     .res 28
   attribute:    .res 8 ; attribute data shared by both columns, 4 tiles per attribute vertically
 
 .ENDSCOPE

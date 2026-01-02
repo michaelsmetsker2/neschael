@@ -57,6 +57,33 @@ game_loop:
   JSR Player::Movement::update
   JSR Player::Sprite::update
 
+
+  CLC
+  LDA screenPosX
+  ADC #01
+  STA screenPosX
+  LDA screenPosX+1
+  ADC $0
+  STA screenPosX+1
+
+  ;check nametable swap
+  swap_check:      ; check to see if the scroll has reached the end of the nametables, if so swap them
+    LDA screenPosX
+    BNE check_done ; load nametable
+  swap:
+    LDA nametable
+    EOR #$01       ; flip
+    STA nametable  
+  check_done:
+
+  LDA screenPosX
+  AND #%00001111 ; on an interval of 16
+  BNE @end
+  JSR Scrolling::fill_scroll_buffer
+  @end:
+
+
+
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
   BIT gameFlags
@@ -72,8 +99,8 @@ game_loop:
 .INCLUDE "lib/isr/custom.s"
 
 ; Temporary includes ===========================================================================
-.INCLUDE "data/background/canvas.asm"
 .INCLUDE "data/background/testLevel.inc"
+.INCLUDE "data/background/canvas.asm"
 
 ; Palette data
 .SEGMENT "PALETTE"
@@ -89,7 +116,7 @@ game_loop:
 
 .SEGMENT "VECTORS"
   ; Addresses for interrupts, must be in this order
-.WORD ISR_NMI
+.WORD isr_nmi
 .WORD isr_reset
 .WORD isr_custom
 

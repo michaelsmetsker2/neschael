@@ -17,6 +17,7 @@
   LDA #%00000100        ; set to increment +32 mode
   STA _PPUCTRL
 
+  
 @left:
     ; set the PPU to write to the correct nametable and the top of the left column
   LDX ScrollBuffer::addrHigh
@@ -30,8 +31,9 @@
   STA _PPUDATA
   INY
 
-  CPY COLUMN_LENGTH
+  CPY #COLUMN_LENGTH
   BNE @left_loop
+
 @right:
      ; set the PPU to write to the correct nametable and the top of the right column
   STX _PPUADDR                    ; start from the same nametable (high byte)
@@ -44,7 +46,7 @@
   STA _PPUDATA
   INY
 
-  CPY COLUMN_LENGTH
+  CPY #COLUMN_LENGTH
   BNE @right_loop
 
 .ENDMACRO
@@ -80,9 +82,9 @@
 
 .ENDMACRO
 
-.SCOPE scrolling
+.SCOPE Scrolling
   
-  tmpMetatileIndex = $10 ; 16 bit, index of the metatile to draw
+  tmpMetatileIndex = $1B ; 16 bit, index of the metatile to draw
   bufferPointer    = $13 ; low bye first, points to data to be read to the buffer
 
   COLUMN_Y_OFFSET  = $20 ; the offset of the low bytes, since we don't draw the top 8 scanlines   
@@ -94,7 +96,9 @@
     STA tmpMetatileIndex
     LDA screenPosX+1
     STA tmpMetatileIndex+1
-
+    
+    ROR tmpMetatileIndex+1
+    LSR tmpMetatileIndex
     ROR tmpMetatileIndex+1
     LSR tmpMetatileIndex
     ROR tmpMetatileIndex+1
@@ -104,16 +108,11 @@
 
       ; scroll / 8 = tile position as 8 pixls per tile
     JSR fill_buff_addr_low  ; populate low bytes
-    
-    ROR tmpMetatileIndex+1
-    LSR tmpMetatileIndex
-
     JSR fill_buff_addr_high ; populate the high address byte of the buffer
 
     JSR locate_tile_data    ; populates the buffer pointer
     JSR fill_tile_data      ; fills the buffer
     ; jsr to fill attribute data
-
     
       ; set draw flag so column will draw next NMI
     LDA gameFlags
@@ -125,7 +124,7 @@
   .PROC fill_buff_addr_high
 
     LDA Player::velocityX+1
-    BMI @flip_table         ; always draw to opposite nametable when scrolling right
+    BPL @flip_table         ; always draw to opposite nametable when scrolling right
     LDA tmpMetatileIndex
     AND #%00001111          ; if the current tile index % 16 we are at the beginning of thee nametable
     BEQ @flip_table         ; so flip nametable
@@ -146,11 +145,14 @@
 
   .ENDPROC
 
+  ; fill the low address of the top of each column in ppu memory
   .PROC fill_buff_addr_low
 
-      ; slightly inneficient to slip it left again, but more readable
-    LDA tmpMetatileIndex ; at this point in the program, this holds the tile index, not metatile
-    AND #%00011111       ; now 0 - 31, the tile position relative to nametable start
+    LDA screenPosX ; pixel pos relative to background
+    LSR A
+    LSR A
+    LSR A          ; divide by 8 to find the column index
+
     TAX
 
     LDA Player::velocityX+1
@@ -169,6 +171,7 @@
     STX ScrollBuffer::addrLowLeft
     INX ; this shouldn't overflow since this is only called on metatile boundries
     STX ScrollBuffer::addrLowRight
+    RTS
   .ENDPROC
 
   .PROC locate_tile_data
@@ -284,6 +287,7 @@
     CPY #$3C
     BCC @loop
 
+    RTS
   .ENDPROC
 
 .ENDSCOPE
