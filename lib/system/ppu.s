@@ -5,8 +5,7 @@
 ; PPU-related routines and macros
 ;
 
-
-  ; enables and disable various rendering flags
+; enables and disable various rendering flags
 .MACRO DisableVideoOutput
   LDA #%00000000
   STA _PPUCTRL    ; disable NMI
@@ -31,6 +30,16 @@
   STA     _OAMDMA                ; set the high byte (02) of the RAM address
                                   ; This automatically starts the transfer
 .ENDMACRO
+
+; set the scroll as writes to VRAM will offest it
+.MACRO SetScroll
+  LDA screenPosX
+  STA _PPUSCROLL
+  LDA #$00
+  STA _PPUSCROLL
+.ENDMACRO
+
+
 
 ; waits for the vblank flag, this is slightly inconsist and
   ; NMI should be used instead

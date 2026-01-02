@@ -82,6 +82,10 @@
 
 .ENDMACRO
 
+; ================================================================================================
+; main scrolling subroutines
+; ================================================================================================
+
 .SCOPE Scrolling
   
   tmpMetatileIndex = $1B ; 16 bit, index of the metatile to draw
@@ -152,7 +156,6 @@
     LSR A
     LSR A
     LSR A          ; divide by 8 to find the column index
-
     TAX
 
     LDA Player::velocityX+1
@@ -162,14 +165,14 @@
     DEX
   @final:
     TXA
-    AND #%00011111       ; mask bits 5-7 incase of overflow
+    AND #%00011111        ; mask bits 5-7 incase of overflow
 
     CLC
     ADC #COLUMN_Y_OFFSET  ; offset by one row due to overscan
     TAX
 
     STX ScrollBuffer::addrLowLeft
-    INX ; this shouldn't overflow since this is only called on metatile boundries
+    INX                   ; this shouldn't overflow since this is only called on metatile boundries
     STX ScrollBuffer::addrLowRight
     RTS
   .ENDPROC

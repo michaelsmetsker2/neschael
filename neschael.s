@@ -57,7 +57,7 @@ game_loop:
   JSR Player::Movement::update
   JSR Player::Sprite::update
 
-
+;=============================================================================================================================
   CLC
   LDA screenPosX
   ADC #01
@@ -81,7 +81,7 @@ game_loop:
   BNE @end
   JSR Scrolling::fill_scroll_buffer
   @end:
-
+;========================================================================================================================
 
 
   SetRenderFlag
@@ -100,7 +100,6 @@ game_loop:
 
 ; Temporary includes ===========================================================================
 .INCLUDE "data/background/testLevel.inc"
-.INCLUDE "data/background/canvas.asm"
 
 ; Palette data
 .SEGMENT "PALETTE"
