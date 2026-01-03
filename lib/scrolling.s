@@ -10,14 +10,13 @@
 ; These macros are to be used in NMI to draw from the buffer
 ; ==============================================================================
 
-.MACRO DrawOffscreenTiles
-    ; copy uncompressed nametable data to the PPU at the correct memory location
-    
+; copy uncompressed nametable data to the PPU at the correct memory location
+.MACRO DrawOffscreenTiles    
   LDA #%00000100        ; set to increment +32 mode
   STA _PPUCTRL
-  
+
 @left:
-    ; set the PPU to write to the correct nametable and the top of the left column
+    ; set PPU to write to correct nametable and the left column
   LDX ScrollBuffer::addrHigh
   STX _PPUADDR
   LDA ScrollBuffer::addrLowLeft
@@ -32,8 +31,7 @@
   CPY #COLUMN_LENGTH
   BNE @left_loop
 
-@right:
-     ; set the PPU to write to the correct nametable and the top of the right column
+@right: ; set the PPU to write to the correct nametable and the right column
   STX _PPUADDR                    ; start from the same nametable (high byte)
   LDA ScrollBuffer::addrLowRight  
   STA _PPUADDR
@@ -48,17 +46,16 @@
   BNE @right_loop
 .ENDMACRO
 
+; copy uncompressed attribute data to the PPU at the correct memory location
 .MACRO DrawOffscreenAttributes
-  ; copy uncompressed attribute data to the PPU at the correct memory location
-
-    ; derive the attribute collumn offset from the tile column offset
-  LDA ScrollBuffer::addrLowLeft ; left or right, doesn't matter data is truncated
-  AND #%00011111                ; keep only the tile x, 0-31
+    ; dirive the attribute collumn offset from the tile column offset
+  LDA ScrollBuffer::addrLowLeft ; left or right doesn't matter
+  AND #%00011111                ; keep only the tile x
   LSR
   LSR
     
   CLC
-  ADC ATTRIBUTE_TABLE_OFFSET ; add the low byte of the attribute table
+  ADC ATTRIBUTE_TABLE_OFFSET    ; add the low byte of the attribute table
   
   LDY #$00
 
@@ -109,18 +106,24 @@
     STA tmpOldScrollPos+1
 
   @update_scroll_position:
+    
     LDA screenPosX
     CLC
     ADC scrollAmount     ; add low byte
     STA screenPosX
-
-    LDA screenPosX+1     ; add carry
-    ADC #$00
+    LDA screenPosX+1
+    
     BIT scrollAmount     ; check sign of scrollAmount
     BPL @positive
   @negative:
-    SBC #$01             ; add $FF (-1) to extend teh sign to the high byte           
+    
+    ADC #$FF             ; extend sign
+    STA screenPosX+1
+
+    JMP @check_nametable_boundary
   @positive:
+
+    ADC #$00             ; add carry
     STA screenPosX+1
 
   @check_nametable_boundary:
@@ -171,9 +174,9 @@
     RTS
   .ENDPROC
 
-; ================================================================================================
-; main scroll buffer subroutines
-; ================================================================================================
+  ; ================================================================================================
+  ; main scroll buffer subroutines
+  ; ================================================================================================
   .SCOPE Buffer
 
     .PROC fill_scroll_buffer
@@ -193,15 +196,15 @@
       ROR tmpMetatileIndex+1
       LSR tmpMetatileIndex
 
-        ; scroll / 8 = tile position as 8 pixls per tile
-      JSR fill_buff_addr_low  ; populate low bytes
-      JSR fill_buff_addr_high ; populate the high address byte of the buffer
+        ; scroll / 8 = tile position
+      JSR fill_buff_addr_low
+      JSR fill_buff_addr_high
 
       JSR locate_tile_data    ; populates the buffer pointer
-      JSR fill_tile_data      ; fills the buffer
-      ; jsr to fill attribute data
+      JSR fill_tile_data
+      ; TODO jsr to fill attribute data
       
-        ; set draw flag so column will draw next NMI
+        ; set draw flag so for next NMI
       LDA gameFlags
       ORA #%01000000
       STA gameFlags
@@ -213,17 +216,17 @@
       LDA Player::velocityX+1
       BPL @flip_table         ; always draw to opposite nametable when scrolling right
       LDA tmpMetatileIndex
-      AND #%00001111          ; if the current tile index % 16 we are at the beginning of thee nametable
-      BEQ @flip_table         ; so flip nametable
+      ;AND #%00001111          ; if the current tile index % 16 we are at the beginning of the nametable
+      ;BUG BEQ @flip_table         ; so flip nametable
     @use_current:
       LDA nametable    ; just use the current nametable
       JMP @final
 
     @flip_table:
-      LDA nametable    ; load the current nametable (0 or 1) and flip the bit
+      LDA nametable    ; load the current nametable and flip the bit
       EOR #$01
 
-    @final:            ; convert the nametable to an address
+    @final:            ; convert nametable to an address
       ASL A
       ASL A            ; shift up to $00 or $04
       CLC 
@@ -243,15 +246,14 @@
 
       LDA Player::velocityX+1
       BPL @final
-    @left:                 ; if were scrolling left, decrement the position by 2 tiles (one metatile)
-      DEX
+    @left:                 ; if were scrolling left, decrement by one metatile
       DEX
     @final:
       TXA
-      AND #%00011111        ; mask bits 5-7 incase of overflow
+      AND #%00011111        ; mask incase of overflow
 
       CLC
-      ADC #COLUMN_Y_OFFSET  ; offset by one row due to overscan
+      ADC #COLUMN_Y_OFFSET  ; offset by one row for overscan
       TAX
 
       STX ScrollBuffer::addrLowLeft
@@ -267,7 +269,7 @@
       BMI @left           ; branch based on scroll direction
     @right:
 
-        ; data wil be pulled from the next background from our current on
+        ; data wil be pulled from the next background
       LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
       INY              ; increment as we buffer the data from the next one
       TYA
@@ -297,16 +299,8 @@
       
       RTS
     @left:
-      ; were gonna pull data from the current screen unless we are at metatile index 0
+      ; pull data from the current background
       
-      LDA tmpMetatileIndex
-      AND #%00001111        ; get index of current metatile relative to background
-      BEQ @prev_background  ; if we are at the beginning of a nametable, use the previous
-    @cur_background:
-        ; use the current background
-      TAX                   ; store masked metatile position for use later
-
-        ; use the current background
       LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
       ASL A                 ; * 2 to get byte offset in backgrounds lookup table
       TAY
@@ -318,38 +312,12 @@
       STA tmpBufferPointer+1
 
         ; now load pointer to the current
-      DEX                   ; decrement the metatile index as we are loading one to the left
-      TXA
+      LDA tmpMetatileIndex
+      AND #%00001111        ; get index of current metatile relative to background
       ASL A                 ; *2 to get the byte offset for metacolumn lookup table
       TAY
 
         ; point to the correct metacolumn from the background's lookup table
-      LDA (tmpBufferPointer), Y
-      TAX
-      INY
-      LDA (tmpBufferPointer), Y
-
-      STX tmpBufferPointer
-      STA tmpBufferPointer+1
-
-      RTS
-    @prev_background:
-        ; use the previous backgound
-      LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background; 
-      TAX
-      DEX                   ; decrement to the previous background
-      TXA
-      ASL A                 ; *2 for byte offset in background lookup table
-      TAY
-        ; load pointer to the previous background
-      LDA background_index, Y
-      STA tmpBufferPointer
-      INY
-      LDA background_index, Y
-      STA tmpBufferPointer+1
-
-      LDY #$20          ; last column on the background (16) * 2 is $20
-        ; point to the last column in the background
       LDA (tmpBufferPointer), Y
       TAX
       INY
