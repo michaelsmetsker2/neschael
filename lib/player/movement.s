@@ -12,7 +12,7 @@
 			JSR accelerate_x
 			JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for hor boost
 																	  ; and before apply_velocity_x so the boost can be applied frame one
-			JSR apply_velocity_x
+			JSR update_position_x
 			RTS
 	.ENDPROC
 
@@ -125,18 +125,6 @@
 			STA velocityX+1
 
 	@done:
-			RTS
-	.ENDPROC
-
-	.PROC apply_velocity_x
-			; adds the velocity to the position, simple 16 bit addition
-			CLC
-			LDA positionX
-			ADC velocityX
-			STA positionX
-			LDA positionX+1
-			ADC velocityX+1
-			STA positionX+1
 			RTS
 	.ENDPROC
 

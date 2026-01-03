@@ -20,7 +20,7 @@
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
 ;-------------------------------------------------------------------------------
-; $0300-$034D:  Horizontal scroll buffer, see data/scrollBuffer.inc
+; $0300-$0343:  Horizontal scroll buffer, see data/scrollBuffer.inc
 ;-------------------------------------------------------------------------------
 ; $034E-$07FF:  General Purpose RAM
 ;-------------------------------------------------------------------------------
@@ -45,6 +45,7 @@
 .SCOPE Player
   .INCLUDE "lib/player/init.s"
   .INCLUDE "lib/player/movement.s"
+  .INCLUDE "lib/player/bounding.s"
   .INCLUDE "lib/player/sprite.s"
 .ENDSCOPE
 
@@ -63,23 +64,7 @@ game_loop:
   JSR Player::Movement::update
   JSR Player::Sprite::update
 
-  ;check nametable swap
-  swap_check:      ; check to see if the scroll has reached the end of the nametables, if so swap them
-    LDA screenPosX
-    BNE check_done ; load nametable
-  swap:
-    LDA nametable
-    EOR #$01       ; flip
-    STA nametable  
-  check_done:
-
-  LDA screenPosX
-  AND #%00001111 ; on an interval of 16
-  BNE @end
-  JSR Scrolling::fill_scroll_buffer
-  @end:
-;========================================================================================================================
-
+  JSR Scrolling::scroll_screen
 
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame

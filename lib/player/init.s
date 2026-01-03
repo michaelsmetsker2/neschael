@@ -5,10 +5,6 @@
 ; initializes and declares player related variables
 ;
 
-    ; pixel values where the screen will scroll instead of move the player
-  SCROLL_THRESHOLD_LEFT  = $55
-  SCROLL_THRESHOLD_RIGHT = $AB
-
     ; === Memory constants ===
 
     ; velocity
@@ -50,7 +46,7 @@
 
   .SCOPE Velocities
     RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
-    LEFT_WALK_TARGET  = $FFB0 ; signed 8.8 fixed point
+    LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
   .ENDSCOPE
 
       TEST_ACC = $0010 ; TODO temp ====================================================================================================== 
