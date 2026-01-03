@@ -143,34 +143,9 @@
 
   @check_metatile_boundary: ; see if we crossed into a new metatile so we must draw more
     LDA tmpOldScrollPos
-    LSR
-    LSR
-    LSR
-    LSR
-    STA $00
-    LDA tmpOldScrollPos+1
-    ASL
-    ASL
-    ASL
-    ASL
-    ORA $00
-    STA $00                   ; $00 now holds last frames metatile index
-
-    LDA screenPosX
-    LSR
-    LSR
-    LSR
-    LSR
-    STA $01
-    LDA screenPosX+1
-    ASL
-    ASL
-    ASL
-    ASL
-    ORA $01
-    STA $01                   ; $01 now holds current frames metatile index
-
-    CMP $00
+    EOR screenPosX
+    AND #%11110000
+    CMP #$00
     BEQ @reset_scroll_amount  ; if we're on the same metatile, don't draw
 
     JSR Scrolling::Buffer::fill_scroll_buffer
@@ -181,10 +156,50 @@
     RTS
   .ENDPROC
 
+  ; fully draws the first screen upon loading a level
+  .PROC draw_first_screen
+    LDA #$01          ; flip nametable so we start drawing on first screen
+    STA nametable
+
+    LDA #$FF          ; set the screen one background back and scroll right
+    STA screenPosX+1
+    LDA #$00          
+    STA screenPosX
+    STA $00           ; loop counter
+
+  @draw_loop:
+    JSR Buffer::fill_scroll_buffer ; fill and draw from buffer
+    DrawOffscreenTiles
+    DrawOffscreenAttributes
+
+    CLC
+    LDA #$10
+    ADC screenPosX      ; increment screen position by one metatile
+    STA screenPosX
+    LDA #$00
+    ADC screenPosX+1
+    STA screenPosX+1
+
+    INC $00
+    LDA $00
+    CMP #$10            ; 16 columns per screen
+    BNE @draw_loop      ; loop through screen
+
+      ; reset nametable
+    LDA #$00
+    STA nametable
+      ; fill the buffer once more so the first col of nametable 1 is filled
+    JSR Buffer::fill_scroll_buffer
+
+    RTS
+  .ENDPROC
+
   ; ================================================================================================
-  ; main scroll buffer subroutines
+  ; scroll buffer subroutines
   ; ================================================================================================
   .SCOPE Buffer
+
+    playerVelocity = $22  ; Signed Fixed Point 8.8, players x velocity, see lib/player/init.s
 
     .PROC fill_scroll_buffer
 
@@ -220,13 +235,10 @@
     ; fills the high address byte in the scroll buffer
     .PROC fill_buff_addr_high
 
-      LDA Player::velocityX+1
-      BPL @flip_table         ; always draw to opposite nametable when scrolling right
-      LDA tmpMetatileIndex
-      ;AND #%00001111          ; if the current tile index % 16 we are at the beginning of the nametable
-      ;BUG BEQ @flip_table         ; so flip nametable
+      LDA playerVelocity+1
+      BPL @flip_table         ; draw to opposite nametable when scrolling right
     @use_current:
-      LDA nametable    ; just use the current nametable
+      LDA nametable    ; use the current when scrolling left
       JMP @final
 
     @flip_table:
@@ -239,7 +251,6 @@
       CLC 
       ADC #$20         ; add high byte of ase nametable adress ($2000)
       STA ScrollBuffer::addrHigh
-
     .ENDPROC
 
     ; fill the low address of the top of each column in ppu memory
@@ -251,7 +262,7 @@
       LSR A          ; divide by 8 to find the column index
       TAX
 
-      LDA Player::velocityX+1
+      LDA playerVelocity+1
       BPL @final
     @left:                 ; if were scrolling left, decrement by one metatile
       DEX
@@ -272,7 +283,7 @@
     .PROC locate_tile_data
         ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
 
-      LDA Player::velocityX+1
+      LDA playerVelocity+1
       BMI @left           ; branch based on scroll direction
     @right:
 

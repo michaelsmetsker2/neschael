@@ -61,13 +61,21 @@ attrib_00:
   .WORD a_column00_1,a_column00_2,a_column00_3,a_column00_4,a_column00_5,a_column00_6,a_column00_7,a_column00_8
 
 a_column00_1:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_2:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_3:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_4:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_5:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_6:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_7:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column00_8:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 
 
 background_01:
@@ -127,15 +135,21 @@ attrib_01:
   .WORD a_column01_1,a_column01_2,a_column01_3,a_column01_4,a_column01_5,a_column01_6,a_column01_7,a_column01_8
 
 a_column01_1:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column01_2:
+  .BYTE $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 a_column01_3:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column01_4:
+  .BYTE $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 a_column01_5:
+  .BYTE $00, $00, $00, $00, $00, $FF, $FF, $FF
 a_column01_6:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column01_7:
+  .BYTE $00, $00, $00, $00, $00, $FF, $FF, $FF
 a_column01_8:
-
-
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 
 background_02:
   .WORD column02_1,column02_2,column02_3,column02_4,column02_5,column02_6,column02_7,column02_8
@@ -194,11 +208,19 @@ attrib_02:
   .WORD a_column02_1,a_column02_2,a_column02_3,a_column02_4,a_column02_5,a_column02_6,a_column02_7,a_column02_8
 
 a_column02_1:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_2:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_3:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_4:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_5:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_6:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_7:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 a_column02_8:
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00
 

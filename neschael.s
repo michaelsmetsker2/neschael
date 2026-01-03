@@ -30,7 +30,6 @@
 ; =================================================================================================
 ;  ROM (PRG) Data
 ; =================================================================================================
-
 .SEGMENT "CODE"
 
   ; system related subroutines constants and macros
@@ -39,7 +38,9 @@
 .INCLUDE "lib/system/cpu.s"
 .INCLUDE "lib/system/apu.s"
 
+
   ; main libraries
+.INCLUDE "lib/scrolling.s"
 .INCLUDE "lib/game.s"
 
 .SCOPE Player
@@ -49,7 +50,6 @@
   .INCLUDE "lib/player/sprite.s"
 .ENDSCOPE
 
-.INCLUDE "lib/scrolling.s"
 
   ; main entry point after the syste from reset interrupt
 .PROC main
@@ -61,6 +61,7 @@
   ; the main game loop
 game_loop:
   JSR Game::read_joypad_1
+
   JSR Player::Movement::update
   JSR Player::Sprite::update
 

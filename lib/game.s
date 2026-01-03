@@ -10,8 +10,7 @@
   .PROC init
       ; Initialize rendering and starting graphics
     JSR load_palette_data
-    JSR initialize_nametables
-    JSR initialize_attributes 
+    JSR Scrolling::draw_first_screen
 
   .ENDPROC
 

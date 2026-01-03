@@ -73,30 +73,4 @@
   RTS
 .ENDPROC 
 
-.PROC initialize_nametables
-  
-  ;1 0f
-
-  LDY #$00
-@loop:
-  ; fill
-  ; we will directly be calling
-  JSR Scrolling::Buffer::fill_scroll_buffer
-
-  DrawOffscreenTiles       ; copy buffer data to PPU. see lib/scrolling.s
-  DrawOffscreenAttributes
-  ; draw
-
-  INY
-  CPY $10       ; 16 metacolumns
-  BEQ @done
-  JMP @loop
-@done:
-  RTS
-.ENDPROC
-
-.PROC initialize_attributes
-  RTS ;TODO
-.ENDPROC
-
 ; End of lib/shared_code/ppu.s

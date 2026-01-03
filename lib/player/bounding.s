@@ -33,7 +33,6 @@
 	; a collision would edit deltaX and zero velocity
 
 @check_scroll: 				 ; see of the proposed deltaX would pass the scroll thresholds
-
 	LDA tmpProposedXFinal+1
 	
 	BIT tmpDeltaX+1
@@ -45,7 +44,7 @@
 	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
 	; TODO check the ammount we want to scroll with the end of the level
 
-	STA scrollAmount							 ; the ammount the player will overshoot the threshold scroll the screen that ammount
+	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
 
 	JMP @end_threshold_check
 @left_threshold:
@@ -56,18 +55,16 @@
 	BCS @no_scroll                 ; proposed position >= left threshold, threshold not passed
 	; TODO check the ammount we want to scroll with the left edge of the level
 
-	STA scrollAmount							 ; the ammount the player will overshoot the threshold scroll the screen that ammount
+	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
 
-@end_threshold_check:
-
-		; subtract the ammount scrolled from deltaX
+@end_threshold_check: ; subtract the ammount scrolled from deltaX
 	LDA tmpDeltaX+1
 	SEC
 	SBC scrollAmount
 	STA tmpDeltaX+1
 
 @no_scroll:
-		; add the change in x to the position, simple 16 bit addition
+		; add deltax to the position, simple 16 bit addition
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
