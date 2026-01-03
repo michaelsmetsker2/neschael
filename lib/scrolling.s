@@ -48,24 +48,31 @@
 
 ; copy uncompressed attribute data to the PPU at the correct memory location
 .MACRO DrawOffscreenAttributes
-    ; dirive the attribute collumn offset from the tile column offset
+
+    ; find the high byte to draw to
+  LDA ScrollBuffer::addrHigh ; nametable high byte
+  CLC
+  ADC #>ATTRIBUTE_TABLE_OFFSET
+  TAX
+
+    ; derive the attribute collumn offset from the tile column offset
   LDA ScrollBuffer::addrLowLeft ; left or right doesn't matter
   AND #%00011111                ; keep only the tile x
   LSR
-  LSR
-    
+  LSR                           ; 4 tiles ber attribute
   CLC
-  ADC ATTRIBUTE_TABLE_OFFSET    ; add the low byte of the attribute table
+  ADC #<ATTRIBUTE_TABLE_OFFSET    ; add the low byte of the attribute table
+  STA $09
   
-  LDY #$00
-
-  LDX ScrollBuffer::addrHigh ; nametable high byte
+  LDY #$00 ; loop index
 @loop:
-  STX _PPUADDR
-
-  STA _PPUADDR ; low byte offset
+  STX _PPUADDR ; high byte
+  LDA $09
+  STA _PPUADDR ; low byte
+  
   CLC
   ADC #$08
+  STA $09
 
   LDA ScrollBuffer::attribute, y
   STA _PPUDATA

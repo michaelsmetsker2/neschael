@@ -14,7 +14,7 @@
   BVC @skip_draw           ; if drawFlag is clear, skip drawing
 
   DrawOffscreenTiles       ; copy buffer data to PPU. see lib/scrolling.s
-  ; BUG DrawOffscreenAttributes
+  DrawOffscreenAttributes
   ResetDrawFlag
 
 @skip_draw:

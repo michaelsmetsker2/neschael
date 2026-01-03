@@ -7,8 +7,7 @@
 ;
 
   COLUMN_LENGTH          = $1C  ; the amount of tiles per the column
-  ATTRIBUTE_TABLE_OFFSET = $C0  ; the low byte offset for the start of the attribute table relative to the
-                                  ; start of the nametable
+  ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
 
 .SEGMENT "SCROLL_BUFF"
 .SCOPE ScrollBuffer
