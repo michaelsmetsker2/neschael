@@ -27,7 +27,7 @@
                             ; 7   if the player has been holding A since the start of the jump
 
   player_sprite:
-    .BYTE <Player::Initial::POSITION_Y, $0, %00000000, <Player::Initial::POSITION_X
+    .BYTE <Player::Initial::POSITION_Y, $1, %00000000, <Player::Initial::POSITION_X
 
     ; Initialization values
   .SCOPE Initial

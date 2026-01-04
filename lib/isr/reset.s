@@ -26,7 +26,9 @@
 
   JSR wait_for_vblank
   ClearCpuMemory
+  JSR clear_nametables
   JSR wait_for_vblank
+
 
   JMP main
   RTS         ; This should never be called

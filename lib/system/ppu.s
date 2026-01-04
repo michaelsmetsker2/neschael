@@ -56,6 +56,26 @@
   RTS
 .ENDPROC
 
+; clears ppu nametables and attribute data
+.PROC clear_nametables
+  LDA #$20
+  STA _PPUADDR
+  lDA #$00
+  STA _PPUADDR
+
+  LDX #$08 ; clear 8 pages, two nametables and attributes
+@page:
+  LDY #$00
+@clear_loop:
+  STA _PPUDATA
+  INY
+  BNE @clear_loop
+  DEX
+  BNE @page
+
+  RTS
+.ENDPROC
+
   ; loads color and position information to RAM
 .PROC load_palette_data
   LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
