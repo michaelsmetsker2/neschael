@@ -224,7 +224,8 @@
 
       JSR locate_tile_data    ; populates the buffer pointer
       JSR fill_tile_data
-      ; TODO jsr to fill attribute data
+      JSR locate_attrib_data
+      JSR fill_attrib_data
       
         ; set draw flag so for next NMI
       LDA gameFlags
@@ -280,42 +281,21 @@
       RTS
     .ENDPROC
 
+    ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
     .PROC locate_tile_data
-        ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
 
       LDA playerVelocity+1
       BMI @left           ; branch based on scroll direction
     @right:
 
-        ; data wil be pulled from the next background
+        ; pull data from the next background
       LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
       INY              ; increment as we buffer the data from the next one
       TYA
       ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
       TAY
 
-      LDA background_index, Y   ; load pointer to the correct background
-      STA tmpBufferPointer
-      INY
-      LDA background_index, Y
-      STA tmpBufferPointer+1
-
-        ; now point to the correct metacolumn, it is the same index as our current one
-      LDA tmpMetatileIndex
-      AND #%00001111        ; mask so we get the index of our metatile relative to background
-      ASL A                 ; multiply by two to get address offset
-      TAY
-
-        ; point to the correct metacolumn from the background's lookup table
-      LDA (tmpBufferPointer), Y
-      TAX
-      INY
-      LDA (tmpBufferPointer), Y
-
-      STX tmpBufferPointer
-      STA tmpBufferPointer+1
-      
-      RTS
+      JMP @find_background
     @left:
       ; pull data from the current background
       
@@ -323,13 +303,14 @@
       ASL A                 ; * 2 to get byte offset in backgrounds lookup table
       TAY
 
-      LDA background_index, Y   ; load pointer to the current background
+    @find_background:
+      LDA background_index, Y   ; point to the correct background
       STA tmpBufferPointer
       INY
       LDA background_index, Y
       STA tmpBufferPointer+1
 
-        ; now load pointer to the current
+        ; find offset of current metatile column in lookup table
       LDA tmpMetatileIndex
       AND #%00001111        ; get index of current metatile relative to background
       ASL A                 ; *2 to get the byte offset for metacolumn lookup table
@@ -356,6 +337,66 @@
       STA ScrollBuffer::colLeft, Y    
       INY
       CPY #$3C
+      BCC @loop
+
+      RTS
+    .ENDPROC
+
+    ; set the buffer pointer to the location of the attribute data column that we want to copy
+    .PROC locate_attrib_data
+      LDA playerVelocity+1
+      BMI @left           ; branch based on scroll direction
+    @right:
+
+        ; pull data from the next background
+      LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
+      INY              ; increment as we buffer the data from the next one
+      TYA
+      ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
+      TAY
+
+      JMP @find_background
+    @left:
+      ; pull data from the current background
+      
+      LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
+      ASL A                 ; * 2 to get byte offset in backgrounds lookup table
+      TAY
+
+    @find_background:
+      LDA attribute_index, Y   ; point to the correct background
+      STA tmpBufferPointer
+      INY
+      LDA attribute_index, Y
+      STA tmpBufferPointer+1
+
+        ; find offset of current attribute column
+      LDA tmpMetatileIndex
+      AND #%00001110        ; get index of current metatile relative to background
+                              ; in the lookup table, 2 bytes per metatile, 2 metatiles per column
+      TAY
+
+        ; point to the correct metacolumn from the background's lookup table
+      LDA (tmpBufferPointer), Y
+      TAX
+      INY
+      LDA (tmpBufferPointer), Y
+
+      STX tmpBufferPointer
+      STA tmpBufferPointer+1
+
+      RTS
+    .ENDPROC
+
+    ; store the uncompressed attrib data in the buffer
+    .PROC fill_attrib_data
+      LDY #$00 ; loop index
+
+    @loop:                    ; sets all 8 attribute bytes of the column
+      LDA (tmpBufferPointer), Y
+      STA ScrollBuffer::attribute, Y    
+      INY
+      CPY #$08
       BCC @loop
 
       RTS
