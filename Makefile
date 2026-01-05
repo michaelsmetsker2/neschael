@@ -7,23 +7,38 @@ ASSEMBLER = ca65
 LINKER    = ld65
 EMU       = mesen
 
-ASMFLAGS  = --cpu 6502
+ASMFLAGS  = --cpu 6502 -I .
 LINKFLAGS = --config config/nes.cfg --dbgfile bin/neschael.dbg
+
+BIN_DIR = bin
+
+# source files
+SRC = neschael.s $(wildcard lib/**/*.s)
+
+# objects
+OBJECTS = $(SRC:%.s=$(BIN_DIR)/%.o)
 
 default: assemble link build
 
-dev: assemble link build test
 # Builds and opens it in the emulator i use for debugging
+dev: assemble link build test
+
 test: 
 	$(EMU) neschael.nes
 
 # Assemble .s -> .o
-assemble: neschael.s
-	$(ASSEMBLER) $(ASMFLAGS) -o bin/neschael.o neschael.s
+assemble: $(OBJECTS)
+
+$(BIN_DIR)/%.o: %.s
+	@mkdir -p $(dir $@)
+	$(ASSEMBLER) $(ASMFLAGS) -o $@ $<
 
 # .o -> .bin
-link: bin/neschael.o
-	$(LINKER) -o bin/neschael.link $(LINKFLAGS) bin/neschael.o
+link: $(BIN_DIR)/neschael.link
+
+$(BIN_DIR)/neschael.link: $(OBJECTS)
+	@mkdir -p $(dir $@)
+	$(LINKER) -o $@ $(LINKFLAGS) $(OBJECTS)
 
 # This target entry concatenates the .bin ROM files into a .nes iNES emulator-compatible ROM file
 build: bin/hdr.bin bin/prg.bin bin/chr.bin
@@ -31,7 +46,7 @@ build: bin/hdr.bin bin/prg.bin bin/chr.bin
 
 # Cleans bin directory
 clean:
-	$(RM) bin/*.bin bin/*.o bin/neschael.link neschael.nes a.out
+	$(RM) -r $(BIN_DIR)/*.o $(BIN_DIR)/*.bin $(BIN_DIR)/*.link neschael.nes a.out
 
-# End of Makefile
+.PHONY: default dev test assemble link build clean
 	

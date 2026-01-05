@@ -1,6 +1,6 @@
 ;
 ; neschael
-; data/zeropage.inc
+; data/memory/zeropage.inc
 ;
 ; definition and explanation of variables stored int the first $FF bytes of RAM
 ;
@@ -26,5 +26,3 @@
   nametable:    .res 1  ; which primary nametable to use, 0 or 1
   screenPosX:   .res 2  ; 16 bit, pixel position o fthe left side of the screen relative to the world start
   scrollAmount: .res 1  ; signed, the ammount to scroll the screen
-
-; End of data/zeropage.inc

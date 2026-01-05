@@ -14,5 +14,3 @@
     RTI  ; Return from interrupt
     
 .ENDPROC
-
-; End of lib/isr/custom.s

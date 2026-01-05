@@ -1,6 +1,6 @@
 ;
 ; neschael
-; data/scrollBuffer.inc
+; data/memory/scrollBuffer.inc
 ;
 ; Horizontal scroll buffer, this section of ram will contain uncompressed background data proccessed out of VBLANK to
 ; be copied to VRAM during NMI.
@@ -22,5 +22,3 @@
     attribute:    .res 8 ; attribute data shared by both columns, 4 tiles per attribute vertically
 
 .ENDSCOPE
-
-; End of data/scrollBuff.inc

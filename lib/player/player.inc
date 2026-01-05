@@ -1,0 +1,49 @@
+;
+; nsechael
+; lib/player/player.inc
+; 
+; player related memory constants, these are already allocated in the zeropage
+;
+
+    ; velocity
+  targetVelocityX   = $20   ; Signed Fixed Point 8.8
+  velocityX         = $22   ; Signed Fixed Point 8.8
+  velocityY         = $24   ; Signed Fixed Point 8.8
+
+    ; integer part can be used as the pixel positions of the sprite
+  positionX         = $26   ; Unsigned Fixed Point 8.8
+  positionY         = $28   ; Unsigned Fixed Point 8.8
+
+  motionState       = $2A   ; See `.ENUM MotionState`
+
+  animationFrame    = $2B
+  animationTimer    = $2C
+
+  playerFlags       = $2D   ; holds various player flags in various bit positions
+                            ; 0-5 unused 
+                            ; 6   heading, 0 for right, 1 for left
+                            ; 7   if the player has been holding A since the start of the jump
+
+.SCOPE Jump
+  FLOOR_HEIGHT           = 143   ; screen cords temp ============================
+  INITIAL_VELOCITY       = $FC00 ; signed fixed point 8.8 
+  HORIZONRAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
+  SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
+  BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
+  DECELERATION_THRESHOLD = $FE   ; greater than this velocity, slow falling
+.ENDSCOPE
+
+.SCOPE Velocities
+  RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
+  LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
+.ENDSCOPE
+
+    TEST_ACC = $0010 ; TODO temp ====================================================================================================== 
+
+.ENUM MotionState
+  Still = 0
+  Walk = 1
+  Pivot = 2 ; actively turning around
+  Airborne = 3 
+  Sliding = 4
+.ENDENUM

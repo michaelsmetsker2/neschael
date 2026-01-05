@@ -2,6 +2,8 @@
 ; neschael
 ; data/header/header.inc
 ;
+; INES compatible header for emulators
+;
 
 .BYTE   "NES", $1a
 .BYTE   $01           ; 1x 16KB ROM (PRG)
@@ -10,5 +12,3 @@
                       ; Mirroring nibble 0001 == Vertical mirroring only
 
 ; the remainder of the header is zero padded to 16 bytes via linker
-
-; End of data/header/header.inc

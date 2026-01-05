@@ -4,6 +4,16 @@
 ;
 ; non maskable interrupt, this is called during vblank and is where graphis are updated
 ;
+.SEGMENT "CODE"
+
+.INCLUDE "data/system/ppu.inc"
+.INCLUDE "data/memory/zeropage.inc"
+.INCLUDE "data/memory/scrollBuff.inc"
+
+.INCLUDE "lib/game/game.inc"
+.INCLUDE "lib/scrolling/scrolling.inc"
+
+.EXPORT isr_nmi
 
 .PROC isr_nmi
 
@@ -13,7 +23,7 @@
 @continue:
   BVC @skip_draw           ; if drawFlag is clear, skip drawing
 
-  DrawOffscreenTiles       ; copy buffer data to PPU. see lib/scrolling.s
+  DrawOffscreenTiles       ; copy buffer data to PPU. see lib/scrolling/scrolling.inc
   DrawOffscreenAttributes
   ResetDrawFlag
 
@@ -26,5 +36,3 @@
   UnsetRenderFlag
   RTI                             ; Return from interrupt 
 .ENDPROC
-
-; End of lib/isr/nmi.s

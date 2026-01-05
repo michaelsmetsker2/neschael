@@ -4,6 +4,17 @@
 ;
 ; This Interrupt Service Routine is called when the NES is reset, including when it is turned on.
 ;
+.SEGMENT "CODE"
+
+.INCLUDE "palettes/palettes.inc"
+
+.INCLUDE "system/ppu.inc"
+.INCLUDE "system/apu.inc"
+.INCLUDE "system/cpu.inc"
+
+.IMPORT main
+
+.EXPORT isr_reset
 
 .PROC isr_reset
 
@@ -26,12 +37,20 @@
 
   JSR wait_for_vblank
   ClearCpuMemory
-  JSR clear_nametables
+  ClearNametables
   JSR wait_for_vblank
 
+  LoadPaletteData
 
   JMP main
   RTS         ; This should never be called
 .ENDPROC 
 
-; End of lib/isr/reset.s
+; waits for the vblank flag, this is slightly inconsist and
+  ; NMI should be used instead
+.PROC wait_for_vblank
+  @vblank_wait_loop:
+  BIT _PPUSTATUS
+  BPL @vblank_wait_loop
+  RTS
+.ENDPROC

@@ -1,6 +1,6 @@
 ;
 ; neschael
-; lib/system/cpu.s
+; data/system/apu.inc
 ;
 ; APU-Related assembler directives and macros for nes
 ;
@@ -59,5 +59,3 @@ _FR_COUNTER	= $4017               ; Reference: https://wiki.nesdev.com/w/index.p
     STA _FR_COUNTER             ; Disable APU frame IRQ
     STA _DMC_FREQ               ; Disable digital sound IRQs
 .ENDMACRO
-
-; End of lib/system/apu.inc

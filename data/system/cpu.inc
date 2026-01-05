@@ -1,6 +1,6 @@
 ;
 ; neschael
-; lib/system/cpu.inc
+; data/system/cpu.inc
 ;
 ; CPU-Related assembler directives and macros for nes
 ;
@@ -84,5 +84,3 @@ _FLAG_N = %10000000  ; Negative
   INX
   BNE :-       ; breaks on overflow
 .ENDMACRO
-
-; End of lib/system/cpu.inc

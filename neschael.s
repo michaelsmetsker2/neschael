@@ -5,67 +5,65 @@
 ; a hopefully functional platformer game for nes
 ;
 
-; iNES File header, used by NES emulators
-.SEGMENT "HEADER"
-.INCLUDE "data/header/header.inc"
 
 ;-------------------------------------------------------------------------------
 ; System Memory Map
 ;-------------------------------------------------------------------------------
 ; $00-$1F:      Subroutine Scratch Memory
 ;-------------------------------------------------------------------------------
-; $20-$FF:      Reserved for high I/O variables, see data/zeropage.inc
+; $20-$FF:      Reserved for high I/O variables, see data/memoryzeropage.inc
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
 ;-------------------------------------------------------------------------------
-; $0300-$0343:  Horizontal scroll buffer, see data/scrollBuffer.inc
+; $0300-$0343:  Horizontal scroll buffer, see data/memory/scrollBuffer.inc
 ;-------------------------------------------------------------------------------
 ; $034E-$07FF:  General Purpose RAM
 ;-------------------------------------------------------------------------------
-.INCLUDE "data/zeropage.inc"     ; a more detailed map of the zeropage, and constants
-.INCLUDE "data/scrollBuff.inc"
+
+  ; constants
+.INCLUDE "data/memory/zeropage.inc"
+
+  ; main loop macros
+.INCLUDE "data/system/ppu.inc"
+.INCLUDE "lib/game/game.inc"
+
+.IMPORT scroll_screen
+.IMPORT game_init
+.IMPORT read_joypad_1
+
+.IMPORT player_init
+.IMPORT update_player_sprite
+.IMPORT update_player_movement
+
+
+; iNES File header, used by NES emulators
+.SEGMENT "HEADER"
+.INCLUDE "data/header/header.inc"
 
 ; =================================================================================================
 ;  ROM (PRG) Data
 ; =================================================================================================
 .SEGMENT "CODE"
 
-  ; system related subroutines constants and macros
-.INCLUDE "lib/system/ppu.inc"  ; only constants 
-.INCLUDE "lib/system/ppu.s"
-.INCLUDE "lib/system/cpu.s"
-.INCLUDE "lib/system/apu.s"
-
-
-  ; main libraries
-.INCLUDE "lib/scrolling.s"
-.INCLUDE "lib/game.s"
-
-.SCOPE Player
-  .INCLUDE "lib/player/init.s"
-  .INCLUDE "lib/player/movement.s"
-  .INCLUDE "lib/player/bounding.s"
-  .INCLUDE "lib/player/sprite.s"
-.ENDSCOPE
-
+.EXPORT main ; jumped to from reset entrypoint
 
   ; main entry point after the syste from reset interrupt
 .PROC main
     ; initialize basic systems and enable visuals
-  JSR Game::init
-  JSR Player::init
+  JSR game_init
+  JSR player_init
   EnableVideoOutput
 
   ; the main game loop
 game_loop:
-  JSR Game::read_joypad_1
+  JSR read_joypad_1
 
-  JSR Player::Movement::update
-  JSR Player::Sprite::update
+  JSR update_player_movement
+  JSR update_player_sprite
 
-  JSR Scrolling::scroll_screen
+  JSR scroll_screen
 
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
@@ -77,29 +75,16 @@ game_loop:
 .ENDPROC
 
 ; Interrupt service routines
-.INCLUDE "lib/isr/reset.s"
-.INCLUDE "lib/isr/nmi.s"
-.INCLUDE "lib/isr/custom.s"
-
-; Temporary includes ===========================================================================
-.INCLUDE "data/background/testLevel.inc"
-
-; Palette data
-.SEGMENT "PALETTE"
-.INCLUDE "data/palette/example.inc"
-
-; Sprite data
-.SEGMENT "SPRITES"
-.INCLUDE "data/sprites/player.inc"
+.IMPORT isr_reset
+.IMPORT isr_nmi
+.IMPORT isr_custom
 
 ; Graphics tile data, used by the sprites
 .SEGMENT "TILES"
 .INCBIN "data/tiles/neschael.chr"
 
+; Addresses for interrupts, must be in this order
 .SEGMENT "VECTORS"
-  ; Addresses for interrupts, must be in this order
 .WORD isr_nmi
 .WORD isr_reset
 .WORD isr_custom
-
-; End of neschael.s
