@@ -8,9 +8,9 @@
 .INCLUDE "data/system/cpu.inc"
 .INCLUDE "lib/memory/gameData.inc"
 
-.IMPORT draw_first_screen
-
 .SEGMENT "CODE"
+
+.IMPORT draw_first_screen
 
 .EXPORT game_init
 .EXPORT read_joypad_1

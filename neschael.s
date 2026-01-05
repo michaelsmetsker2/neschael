@@ -2,27 +2,10 @@
 ; neschael
 ; neshcael.s
 ;
-; a hopefully functional platformer game for nes
+; a hopefully functional platformer game for nes :)
 ;
 
-
-;-------------------------------------------------------------------------------
-; System Memory Map
-;-------------------------------------------------------------------------------
-; $00-$1F:      Subroutine Scratch Memory
-;-------------------------------------------------------------------------------
-; $20-$FF:      Reserved for high I/O variables, see data/memoryzeropage.inc
-;-------------------------------------------------------------------------------
-; $0100-$01FF:  The Stack
-;-------------------------------------------------------------------------------
-; $0200-$02FF:  OAM Sprite Memory
-;-------------------------------------------------------------------------------
-; $0300-$0343:  Horizontal scroll buffer, see data/memory/scrollBuffer.inc
-;-------------------------------------------------------------------------------
-; $034E-$07FF:  General Purpose RAM
-;-------------------------------------------------------------------------------
-
-  ; main loop macros
+  ; macro definitions used in main loop
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/game/game.inc"
 .INCLUDE "lib/memory/gameData.inc"
@@ -36,11 +19,9 @@
 .IMPORT update_player_movement
 
   ; memory allocation
-.INCLUDE "lib/memory/zeropage.asm"
-.INCLUDE "lib/memory/scrollBuff.asm"
+.INCLUDE "lib/memory/memoryMap.asm"
 
 ; iNES File header, used by NES emulators
-.SEGMENT "HEADER"
 .INCLUDE "data/header/header.asm"
 
 ; =================================================================================================
