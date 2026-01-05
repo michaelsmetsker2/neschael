@@ -27,7 +27,6 @@
 .INCLUDE "lib/game/game.inc"
 .INCLUDE "lib/memory/gameData.inc"
 
-
 .IMPORT scroll_screen
 .IMPORT game_init
 .IMPORT read_joypad_1

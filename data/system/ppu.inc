@@ -3,6 +3,7 @@
 ; data/system/ppu.inc
 ;
 ; PPU-Related assembler directives for Nintendo Entertainment System assembly language.
+; And some PPU related macros.
 ;
 
 ; The PPU (Picture Processing Unit) generates a composite video signal with 240 lines of pixels.
@@ -254,8 +255,6 @@ _OAM_X    = 3
   BNE @clear_loop
   DEX
   BNE @page
-
-  RTS
 .ENDMACRO
 
   ; loads color and position information to RAM
@@ -272,5 +271,4 @@ _OAM_X    = 3
   INX
   CPX #$20
   BNE @load_palettes_loop ; break if all 32 bytes are copied
-  RTS
 .ENDMACRO 

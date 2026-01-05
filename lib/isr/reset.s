@@ -45,7 +45,7 @@
   JMP main
   RTS         ; This should never be called
 .ENDPROC 
-
+ 
 ; waits for the vblank flag, this is slightly inconsist and
   ; NMI should be used instead
 .PROC wait_for_vblank

@@ -11,19 +11,20 @@
 
 .EXPORT player_init
 
-player_sprite:
-  .BYTE <Initial::POSITION_Y, $1, %00000000, <Initial::POSITION_X
-
   ; Initialization values
 .SCOPE Initial
   POSITION_X = $3000 ; unsigned 8.8
   POSITION_Y = $8F00 ; unsigned 8.8
 .ENDSCOPE
 
+player_sprite:
+  .BYTE <Initial::POSITION_Y, $1, %00000000, <Initial::POSITION_X
+
 .PROC player_init
   JSR init_x
   JSR init_y
   JSR init_sprite
+  RTS
 .ENDPROC
 
 .PROC init_x
