@@ -8,7 +8,7 @@
 .SEGMENT "CODE"
 
 .INCLUDE "data/system/cpu.inc"
-.INCLUDE "data/memory/zeropage.inc"
+.INCLUDE "lib/memory/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 
 .IMPORT update_position_x
@@ -27,7 +27,7 @@
 .PROC set_target_velocity_x
 		; TODO check input, eventually use a lookup tabledepending on tile?
 		; heading is also updated in this subproccess
-		LDA btnDown
+		LDA GameData::btnDown
 		AND #_BUTTON_RIGHT
 		BEQ @check_left
 		; change heading to 0 (right)
@@ -41,7 +41,7 @@
 		STA targetVelocityX+1
 		RTS
 @check_left:
-		LDA btnDown
+		LDA GameData::btnDown
 		AND #_BUTTON_LEFT
 		BEQ @no_direction
 		; change heading to 1 (left)
@@ -141,7 +141,7 @@
 		CMP #MotionState::Airborne
 		BEQ @airborne              ; branch if player is airborne
 @check_jump:                 ; can only start a new jump from the ground
-		LDA btnPressed
+		LDA GameData::btnPressed
 		AND #_BUTTON_A
 		BNE @begin_jump            ; branch if a new jump is detected
 		LDA #0
@@ -202,7 +202,7 @@
 		LDY #0                      ; lookup table offset for BASE_FALL_SPEED
 		BIT playerFlags
 		BPL @decelerate             ; branch if held jump isn't set
-		LDA btnDown
+		LDA GameData::btnDown
 		AND #_BUTTON_A
 		BEQ @newly_fast             ; branch if A isn't held
 		; check velocity threshold

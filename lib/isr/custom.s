@@ -7,6 +7,10 @@
 ; this interrupt is maskable (IRQ).
 ;
 
+.SEGMENT "CODE"
+
+.EXPORT isr_custom
+
 .PROC isr_custom
 
     NOP  ; Do nothing

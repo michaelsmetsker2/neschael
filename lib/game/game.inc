@@ -7,13 +7,13 @@
 
 ; update the render flag so the game logic will wait on NMI
 .MACRO SetRenderFlag
-  LDA gameFlags
+  LDA GameData::gameFlags
   ORA #%10000000
-  STA gameFlags
+  STA GameData::gameFlags
 .ENDMACRO
 
 .MACRO UnsetRenderFlag
-  LDA gameFlags
+  LDA GameData::gameFlags
   AND #%01111111
-  STA gameFlags
+  STA GameData::gameFlags
 .ENDMACRO

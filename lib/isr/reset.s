@@ -6,11 +6,11 @@
 ;
 .SEGMENT "CODE"
 
-.INCLUDE "palettes/palettes.inc"
+.INCLUDE "data/palettes/palettes.inc"
 
-.INCLUDE "system/ppu.inc"
-.INCLUDE "system/apu.inc"
-.INCLUDE "system/cpu.inc"
+.INCLUDE "data/system/ppu.inc"
+.INCLUDE "data/system/apu.inc"
+.INCLUDE "data/system/cpu.inc"
 
 .IMPORT main
 

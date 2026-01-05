@@ -10,8 +10,8 @@
 
 .INCLUDE "data/system/ppu.inc"
 
-.INCLUDE "data/memory/zeropage.inc"
-.INCLUDE "data/memory/scrollBuff.inc"
+.INCLUDE "lib/memory/gameData.inc"
+.INCLUDE "lib/memory/scrollBuffer.inc"
 
 .INCLUDE "lib/scrolling/scrolling.inc"
 
@@ -27,47 +27,47 @@
 ; apply the scrollAmount, swap nametables and fill the scroll buffer if neccessary
 .PROC scroll_screen
 
-  LDA scrollAmount
+  LDA GameData::scrollAmount
   BEQ @done            ; return early if no scroll is needed 
 
     ;store the previous scroll position
-  LDA screenPosX
+  LDA GameData::screenPosX
   STA tmpOldScrollPos
-  LDA screenPosX+1
+  LDA GameData::screenPosX+1
   STA tmpOldScrollPos+1
 
 @update_scroll_position:
   
-  LDA screenPosX
+  LDA GameData::screenPosX
   CLC
-  ADC scrollAmount     ; add low byte
-  STA screenPosX
-  LDA screenPosX+1
+  ADC GameData::scrollAmount     ; add low byte
+  STA GameData::screenPosX
+  LDA GameData::screenPosX+1
   
-  BIT scrollAmount     ; check sign of scrollAmount
+  BIT GameData::scrollAmount     ; check sign of scrollAmount
   BPL @positive
 @negative:
   
   ADC #$FF             ; extend sign
-  STA screenPosX+1
+  STA GameData::screenPosX+1
 
   JMP @check_nametable_boundary
 @positive:
 
   ADC #$00             ; add carry
-  STA screenPosX+1
+  STA GameData::screenPosX+1
 
 @check_nametable_boundary:
   CMP tmpOldScrollPos+1
   BEQ @check_metatile_boundary ; branch if we havn't scrolled onto a new nametable
 
-  LDA nametable
+  LDA GameData::nametable
   EOR #$01                ; flip nametable
-  STA nametable  
+  STA GameData::nametable  
 
 @check_metatile_boundary: ; see if we crossed into a new metatile so we must draw more
   LDA tmpOldScrollPos
-  EOR screenPosX
+  EOR GameData::screenPosX
   AND #%11110000
   CMP #$00
   BEQ @reset_scroll_amount  ; if we're on the same metatile, don't draw
@@ -75,7 +75,7 @@
   JSR fill_scroll_buffer
 @reset_scroll_amount:
   LDA #$00
-  STA scrollAmount
+  STA GameData::scrollAmount
 @done:
   RTS
 .ENDPROC
@@ -83,12 +83,12 @@
 ; fully draws the first screen upon loading a level
 .PROC draw_first_screen
   LDA #$01          ; flip nametable so we start drawing on first screen
-  STA nametable
+  STA GameData::nametable
 
   LDA #$FF          ; set the screen one background back and scroll right
-  STA screenPosX+1
+  STA GameData::screenPosX+1
   LDA #$00          
-  STA screenPosX
+  STA GameData::screenPosX
   STA $00           ; loop counter
 
 @draw_loop:
@@ -98,11 +98,11 @@
 
   CLC
   LDA #$10
-  ADC screenPosX      ; increment screen position by one metatile
-  STA screenPosX
+  ADC GameData::screenPosX      ; increment screen position by one metatile
+  STA GameData::screenPosX
   LDA #$00
-  ADC screenPosX+1
-  STA screenPosX+1
+  ADC GameData::screenPosX+1
+  STA GameData::screenPosX+1
 
   INC $00
   LDA $00
@@ -111,7 +111,7 @@
 
     ; reset nametable
   LDA #$00
-  STA nametable
+  STA GameData::nametable
     ; fill the buffer once more so the first col of nametable 1 is filled
   JSR fill_scroll_buffer
 

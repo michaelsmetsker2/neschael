@@ -7,17 +7,17 @@
 .SEGMENT "CODE"
 
 .INCLUDE "data/system/ppu.inc"
-.INCLUDE "data/memory/zeropage.inc"
-.INCLUDE "data/memory/scrollBuff.inc"
 
 .INCLUDE "lib/game/game.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
+.INCLUDE "lib/memory/scrollBuffer.inc"
+.INCLUDE "lib/memory/gameData.inc"
 
 .EXPORT isr_nmi
 
 .PROC isr_nmi
 
-  BIT gameFlags
+  BIT GameData::gameFlags
   BMI @continue ; return early if logic hasn't finished this frame (drop frame)
   RTI
 @continue:

@@ -22,12 +22,11 @@
 ; $034E-$07FF:  General Purpose RAM
 ;-------------------------------------------------------------------------------
 
-  ; constants
-.INCLUDE "data/memory/zeropage.inc"
-
   ; main loop macros
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/game/game.inc"
+.INCLUDE "lib/memory/gameData.inc"
+
 
 .IMPORT scroll_screen
 .IMPORT game_init
@@ -37,10 +36,13 @@
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
 
+  ; memory allocation
+.INCLUDE "lib/memory/zeropage.asm"
+.INCLUDE "lib/memory/scrollBuff.asm"
 
 ; iNES File header, used by NES emulators
 .SEGMENT "HEADER"
-.INCLUDE "data/header/header.inc"
+.INCLUDE "data/header/header.asm"
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -67,7 +69,7 @@ game_loop:
 
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
-  BIT gameFlags
+  BIT GameData::gameFlags
   BMI @wait_for_render
 
   JMP game_loop

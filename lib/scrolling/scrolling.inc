@@ -5,6 +5,9 @@
 ; macros used for drawing from the scroll buffer during NMI
 ;
 
+  COLUMN_LENGTH          = $1C  ; the amount of tiles per the column
+  ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
+
 ; copy uncompressed nametable data to the PPU at the correct memory location
 .MACRO DrawOffscreenTiles    
   LDA #%00000100        ; set to increment +32 mode
@@ -79,7 +82,7 @@
 
 ; resets the draw gameflag
 .MACRO ResetDrawFlag
-  LDA gameFlags
+  LDA GameData::gameFlags
   AND #%10111111
-  STA gameFlags
+  STA GameData::gameFlags
 .ENDMACRO
