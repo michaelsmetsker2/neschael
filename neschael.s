@@ -7,8 +7,7 @@
 
   ; macro definitions used in main loop
 .INCLUDE "data/system/ppu.inc"
-.INCLUDE "lib/game/game.inc"
-.INCLUDE "lib/memory/gameData.inc"
+.INCLUDE "lib/game/gameData.inc"
 
 .IMPORT scroll_screen
 .IMPORT game_init
@@ -22,7 +21,7 @@
 .INCLUDE "lib/memory/memoryMap.asm"
 
 ; iNES File header, used by NES emulators
-.INCLUDE "data/header/header.asm"
+.INCLUDE "lib/header/header.asm"
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -49,7 +48,7 @@ game_loop:
 
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
-  BIT GameData::gameFlags
+  BIT gameFlags
   BMI @wait_for_render
 
   JMP game_loop

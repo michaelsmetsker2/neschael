@@ -12,13 +12,13 @@
 .EXPORT player_init
 
   ; Initialization values
-.SCOPE Initial
+.SCOPE Initiald
   POSITION_X = $3000 ; unsigned 8.8
   POSITION_Y = $8F00 ; unsigned 8.8
 .ENDSCOPE
 
 player_sprite:
-  .BYTE <Initial::POSITION_Y, $1, %00000000, <Initial::POSITION_X
+  .BYTE <Initiald::POSITION_Y, $1, %00000000, <Initiald::POSITION_X
 
 .PROC player_init
   JSR init_x
@@ -35,9 +35,9 @@ player_sprite:
   STA velocityX 
   STA velocityX+1
     ; Sets initial X-position to 110 or $06E0 in 12.4 fixed point
-  LDA #<Initial::POSITION_X
+  LDA #<Initiald::POSITION_X
   STA positionX
-  LDA #>Initial::POSITION_X
+  LDA #>Initiald::POSITION_X
   STA positionX+1
   RTS   
 .ENDPROC
@@ -48,9 +48,9 @@ player_sprite:
   STA velocityY 
   STA velocityY+1
     ; Set initial Y-position
-  LDA #<Initial::POSITION_Y
+  LDA #<Initiald::POSITION_Y
   STA positionY
-  LDA #>Initial::POSITION_Y
+  LDA #>Initiald::POSITION_Y
   STA positionY + 1
   RTS
 .ENDPROC

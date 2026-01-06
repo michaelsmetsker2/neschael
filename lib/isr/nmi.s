@@ -8,16 +8,14 @@
 
 .INCLUDE "data/system/ppu.inc"
 
-.INCLUDE "lib/game/game.inc"
+.INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
-.INCLUDE "lib/memory/scrollBuffer.inc"
-.INCLUDE "lib/memory/gameData.inc"
 
 .EXPORT isr_nmi
 
 .PROC isr_nmi
 
-  BIT GameData::gameFlags
+  BIT gameFlags
   BMI @continue ; return early if logic hasn't finished this frame (drop frame)
   RTI
 @continue:

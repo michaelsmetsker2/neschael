@@ -8,6 +8,7 @@ bin/*
 
 # local file system stuff
 make.bat
+make.sh
 
 # enviornment stuff
 .vscode/

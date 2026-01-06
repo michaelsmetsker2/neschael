@@ -94,7 +94,7 @@
 
 ; resets the draw gameflag
 .MACRO ResetDrawFlag
-  LDA GameData::gameFlags
+  LDA gameFlags
   AND #%10111111
-  STA GameData::gameFlags
+  STA gameFlags
 .ENDMACRO

@@ -7,9 +7,9 @@
 
 .SEGMENT "CODE"
 
-.INCLUDE "lib/memory/scrollBuffer.inc"
 .INCLUDE "lib/player/player.inc"
-.INCLUDE "lib/memory/gameData.inc"
+.INCLUDE "lib/game/gameData.inc"
+.INCLUDE "lib/scrolling/scrolling.inc"
 
 .INCLUDE "data/levels/testLevel.inc"
 
@@ -24,9 +24,9 @@
 .PROC fill_scroll_buffer
 
     ; dividing the scroll position by 16 gives the index of the current metatile
-  LDA GameData::screenPosX
+  LDA screenPosX
   STA tmpMetatileIndex
-  LDA GameData::screenPosX+1
+  LDA screenPosX+1
   STA tmpMetatileIndex+1
   
   ROR tmpMetatileIndex+1
@@ -48,9 +48,9 @@
   JSR fill_attrib_data
   
     ; set draw flag so for next NMI
-  LDA GameData::gameFlags
+  LDA gameFlags
   ORA #%01000000
-  STA GameData::gameFlags
+  STA gameFlags
 .ENDPROC
 
 ; fills the high address byte in the scroll buffer
@@ -59,11 +59,11 @@
   LDA velocityX+1
   BPL @flip_table         ; draw to opposite nametable when scrolling right
 @use_current:
-  LDA GameData::nametable    ; use the current when scrolling left
+  LDA nametable    ; use the current when scrolling left
   JMP @final
 
 @flip_table:
-  LDA GameData::nametable    ; load the current nametable and flip the bit
+  LDA nametable    ; load the current nametable and flip the bit
   EOR #$01
 
 @final:            ; convert nametable to an address
@@ -77,7 +77,7 @@
 ; fill the low address of the top of each column in ppu memory
 .PROC fill_buff_addr_low
 
-  LDA GameData::screenPosX ; pixel pos relative to background
+  LDA screenPosX ; pixel pos relative to background
   LSR A
   LSR A
   LSR A          ; divide by 8 to find the column index
@@ -109,7 +109,7 @@
 @right:
 
     ; pull data from the next background
-  LDY GameData::screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
+  LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
   INY              ; increment as we buffer the data from the next one
   TYA
   ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
@@ -119,7 +119,7 @@
 @left:
   ; pull data from the current background
   
-  LDA GameData::screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
+  LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
   ASL A                 ; * 2 to get byte offset in backgrounds lookup table
   TAY
 
@@ -169,7 +169,7 @@
 @right:
 
     ; pull data from the next background
-  LDY GameData::screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
+  LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
   INY              ; increment as we buffer the data from the next one
   TYA
   ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
@@ -179,7 +179,7 @@
 @left:
   ; pull data from the current background
   
-  LDA GameData::screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
+  LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
   ASL A                 ; * 2 to get byte offset in backgrounds lookup table
   TAY
 

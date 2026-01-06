@@ -206,7 +206,7 @@ _OAM_X    = 3
 
 .MACRO EnableVideoOutput
   LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
-  ORA GameData::nametable    ; select correct nametable for bit 0
+  ORA nametable    ; select correct nametable for bit 0
   STA _PPUCTRL
   
   LDA #%00011110   ; enable sprites, enable background, no clipping on left side
@@ -225,7 +225,7 @@ _OAM_X    = 3
 
 ; set the scroll as writes to VRAM will offest it
 .MACRO SetScroll
-  LDA GameData::screenPosX
+  LDA screenPosX
   STA _PPUSCROLL
   LDA #$00
   STA _PPUSCROLL

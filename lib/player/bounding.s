@@ -7,7 +7,7 @@
 
 .SEGMENT "CODE"
 
-.INCLUDE "lib/memory/gameData.inc"
+.INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 
 .EXPORT update_position_x
@@ -67,7 +67,7 @@
 	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
 	; TODO check the ammount we want to scroll with the end of the level
 
-	STA GameData::scrollAmount							 ; scroll the ammount the player overshot the threshold
+	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
 
 	JMP @end_threshold_check
 @left_threshold:
@@ -83,7 +83,7 @@
 @end_threshold_check: ; subtract the ammount scrolled from deltaX
 	LDA tmpDeltaX+1
 	SEC
-	SBC GameData::scrollAmount
+	SBC scrollAmount
 	STA tmpDeltaX+1
 
 @no_scroll:
@@ -103,11 +103,12 @@
 
 	JMP @compare_difference
 @difference_zero:
+
 	CLC
-	LDA GameData::screenPosX
+	LDA screenPosX
 	ADC tmpProposedScroll
 	STA $11                 ; low byte, ammount we may have overshot by 
-	LDA GameData::screenPosX+1
+	LDA screenPosX+1
 	ADC #$FF
 
 @compare_difference:
@@ -120,5 +121,6 @@
 
 @apply_scroll:
 	LDA tmpProposedScroll
-	STA GameData::scrollAmount
+	STA scrollAmount
+	RTS
 .ENDPROC
