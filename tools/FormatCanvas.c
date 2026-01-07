@@ -67,6 +67,8 @@ int main() {
 		}
 	}
 
+  return 0;
+
 	// make sure we got all we needed
 	if (index != SIZE) {
 		fprintf(stderr, "sumthin fucked up, %d index != %d size\n", index, SIZE);

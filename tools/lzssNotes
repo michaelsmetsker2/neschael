@@ -1,0 +1,20 @@
+in the decoder, replace putchar with.. 
+actually delete it since you only care about the level being in the 256 byte buffer, 
+bBuf being that buffer, rename it if you want, you will have to modify it somehow to make
+ it not decompress everything at once
+
+
+i had to modify it like that for my ggjam entry, so i made it put two $00 bytes 1/3rd and 
+2/3rds into the stream, so i could decode a third, write it to vram across 2 frames, and 
+repeat until its decoded, across 6 frames
+ah i actually made it put 5 $00 bytes there
+
+the code obviously had to be modified to allow for pausing and resuming compression too
+in your case i would recommend stopping every, say, 64 bytes, and you could check for this
+ without inserting fake 'end of stream' markers which you have to count, you could just 
+ make the decode head never cross a 64-byte boundary, and inthe decoder check if 
+ (decode_head & $3f) == 0
+but thats assuming one screen of the level can fit in 64 or 128 bytes, if it cant,
+ you could have two 256 byte buffers and alternate between them (with two duplicate 
+ decoder functions to use a particular buffer)
+the exact details will depend on how your levels are stored in memory
