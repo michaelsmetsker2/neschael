@@ -24,7 +24,7 @@ int getMetatileIndex(Metatile m, Metatile unique[], int uniqueCount) {
     for (int i = 0; i < uniqueCount; i++) {
         Metatile u = unique[i];
         if (m.t1 == u.t1 && m.t2 == u.t2 &&
-            m.t3 == u.t3 && m.t4 == u.t4) {
+            m.b1 == u.b1 && m.b2 == u.b2) {
             return i; // found the ID
         }
     }
@@ -53,7 +53,7 @@ int main() {
 	// throw away the first line (filename)
 	fgets(line, sizeof(line), fptr);
 
-  for (int row = 0; row < HEIGHT; row++) { // read file line by line
+  for (int row = 0; row < HEIGHT * 2; row++) { // read file line by line
     if (!fgets(line, sizeof(line), fptr)) {
 			fprintf(stderr, "not enough lines\n");
       return 1;
@@ -62,11 +62,8 @@ int main() {
 		// only grab the numbers
     for (char *p = line; *p; p++) {
       if (*p == '$') {
-				p++;
         matrix[index++] = (uint8_t)strtol(p, NULL, 16); // and store them in the matrix
-      } else {
-				p++
-			}
+      }
 		}
 	}
 
@@ -76,7 +73,7 @@ int main() {
 		return 1;
 	}
 
-// create an index of metatiles being used in the current canvas
+  // create an index of metatiles being used in the current canvas
 	int mIndex = 0;
 	for(int mRow = 0; mRow < META_HEIGHT; mRow++) {
 		for(int mCol = 0; mCol < META_WIDTH; mCol++) {
@@ -94,14 +91,14 @@ int main() {
 	}
 
   int uniqueCount = 0;
-  for (int i = 0; i < SIZE / 4; i++) {
+  for (int i = 0; i < META_SIZE; i++) {
     Metatile m = mMap[i];
     int found = 0;
 
     for (int j = 0; j < uniqueCount; j++) {
       Metatile u = mTiles[j];
       if (m.t1 == u.t1 && m.t2 == u.t2 &&
-          m.t3 == u.t3 && m.t4 == u.t4) {
+          m.b1 == u.b1 && m.b2 == u.b2) {
 
           found = 1;
           break;
@@ -115,10 +112,7 @@ int main() {
       }
       mTiles[uniqueCount++] = m;
     }
-
-
-
-  }
+  } 
 
   // put in column major order
   for (int row = 0; row < HEIGHT / 2; row++) {
