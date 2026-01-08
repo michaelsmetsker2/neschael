@@ -1,3 +1,11 @@
+/*
+simple script, used for formatting level data,
+THIS DOES NOT COMPRESS IT
+
+all it does is assign an arbitrary ID to the metatiles it uses and converts it to column major order
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +17,7 @@
 #define SIZE (WIDTH * HEIGHT)
 #define META_WIDTH  16
 #define META_HEIGHT 14
-#define META_SIZE (META_WIDTH * META_HEIGHT)
+#define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
 
 #define MAX_UNIQUE 256 
 
@@ -34,13 +42,12 @@ int getMetatileIndex(Metatile m, Metatile unique[], int uniqueCount) {
 
 int main() {
   char line[1024];            // max line size when reading from file
-  uint8_t matrix[SIZE];
+  uint8_t input[SIZE];
 
 	int index = 0;
 
   Metatile mTiles[MAX_UNIQUE];
-  Metatile mMap[SIZE / 4];
-  Metatile mMapT[SIZE /4];
+  Metatile mMap[META_SIZE];
 
 	FILE *fptr = fopen("canvas.asm", "r");
 
@@ -60,34 +67,32 @@ int main() {
     }
     
 		// only grab the numbers
-    for (char *p = line; *p; p++) {
-      if (*p == '$') {
-        matrix[index++] = (uint8_t)strtol(p, NULL, 16); // and store them in the matrix
+    for (char *p = line; *p;) {
+      if (*p++ == '$') {
+        input[index++] = (uint8_t)strtol(p, NULL, 16); // and store them in the matrix
       }
 		}
 	}
-
-  return 0;
-
+  
 	// make sure we got all we needed
 	if (index != SIZE) {
-		fprintf(stderr, "sumthin fucked up, %d index != %d size\n", index, SIZE);
+    fprintf(stderr, "sumthin fucked up, %d index != %d size\n", index, SIZE);
 		return 1;
 	}
-
+  
   // create an index of metatiles being used in the current canvas
 	int mIndex = 0;
 	for(int mRow = 0; mRow < META_HEIGHT; mRow++) {
-		for(int mCol = 0; mCol < META_WIDTH; mCol++) {
-
-			int row = mRow * 2;
+    for(int mCol = 0; mCol < META_WIDTH; mCol++) {
+      
+      int row = mRow * 2;
 			int col = mCol * 2;
-
-			mMap[mIndex].t1 = matrix[row * WIDTH + col];
-			mMap[mIndex].t2 = matrix[row * WIDTH + col + 1];
-			mMap[mIndex].b1 = matrix[(row + 1) * WIDTH + col];
-			mMap[mIndex].b2 = matrix[(row + 1 )* WIDTH + col + 1];
-
+      
+			mMap[mIndex].t1 = input[row * WIDTH + col];
+			mMap[mIndex].t2 = input[row * WIDTH + col + 1];
+			mMap[mIndex].b1 = input[(row + 1) * WIDTH + col];
+			mMap[mIndex].b2 = input[(row + 1 )* WIDTH + col + 1];
+      
 			mIndex++;
 		}
 	}
@@ -116,26 +121,17 @@ int main() {
     }
   } 
 
-  // put in column major order
-  for (int row = 0; row < HEIGHT / 2; row++) {
-    for (int col = 0; col < WIDTH / 2; col++) {
-
-      mMapT[col * HEIGHT / 2 + row] = mMap[row * WIDTH / 2 + col];
-
-    }
-  }
-
-  
   // print result
-  for (int row = 0; row < HEIGHT / 2; row++) {
-      printf(".byte ");
-      for (int col = 0; col < WIDTH / 2; col++) {
-          int idx = col * HEIGHT / 2 + row; // column-major
-          int id = getMetatileIndex(mMapT[idx], mTiles, uniqueCount);
+  for (int col= 0; col < META_WIDTH; col++) {
+      printf(".BYTE ");
+      for (int row = 0; row < META_HEIGHT; row++) {
+
+          int index = row * META_WIDTH + col;
+        
+          int id = getMetatileIndex(mMap[index], mTiles, uniqueCount);
+        
           printf("$%02X", id);
-          if (col < WIDTH / 2 - 1) {
-            printf(", ");
-          }
+          if (row < META_HEIGHT - 1) printf(", ");
       }
       printf("\n");
   }

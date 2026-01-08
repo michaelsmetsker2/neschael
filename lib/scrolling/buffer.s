@@ -12,6 +12,7 @@
 .INCLUDE "lib/scrolling/scrolling.inc"
 
 .INCLUDE "data/levels/testLevel.inc"
+.INCLUDE "data/tiles/metatiles.inc"
 
 
 .EXPORT fill_scroll_buffer
@@ -19,7 +20,8 @@
   COLUMN_Y_OFFSET        = $20 ; the offset of the low bytes, since we don't draw the top 8 scanlines   
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
-  tmpBufferPointer       = $13 ; low bye first, points to data to be read to the buffer
+  tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
+  tmpTilePointer         = $15 ; low byte first, points to the metatile to decode
 
 .PROC fill_scroll_buffer
 
@@ -149,11 +151,38 @@
 .ENDPROC
 
 .PROC fill_tile_data
-  ; TODO this is all temp pre metatiles and RTI
+  ; TODO this is temp untill compression
   LDY #$00
-
-@loop:                    ; sets 60 bytes consecutively, both rows of the column
+@loop:
+    ; set the location of tmpTilePointer to the correct metatile
   LDA (tmpBufferPointer), Y
+  ASL A                       ; multiply by two to get lookup table offset
+  TAX
+  LDA metatiles, X
+  STA tmpTilePointer
+  INX
+  LDA metatiles, X
+  STA tmpTilePointer+1
+
+    ; copy metatile data to buffer
+  LDX #$00
+
+; TODO this should be like y times 2
+  LDA (tmpTilePointer), X
+  STA ScrollBuffer::colLeft, Y
+  INX
+  LDA (tmpTilePointer), X
+  STA ScrollBuffer::colRight, Y
+  INX
+  
+  LDA (tmpTilePointer), X
+  STA ScrollBuffer::colLeft, Y
+  INX
+  LDA (tmpTilePointer), X
+  STA ScrollBuffer::colRight, Y
+
+
+
   STA ScrollBuffer::colLeft, Y    
   INY
   CPY #$3C
