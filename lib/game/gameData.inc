@@ -17,8 +17,8 @@ btnPressed     = $41  ; New button presses this frame
 btnDown        = $42  ; All buttons currently being pressed
 
 nametable      = $43  ; which primary nametable to use, 0 or 1
-screenPosX     = $44  ; 16 bit, pixel position o fthe left side of the screen relative to the world start
-scrollAmount   = $46  ; signed, the ammount to scroll the screen
+screenPosX     = $44  ; 16 bit, pixel position of the left side of the screen relative to the world start
+scrollAmount   = $46  ; signed, the ammount to scroll the screen by the end of the frame
 
 ; update the render flag so the game logic will wait on NMI
 .MACRO SetRenderFlag

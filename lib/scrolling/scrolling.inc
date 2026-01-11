@@ -18,7 +18,9 @@
 .ENDSCOPE
 
   COLUMN_LENGTH          = $1C  ; the amount of tiles per the column
+  META_COLUMN_LENGTH     = $0E
   ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
+
 
 ; copy uncompressed nametable data to the PPU at the correct memory location
 .MACRO DrawOffscreenTiles    

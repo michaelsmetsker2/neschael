@@ -12,6 +12,7 @@
 .INCLUDE "lib/player/player.inc"
 
 .IMPORT update_position_x
+.IMPORT update_position_y
 
 .EXPORT update_player_movement
 
@@ -192,8 +193,7 @@
 		RTS
 @airborne:
 		JSR update_jump_velocity
-		JSR apply_velocity_y        ; these are not in update so an early exit can save cpu cycles
-		JSR bound_position_y
+		JSR update_position_y        ; these are not in update so an early exit can save cpu cycles
 		RTS
 .endproc
 
@@ -230,34 +230,4 @@
 fall_speeds:
 		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL
 		.BYTE <Jump::SLOW_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
-.ENDPROC
-
-.PROC apply_velocity_y ; add current velocity to the position
-		CLC
-		LDA velocityY     ; low byte
-		ADC positionY     ; add signed velocity low
-		STA positionY
-		LDA velocityY+1   ; high byte
-		ADC positionY+1   ; add carry
-		STA positionY+1
-		RTS
-.ENDPROC
-
-.PROC bound_position_y
-		LDA positionY+1
-
-@check_landing: ; This will need to be changed for collision
-		CMP #Jump::FLOOR_HEIGHT ; remember y increases downward :)
-		BCS @land
-		RTS
-@land:
-		; clamp position to the landing height
-		LDA #00
-		STA positionY ; clear low byte
-		LDA #Jump::FLOOR_HEIGHT
-		STA positionY+1
-		LDA #MotionState::Still ; update motion state, idk how this will
-														; end up working with movement
-		STA motionState
-		RTS
 .ENDPROC

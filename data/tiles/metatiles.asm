@@ -19,13 +19,20 @@
 
 
 metatiles:
-  .WORD test_block_1a, test_block_1b, test_sky___1a
+  .WORD test_block_1a, test_sky___1a, test_block_1b, test_block_1c
 
 test_block_1a:
   .BYTE $01, $02, $11, $12 ; tile data
-                           ; two bytes (4 nibbles) collision data
+  .BYTE $01, $01, $01, $01 ; collision data
+
+test_sky___1a:
+  .BYTE $00, $00, $00, $00
+  .BYTE $00, $00, $00, $00
 
 test_block_1b:
-  .BYTE $00, $00, $02, $02
-test_sky___1a:
-  .BYTE $00, $03, $03, $00
+  .BYTE $03, $00, $03, $00
+  .BYTE $00, $00, $00, $00
+
+test_block_1c:
+  .BYTE $00, $00, $03, $03
+  .BYTE $00, $00, $00, $00

@@ -11,8 +11,8 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/levels/testLevel.inc"
-.INCLUDE "data/tiles/metatiles.inc"
+.INCLUDE "data/levels/testLevel2.asm"
+.INCLUDE "data/tiles/metatiles.asm"
 
 
 .EXPORT fill_scroll_buffer
@@ -150,9 +150,12 @@
   RTS
 .ENDPROC
 
+  ; TODO this will drastically change when compression is introduced
 .PROC fill_tile_data
-  ; TODO this is temp untill compression
+
   LDY #$00
+
+  STY $0F
 @loop:
     ; set the location of tmpTilePointer to the correct metatile
   LDA (tmpBufferPointer), Y
@@ -164,28 +167,41 @@
   LDA metatiles, X
   STA tmpTilePointer+1
 
-    ; copy metatile data to buffer
-  LDX #$00
-
-; TODO this should be like y times 2
-  LDA (tmpTilePointer), X
-  STA ScrollBuffer::colLeft, Y
-  INX
-  LDA (tmpTilePointer), X
-  STA ScrollBuffer::colRight, Y
-  INX
-  
-  LDA (tmpTilePointer), X
-  STA ScrollBuffer::colLeft, Y
-  INX
-  LDA (tmpTilePointer), X
-  STA ScrollBuffer::colRight, Y
-
-
-
-  STA ScrollBuffer::colLeft, Y    
+    ; temporarily store the metatile's tile data in scratch memory 
+  LDY #$00
+  LDA (tmpTilePointer), Y
+  STA $06
   INY
-  CPY #$3C
+  LDA (tmpTilePointer), Y
+  STA $07
+  INY
+  LDA (tmpTilePointer), Y
+  STA $08
+  INY
+  LDA (tmpTilePointer), Y
+  STA $09
+  INY
+
+    ; set why to the current tile position (*2)
+  LDA $0F
+  ASL
+  TAY
+  
+    ; store the tile data in the correct spot in the buffer
+  LDA $06
+  STA ScrollBuffer::colLeft, Y
+  LDA $07
+  STA ScrollBuffer::colRight, Y
+  INY
+  LDA $08
+  STA ScrollBuffer::colLeft, Y
+  LDA $09
+  STA ScrollBuffer::colRight, Y
+
+  LDY $0F
+  INY       ; increment and conditionally loop
+  STY $0F
+  CPY #META_COLUMN_LENGTH
   BCC @loop
 
   RTS

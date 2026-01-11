@@ -121,13 +121,13 @@ int main() {
     }
   } 
 
-  // print result
+  // print result in column row order
   for (int col= 0; col < META_WIDTH; col++) {
-      printf(".BYTE ");
+      printf("column0z_%i:\n", col);
+      printf("\t.BYTE ");
       for (int row = 0; row < META_HEIGHT; row++) {
 
           int index = row * META_WIDTH + col;
-        
           int id = getMetatileIndex(mMap[index], mTiles, uniqueCount);
         
           printf("$%02X", id);
