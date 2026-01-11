@@ -11,6 +11,7 @@
 .INCLUDE "lib/player/player.inc"
 
 .IMPORT background_index ; TODO this is temp until level pointers
+.IMPORT metatiles
 
 .EXPORT update_position_x
 .EXPORT update_position_y
@@ -155,7 +156,7 @@
 
 @check_direction:
 	BIT velocityY+1
-	BMI @check_land_left ; check head or land depending on falling or rising
+	BPL @check_land_left ; check head or land depending on falling or rising
 @check_head:
 	; TODO
 	JMP @skip_collision
@@ -194,11 +195,14 @@
 	STA velocityY
 	STA velocityY+1
 	; clamp position
-	LDA tmpProposedPosFinal
+	LDA #$00
+	STA tmpProposedPosFinal
+
+	LDA tmpProposedPosFinal+1
 	AND #%11111000					; allign to the top of the tile
 	SEC
 	SBC #$01								;	 move up one pixel
-	STA tmpProposedPosFinal
+	STA tmpProposedPosFinal+1
 
 	;	 set motion state
 	LDA #MotionState::Still
@@ -212,7 +216,6 @@
 	STA positionY+1 
 	RTS
 .ENDPROC
-
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision
@@ -252,19 +255,23 @@
 	LSR A
 	LSR A
 	STA $0B ; store /8 tile index Y for later
-	lSR A ; / 16 for metatile index
-	ASL A ; * 2 for byte offset
+	LSR A ; / 16 for metatile index
 	TAY
 	
-	LDA (tmpTilePointer), Y ; update the pointer
-	TAX
+	LDA (tmpTilePointer), Y ; get the value of the metatile
+
+	; update the pointer to the correct metatiles data
+	ASL  										; *2 for byte offset
+	TAY
+	LDA metatiles, Y
+	STA tmpTilePointer
 	INY
-	LDA (tmpTilePointer), Y
-	STX tmpTilePointer
+	LDA metatiles, Y
 	STA tmpTilePointer+1
 
 @find_collision:
-	; find the correct tile 	 
+	  ; find the correct tile 	 
+	CLC
 	LDA $0A				 ; tile index X
 	AND #%00000001 ; left or right column
 	STA $0A
@@ -277,8 +284,7 @@
 	ADC #$04			 ; add collision data offset for final offset
 	TAY
 
-  ; return collision
+    ; return collision
 	LDA (tmpTilePointer), Y
-
 	RTS
 .ENDPROC

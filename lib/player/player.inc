@@ -25,7 +25,6 @@
                             ; 7   if the player has been holding A since the start of the jump
 
 .SCOPE Jump
-  FLOOR_HEIGHT           = 143   ; screen cords temp ============================
   INITIAL_VELOCITY       = $FC00 ; signed fixed point 8.8 
   HORIZONRAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
   SLOW_FALL_DECCEL       = $25   ; deceleration while holding A

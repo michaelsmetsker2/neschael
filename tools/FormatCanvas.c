@@ -50,7 +50,6 @@ int main() {
   Metatile mMap[META_SIZE];
 
 	FILE *fptr = fopen("canvas.asm", "r");
-
 	
 	if (!fptr) {
 		fprintf(stderr, "couldn't find/open the file\n");
