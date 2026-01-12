@@ -17,8 +17,8 @@
     attribute     = $033B ; attribute data shared by both columns, 4 tiles per attribute vertically
 .ENDSCOPE
 
-  COLUMN_LENGTH          = $1C  ; the amount of tiles per the column
-  META_COLUMN_LENGTH     = $0E
+  COLUMN_LENGTH          = $1A  ; the amount of tiles per the column
+  META_COLUMN_LENGTH     = $0D
   ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
 
 

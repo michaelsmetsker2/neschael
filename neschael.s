@@ -17,12 +17,6 @@
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
 
-  ; memory allocation
-.INCLUDE "lib/memory/memoryMap.asm"
-
-; iNES File header, used by NES emulators
-.INCLUDE "lib/header/header.asm"
-
 ; =================================================================================================
 ;  ROM (PRG) Data
 ; =================================================================================================

@@ -10,26 +10,28 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 
-.IMPORT background_index ; TODO this is temp until level pointers
-.IMPORT metatiles
+
+.IMPORT find_collision
 
 .EXPORT update_position_x
 .EXPORT update_position_y
 
+.EXPORT tmpCollisionPointX
+.EXPORT tmpCollisionPointY
+
 		; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT  = $55
 	SCROLL_THRESHOLD_RIGHT = $AB
+
+	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
+	PLAYER_FEET_OFFSET     = $08 ; 8 pixels to players feet
 		
 	tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
-
-	tmpProposedPosFinal   = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
-
+	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
 	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
 	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
-
-	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
 
 ; adds the velocity to the position
 .PROC update_position_x
@@ -136,7 +138,6 @@
 .ENDPROC
 
 .PROC update_position_y
-
 	; find the proposed final position
 	CLC
 	LDA positionY
@@ -146,7 +147,7 @@
 	ADC velocityY+1
 	STA tmpProposedPosFinal+1 ; pixel position
 
-	; see if we cross a tile boundary
+	; BUG see if we cross a tile boundary
 	AND #%11111000 ; mask for just tile index
 	STA $10
 	LDA positionY+1
@@ -154,16 +155,7 @@
 	CMP $10
 	BEQ @skip_collision
 
-@check_direction:
-	BIT velocityY+1
-	BPL @check_land_left ; check head or land depending on falling or rising
-@check_head:
-	; TODO
-	JMP @skip_collision
-@check_land_left:
-
-	; set collision point to the correct location (left)
-	; set X (unchanged)
+@check_collision_left: ; check collision at top left or bottom left
 	CLC                       ; player pos plus world pos
 	LDA screenPosX
 	ADC positionX+1           ; high byte is pixel position
@@ -171,25 +163,40 @@
 	LDA screenPosX+1
 	ADC #$00									; add carry
 	STA tmpCollisionPointX+1
-	; set Y (offset 8)
+
+	; set Y offset depending on the sign of the velocity
+	LDA #PLAYER_FEET_OFFSET     ; used if player is grounded or moving down
+	BIT velocityY+1
+	BPL @add_offset_y
+	LDA motionState
+	CPY MotionState::Airborne
+	BNE @add_offset_y
+	LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
+
+@add_offset_y:	
 	CLC
 	LDA tmpProposedPosFinal+1 ; highy byte is pixel position
-	ADC #$08
+	ADC #$08									; offset to toes
 	STA tmpCollisionPointY
 
 	JSR find_collision ; load accumulator with collision data
+	CMP #$0
+	BNE @collide       ; if we hit something ; TODO pick the one with the highest priority?
+@check_collision_right:
+	CLC
+	LDA tmpCollisionPointX
+	ADC #$08 									; offest to right foot
+	STA tmpCollisionPointX
+	LDA tmpCollisionPointX+1
+	ADC #$00
+	STA tmpCollisionPointX+1 ; add carry
+
+	JSR find_collision
 	CMP #$00
-	BNE @clamp_land
-@check_land_right:
-
-
-	; set collision point to the correct location (right)
-	; get collision
-	; update accordingly
-	; TODO
+	BNE @clamp_land				
+	 
 	JMP @skip_collision
-
-@clamp_land:
+@collide:
 	; zero velocity
 	LDA #$00
 	STA velocityY
@@ -214,77 +221,5 @@
 	STA positionY
 	LDA tmpProposedPosFinal+1
 	STA positionY+1 
-	RTS
-.ENDPROC
-
-	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
-.PROC find_collision
-	; TODO find the correct level
-
-	; set the collision pointer to the correct background
-	LDA tmpCollisionPointX+1 ; upper byte is the current backround
-	ASL A                    ; *2 for byte offset
-	TAY
-	LDA background_index, Y
-	STA tmpTilePointer
-	INY
-	LDA background_index, Y
-	STA tmpTilePointer+1
-
-	; set the collision pointer to the correct metcolumn
-@find_meta_column:
-	LDA tmpCollisionPointX  
-	LSR A
-	LSR A
-	LSR A
-	STA $0A ; store /8 tile index X for later
-	LSR	A ; / 16 to get index of metacolumn
-	ASL A ; * 2 for byte offset
-	TAY
-	LDA (tmpTilePointer), Y ; update the pointer
-	TAX
-	INY
-	LDA (tmpTilePointer), Y
-	STX tmpTilePointer
-	STA tmpTilePointer+1
-
-	; TODO temp until compressions find the correct metatile
-@find_meta_tile:
-	LDA tmpCollisionPointY
-	LSR A
-	LSR A
-	LSR A
-	STA $0B ; store /8 tile index Y for later
-	LSR A ; / 16 for metatile index
-	TAY
-	
-	LDA (tmpTilePointer), Y ; get the value of the metatile
-
-	; update the pointer to the correct metatiles data
-	ASL  										; *2 for byte offset
-	TAY
-	LDA metatiles, Y
-	STA tmpTilePointer
-	INY
-	LDA metatiles, Y
-	STA tmpTilePointer+1
-
-@find_collision:
-	  ; find the correct tile 	 
-	CLC
-	LDA $0A				 ; tile index X
-	AND #%00000001 ; left or right column
-	STA $0A
-
-	LDA $0B				 ; tile index Y
-	AND #%00000001 ; if we are in top or bottom
-	ASL A 			   ; * 2 for bottom row offset
-	CLC
-	ADC $0A        ; add for tile offset
-	ADC #$04			 ; add collision data offset for final offset
-	TAY
-
-    ; return collision
-	LDA (tmpTilePointer), Y
 	RTS
 .ENDPROC

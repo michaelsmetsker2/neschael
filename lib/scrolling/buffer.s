@@ -11,13 +11,12 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/levels/testLevel2.asm"
-.INCLUDE "data/tiles/metatiles.asm"
-
+.INCLUDE "data/levels/testLevel2.s"
+.INCLUDE "data/tiles/metatiles.s"
 
 .EXPORT fill_scroll_buffer
 
-  COLUMN_Y_OFFSET        = $20 ; the offset of the low bytes, since we don't draw the top 8 scanlines   
+  COLUMN_Y_OFFSET        = $40 ; the offset of the low bytes, since we don't draw the top 8 scanlines   
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
   tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
@@ -78,7 +77,6 @@
 
 ; fill the low address of the top of each column in ppu memory
 .PROC fill_buff_addr_low
-
   LDA screenPosX ; pixel pos relative to background
   LSR A
   LSR A
