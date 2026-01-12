@@ -167,7 +167,7 @@
 		CLC 
 		ADC velocityX
 		BNE @horizontal_boost
-		JMP airborne			; skip of no velocity found
+		JMP @airborne			; skip of no velocity found
 		; add vertical velocity boost in heading direction
 @horizontal_boost:
 		LDA #<Jump::HORIZONRAL_BOOST
@@ -198,7 +198,7 @@
 		JSR update_jump_velocity
 		JSR update_position_y        ; these are not in update so an early exit can save cpu cycles
 		RTS
-.endproc
+.ENDPROC
 
 .PROC update_jump_velocity ; this updates mid air velocity
 		; Determine if velocity decelerates slow or fest based on button hold
