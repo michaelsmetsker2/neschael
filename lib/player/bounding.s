@@ -193,7 +193,7 @@
 
 	JSR find_collision
 	CMP #$00
-	BNE @clamp_land				
+	BNE @collide
 	 
 	JMP @skip_collision
 @collide:

@@ -160,13 +160,16 @@
 		STA velocityY+1
 		LDA #MotionState::Airborne   ; set motionState to airborne
 		STA motionState
-@horizontal_boost:
-		; don't apply horizontal boost if the player is standstill
-		LDA velocityX
-		BEQ @airborne 
+
+		; only apply the boost if the character is moving
 		LDA velocityX+1
-		BEQ @airborne
+		BNE @horizontal_boost
+		CLC 
+		ADC velocityX
+		BNE @horizontal_boost
+		JMP airborne			; skip of no velocity found
 		; add vertical velocity boost in heading direction
+@horizontal_boost:
 		LDA #<Jump::HORIZONRAL_BOOST
 		STA $07
 		LDA #>Jump::HORIZONRAL_BOOST
