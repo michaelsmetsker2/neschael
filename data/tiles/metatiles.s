@@ -1,11 +1,21 @@
+;
+; neschael
+; data/tiles/metatiles.s
+;
+; contains deffinitions for metatiles and their collision data
+;
+
 ;metatiles layout
 ;;;;;;;;;;;
 ; 00 ; 01 ;
 ;;;;;;;;;;;
 ; 02 ; 03 ;
-;;;;;;;;;;;
+;;;;;;;;;;; collision takes this same format
 
+
+.IMPORT CollisionType
 .EXPORT metatiles
+
 
 .ENUM CollisionType ; TODO find a good file for this
   empty = 0
@@ -16,7 +26,6 @@
   ; special?
   ; slope l/r?
 .ENDENUM
-
 
 metatiles:
   .WORD test_block_1a, test_sky___1a, test_block_1b, test_block_1c

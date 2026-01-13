@@ -21,7 +21,8 @@
 		JSR accelerate_x
 		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for hor boost
 																	; and before apply_velocity_x so the boost can be applied frame one
-		JSR update_position_x
+		JSR update_position_y
+    JSR update_position_x
 		RTS
 .ENDPROC
 
@@ -195,8 +196,7 @@
 		STA velocityX+1      
 		RTS
 @airborne:
-		JSR update_jump_velocity
-		JSR update_position_y        ; these are not in update so an early exit can save cpu cycles
+		JSR update_jump_velocity  ; this are not in update so an early exit can save cpu cycles
 		RTS
 .ENDPROC
 

@@ -12,10 +12,9 @@
 
 	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
 
-; these are defined and set in the bounding.asm file, they are not memory safe. only for use in find_collision
+  ; these are defined and set in the bounding.s file, they are not memory safe. only for use in find_collision
 	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
 	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
-
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision
@@ -90,3 +89,6 @@
 	LDA (tmpTilePointer), Y
 	RTS
 .ENDPROC
+
+
+; lookup table of collision reactions for both x and y interactions

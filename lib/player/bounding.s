@@ -10,14 +10,10 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 
-
 .IMPORT find_collision
 
 .EXPORT update_position_x
 .EXPORT update_position_y
-
-.EXPORT tmpCollisionPointX
-.EXPORT tmpCollisionPointY
 
 		; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT  = $55
@@ -26,12 +22,19 @@
 	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET     = $08 ; 8 pixels to players feet
 		
+	; unsafe memory constants (in scratch memory)
+
 	tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
-	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
+
+	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 
 	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
 	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
+
+; =====================================================================
+; bound X
+; =====================================================================
 
 ; adds the velocity to the position
 .PROC update_position_x
@@ -137,6 +140,10 @@
 	RTS
 .ENDPROC
 
+; =====================================================================
+; bound Y
+; =====================================================================
+
 .PROC update_position_y
 	; find the proposed final position
 	CLC
@@ -147,15 +154,43 @@
 	ADC velocityY+1
 	STA tmpProposedPosFinal+1 ; pixel position
 
-	; BUG see if we cross a tile boundary
-	AND #%11111000 ; mask for just tile index
-	STA $10
-	LDA positionY+1
-	AND #%11111000 ; original tile index
-	CMP $10
-	BEQ @skip_collision
+	JSR check_collision_y ; loads the accumulator with the collision data
+  BEQ @apply_velocity
 
-@check_collision_left: ; check collision at top left or bottom left
+; TODO this is temporary, we will have a lookup table of collision functions?
+@collide:
+	; this temporarily only does solid collisions
+	; zero velocity
+	LDA #$00
+	STA velocityY
+	STA velocityY+1
+	; clamp position
+	LDA #$00
+	STA tmpProposedPosFinal
+
+	LDA tmpProposedPosFinal+1
+	AND #%11111000					; allign to the top of the tile
+	SEC
+	SBC #$01								;	 move up one pixel
+	STA tmpProposedPosFinal+1
+
+	; set motion state
+	LDA #MotionState::Still
+	STA motionState
+
+  ; update the position to the proposed one
+@apply_velocity:
+	LDA tmpProposedPosFinal
+	STA positionY
+	LDA tmpProposedPosFinal+1
+	STA positionY+1 
+	RTS
+.ENDPROC
+
+; sets offsets and 
+.PROC check_collision_y
+
+@check_left: ; check collision at top left or bottom left
 	CLC                       ; player pos plus world pos
 	LDA screenPosX
 	ADC positionX+1           ; high byte is pixel position
@@ -172,7 +207,6 @@
 	CPY MotionState::Airborne
 	BNE @add_offset_y
 	LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
-
 @add_offset_y:	
 	CLC
 	LDA tmpProposedPosFinal+1 ; highy byte is pixel position
@@ -180,8 +214,8 @@
 	STA tmpCollisionPointY
 
 	JSR find_collision ; load accumulator with collision data
-	CMP #$0
-	BNE @collide       ; if we hit something ; TODO pick the one with the highest priority?
+  STA $1F
+  
 @check_collision_right:
 	CLC
 	LDA tmpCollisionPointX
@@ -191,35 +225,13 @@
 	ADC #$00
 	STA tmpCollisionPointX+1 ; add carry
 
-	JSR find_collision
-	CMP #$00
-	BNE @collide
-	 
-	JMP @skip_collision
-@collide:
-	; zero velocity
-	LDA #$00
-	STA velocityY
-	STA velocityY+1
-	; clamp position
-	LDA #$00
-	STA tmpProposedPosFinal
-
-	LDA tmpProposedPosFinal+1
-	AND #%11111000					; allign to the top of the tile
-	SEC
-	SBC #$01								;	 move up one pixel
-	STA tmpProposedPosFinal+1
-
-	;	 set motion state
-	LDA #MotionState::Still
-	STA motionState
-
-@skip_collision:
-
-	LDA tmpProposedPosFinal
-	STA positionY
-	LDA tmpProposedPosFinal+1
-	STA positionY+1 
+	JSR find_collision       ; load accumulator with data again
+  TAX
+  CMP $1F                  ; see which check has the higher prioriy collision
+  BCS @done                ; branch if accumulator has the highest pri already
+  LDA $1F
+  RTS
+@done:
+  TXA ; BUG it is a mystery why i have to TAX and TXA it should work without but alas z 
 	RTS
 .ENDPROC
