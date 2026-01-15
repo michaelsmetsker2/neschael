@@ -5,16 +5,74 @@
 ; subroutines containing logic concerning what happens when a collision is detected 
 ;
 
-.EXPORT find_collision
+.INCLUDE "lib/player/collision.inc"
 
 .IMPORT background_index ; TODO this is temp until level pointers
 .IMPORT metatiles
 
+;.EXPORT enact_collision_x
+.EXPORT enact_collision_y
+.EXPORT find_collision
+
 	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
 
-  ; these are defined and set in the bounding.s file, they are not memory safe. only for use in find_collision
-	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
-	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
+; lookup table of collision reactions for both x and y interactions
+.SCOPE CollisionsX
+	empty:
+	RTS
+	solid:
+	RTS
+	hazard:
+	RTS
+.ENDSCOPE
+
+.SCOPE CollisionsY
+	empty:
+	RTS
+	solid:
+	RTS
+	hazard:
+	RTS
+.ENDSCOPE
+
+collision_index_y:
+	.WORD CollisionsX::empty-1
+	.WORD CollisionsX::solid-1
+	.WORD CollisionsX::hazard-1
+collision_index_x:
+	.WORD CollisionsY::empty-1
+	.WORD CollisionsY::solid-1
+	.WORD CollisionsY::hazard-1
+
+  ; these are entry points to proccess the collision data in the accumulator,
+	; they will be returned from in the corolating collision function they jump to
+.PROC enact_collision_y
+	;LDX collision_index_y
+	;STX tmpCollisionPointer
+	;LDX collision_index_y+1
+	;STX tmpCollisionPointer+1
+	
+	LDA collision_index_y+1
+	PHA
+	lda collision_index_y
+	PHA
+	RTS
+
+	LDA $50
+	ASL A ; multiply collision data by two to get byte offset
+
+
+
+	TAY
+	INY
+	LDA (tmpCollisionPointer), Y
+	PHA
+	DEY
+	LDA (tmpCollisionPointer), Y
+	PHA
+	RTS
+.ENDPROC
+
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision
@@ -62,7 +120,7 @@
 	LDA (tmpTilePointer), Y ; get the value of the metatile
 
 	; update the pointer to the correct metatiles data
-	ASL  										; *2 for byte offset
+	ASL  					; *2 for byte offset
 	TAY
 	LDA metatiles, Y
 	STA tmpTilePointer
@@ -89,6 +147,3 @@
 	LDA (tmpTilePointer), Y
 	RTS
 .ENDPROC
-
-
-; lookup table of collision reactions for both x and y interactions

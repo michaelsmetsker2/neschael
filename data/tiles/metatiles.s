@@ -12,20 +12,7 @@
 ; 02 ; 03 ;
 ;;;;;;;;;;; collision takes this same format
 
-
-.IMPORT CollisionType
 .EXPORT metatiles
-
-
-.ENUM CollisionType ; TODO find a good file for this
-  empty = 0
-  solid = 1
-  hazard = 2
-  bounceH = 3
-  bounceV = 4
-  ; special?
-  ; slope l/r?
-.ENDENUM
 
 metatiles:
   .WORD test_block_1a, test_sky___1a, test_block_1b, test_block_1c

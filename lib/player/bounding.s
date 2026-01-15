@@ -9,8 +9,11 @@
 
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
+.INCLUDE "lib/player/collision.inc"
 
 .IMPORT find_collision
+.IMPORT enact_collision_x
+.IMPORT enact_collision_y
 
 .EXPORT update_position_x
 .EXPORT update_position_y
@@ -29,8 +32,6 @@
 
 	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 
-	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
-	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
 
 ; =====================================================================
 ; bound X
@@ -155,8 +156,17 @@
 	STA tmpProposedPosFinal+1 ; pixel position
 
 	JSR check_collision_y ; loads the accumulator with the collision data
-  BEQ @apply_velocity
+  STA $50
+  ; set the collision pointer to the correct collider table
 
+  JSR enact_collision_y
+  LDA $50
+
+
+
+; set the pointer and preserver the accumulator
+
+  BEQ @apply_velocity
 ; TODO this is temporary, we will have a lookup table of collision functions?
 @collide:
 	; this temporarily only does solid collisions
@@ -171,13 +181,12 @@
 	LDA tmpProposedPosFinal+1
 	AND #%11111000					; allign to the top of the tile
 	SEC
-	SBC #$01								;	 move up one pixel
+	SBC #$01						    ; move up one pixel
 	STA tmpProposedPosFinal+1
 
 	; set motion state
 	LDA #MotionState::Still
 	STA motionState
-
   ; update the position to the proposed one
 @apply_velocity:
 	LDA tmpProposedPosFinal
@@ -187,9 +196,8 @@
 	RTS
 .ENDPROC
 
-; sets offsets and 
+; sets offsets and returns the highest priority collision value in the accumulator
 .PROC check_collision_y
-
 @check_left: ; check collision at top left or bottom left
 	CLC                       ; player pos plus world pos
 	LDA screenPosX
