@@ -6,6 +6,7 @@
 ;
 
 .INCLUDE "lib/player/collision.inc"
+.INCLUDE "lib/player/player.inc"
 
 .IMPORT background_index ; TODO this is temp until level pointers
 .IMPORT metatiles
@@ -18,59 +19,75 @@
 
 ; lookup table of collision reactions for both x and y interactions
 .SCOPE CollisionsX
-	empty:
+empty:
 	RTS
-	solid:
+solid:
 	RTS
-	hazard:
+hazard:
 	RTS
 .ENDSCOPE
 
 .SCOPE CollisionsY
-	empty:
-	RTS
-	solid:
-	RTS
-	hazard:
-	RTS
+  empty:
+
+
+
+	 
+	  RTS
+  solid:
+    ; zero velocity
+    LDA #$00
+    STA velocityY
+    STA velocityY+1
+    ; clamp position
+    LDA #$00
+    STA tmpProposedPosFinal
+
+    LDA tmpProposedPosFinal+1
+    AND #%11111000					; allign to the top of the tile
+    SEC
+    SBC #$01						    ; move up one pixel
+    STA tmpProposedPosFinal+1
+
+    ; set motion state
+    LDA #MotionState::Still
+    STA motionState
+
+    
+    RTS
+
+  hazard:
+    RTS
 .ENDSCOPE
 
 collision_index_y:
-	.WORD CollisionsX::empty-1
-	.WORD CollisionsX::solid-1
-	.WORD CollisionsX::hazard-1
-collision_index_x:
 	.WORD CollisionsY::empty-1
 	.WORD CollisionsY::solid-1
 	.WORD CollisionsY::hazard-1
+collision_index_x:
+	.WORD CollisionsX::empty-1
+	.WORD CollisionsX::solid-1
+	.WORD CollisionsX::hazard-1
 
   ; these are entry points to proccess the collision data in the accumulator,
 	; they will be returned from in the corolating collision function they jump to
 .PROC enact_collision_y
+	; sets the collision pointer to the y table
 	;LDX collision_index_y
 	;STX tmpCollisionPointer
 	;LDX collision_index_y+1
 	;STX tmpCollisionPointer+1
-	
-	LDA collision_index_y+1
-	PHA
-	lda collision_index_y
-	PHA
-	RTS
-
 	LDA $50
-	ASL A ; multiply collision data by two to get byte offset
-
-
-
-	TAY
-	INY
-	LDA (tmpCollisionPointer), Y
-	PHA
-	DEY
-	LDA (tmpCollisionPointer), Y
+	ASL
+	TAX
+	
+	LDA collision_index_y+1, x
+	PHA 
+	LDA collision_index_y, x
 	PHA
 	RTS
+
+
 .ENDPROC
 
 

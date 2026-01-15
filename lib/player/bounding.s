@@ -30,7 +30,6 @@
 	tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
-	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 
 
 ; =====================================================================
@@ -156,37 +155,15 @@
 	STA tmpProposedPosFinal+1 ; pixel position
 
 	JSR check_collision_y ; loads the accumulator with the collision data
-  STA $50
   ; set the collision pointer to the correct collider table
 
+  STA $50
   JSR enact_collision_y
   LDA $50
 
 
 
-; set the pointer and preserver the accumulator
 
-  BEQ @apply_velocity
-; TODO this is temporary, we will have a lookup table of collision functions?
-@collide:
-	; this temporarily only does solid collisions
-	; zero velocity
-	LDA #$00
-	STA velocityY
-	STA velocityY+1
-	; clamp position
-	LDA #$00
-	STA tmpProposedPosFinal
-
-	LDA tmpProposedPosFinal+1
-	AND #%11111000					; allign to the top of the tile
-	SEC
-	SBC #$01						    ; move up one pixel
-	STA tmpProposedPosFinal+1
-
-	; set motion state
-	LDA #MotionState::Still
-	STA motionState
   ; update the position to the proposed one
 @apply_velocity:
 	LDA tmpProposedPosFinal

@@ -4,6 +4,9 @@
 
   tmpCollisionPointer = $10 ; pointer to the label corrosponding to the collision type collided with 
 
+	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
+
+
 	; the collision type *2 is the corollating function in collision index
 .ENUM CollisionType
   empty = 0
