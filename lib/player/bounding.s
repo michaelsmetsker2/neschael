@@ -31,7 +31,6 @@
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
 
-
 ; =====================================================================
 ; bound X
 ; =====================================================================
@@ -188,11 +187,11 @@
 	LDA motionState
 	CMP MotionState::Airborne
 	BNE @add_offset_y
-  ;LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
+  LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
 @add_offset_y:	
 	CLC
 	LDA tmpProposedPosFinal+1 ; highy byte is pixel position
-	ADC #$08									; offset to toes
+	ADC #$09								; offset to toes
 	STA tmpCollisionPointY
 
 	JSR find_collision ; load accumulator with collision data

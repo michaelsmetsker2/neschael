@@ -30,13 +30,22 @@
 
 .SCOPE CollisionsY
   empty:
-  ;LDA #MotionState::Airborne
-  ;LDA #$03
+  LDA #MotionState::Airborne
+  LDA #$03
   
-  ;STA motionState
+  STA motionState
   RTS
   
   solid:
+		; only do anything if we colide while airborne (land or hit head)
+		;LDA motionState
+		;CMP #MotionState::Airborne
+		;BNE @done
+
+		;BIT velocityY+1
+		;BMI @hit_head
+
+	@land:
     ; zero velocity
     LDA #$00
     STA velocityY
@@ -45,17 +54,34 @@
     LDA #$00
     STA tmpProposedPosFinal
 
-    LDA tmpProposedPosFinal+1
-    AND #%11111000					; allign to the top of the tile
+    LDX tmpProposedPosFinal+1
+		INX
+		TXA
+    AND #%11111000  					; allign to the top of the tile
     SEC
-    SBC #$01						    ; move up one pixel
+    SBC #$01   						    ; move up one pixel
     STA tmpProposedPosFinal+1
 
     ; set motion state
     LDA #MotionState::Still
     STA motionState
-
+	@done:
     RTS
+
+	@hit_head:
+		;	clamp position
+		LDA #$00
+		STA tmpProposedPosFinal
+
+    LDX tmpProposedPosFinal+1
+		INX
+		TXA
+    AND #%11111000  					; allign to the top of the tile
+    SEC
+    SBC #$01   						    ; move up one pixel
+    STA tmpProposedPosFinal+1
+
+		RTS
 
   hazard:
     RTS
