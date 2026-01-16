@@ -20,40 +20,41 @@
 
 ; lookup table of collision reactions for both x and y interactions
 .SCOPE CollisionsX
-  empty:
+  empty: ;=============================================================================================
     RTS
-  solid:
+  solid: ;=============================================================================================
     RTS
-  hazard:
+  hazard: ;=============================================================================================
     RTS
 .ENDSCOPE
 
 .SCOPE CollisionsY
-  empty:
+  empty: ;=============================================================================================
   LDA #MotionState::Airborne
   LDA #$03
   
   STA motionState
   RTS
   
-  solid:
-		; only do anything if we colide while airborne (land or hit head)
-		;LDA motionState
-		;CMP #MotionState::Airborne
-		;BNE @done
+  solid: ;=============================================================================================
+		; only do anything if airborne (land or bonk)
+		LDA motionState
+		CMP #MotionState::Airborne
+		BNE @return
 
-		;BIT velocityY+1
-		;BMI @hit_head
+		LDX velocityY+1 ; store for later
 
-	@land:
-    ; zero velocity
+    ; zero velocity and fractional position
     LDA #$00
     STA velocityY
     STA velocityY+1
-    ; clamp position
-    LDA #$00
     STA tmpProposedPosFinal
 
+		TXA ; sets negative flag
+		BMI @hit_head ; branch depending on direction
+
+	@land:
+		; clamp position to top of tile
     LDX tmpProposedPosFinal+1
 		INX
 		TXA
@@ -65,25 +66,19 @@
     ; set motion state
     LDA #MotionState::Still
     STA motionState
-	@done:
     RTS
 
 	@hit_head:
-		;	clamp position
-		LDA #$00
-		STA tmpProposedPosFinal
-
-    LDX tmpProposedPosFinal+1
-		INX
-		TXA
-    AND #%11111000  					; allign to the top of the tile
-    SEC
-    SBC #$01   						    ; move up one pixel
-    STA tmpProposedPosFinal+1
-
+		; clamp to bottom of tile
+	  LDA tmpProposedPosFinal+1
+    AND #%11111000
+		CLC
+		ADC #$07									; move down the player height minus one
+		STA tmpProposedPosFinal+1
+	@return:
 		RTS
 
-  hazard:
+  hazard: ;=============================================================================================
     RTS
 .ENDSCOPE
 

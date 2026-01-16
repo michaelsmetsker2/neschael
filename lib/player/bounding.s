@@ -23,7 +23,7 @@
 	SCROLL_THRESHOLD_RIGHT = $AB
 
 	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
-	PLAYER_FEET_OFFSET     = $08 ; 8 pixels to players feet
+	PLAYER_FEET_OFFSET     = $09 ; 8 pixels to players feet, plus one to check ground
 		
 	; unsafe memory constants (in scratch memory)
 
@@ -154,11 +154,7 @@
 	STA tmpProposedPosFinal+1 ; pixel position
 
 	JSR check_collision_y ; loads the accumulator with the collision data
-  ; set the collision pointer to the correct collider table
-
   JSR enact_collision_y
-
-
 
   ; update the position to the proposed one
 @apply_velocity:
@@ -182,16 +178,15 @@
 
 	; set Y offset depending on the sign of the velocity
 	LDA #PLAYER_FEET_OFFSET     ; used if player is grounded or moving down
+	LDX motionState
+	CPX #MotionState::Airborne
+	BNE @add_offset_y
 	BIT velocityY+1
 	BPL @add_offset_y
-	LDA motionState
-	CMP MotionState::Airborne
-	BNE @add_offset_y
   LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
 @add_offset_y:	
 	CLC
-	LDA tmpProposedPosFinal+1 ; highy byte is pixel position
-	ADC #$09								; offset to toes
+	ADC tmpProposedPosFinal+1   ; add offset to the pixel position
 	STA tmpCollisionPointY
 
 	JSR find_collision ; load accumulator with collision data
@@ -200,7 +195,7 @@
 @check_collision_right:
 	CLC
 	LDA tmpCollisionPointX
-	ADC #$08 									; offest to right foot
+	ADC #$08 									; offest to right side
 	STA tmpCollisionPointX
 	LDA tmpCollisionPointX+1
 	ADC #$00

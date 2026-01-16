@@ -142,7 +142,7 @@
 		LDA motionState  
 		CMP #MotionState::Airborne
 		BEQ @airborne              ; branch if player is airborne
-@check_jump:                 ; can only start a new jump from the ground
+@check_jump:                   ; can only start a new jump from the ground
 		LDA btnPressed
 		AND #_BUTTON_A
 		BNE @begin_jump            ; branch if a new jump is detected
@@ -215,7 +215,7 @@
 		BPL @newly_fast             ; branch if velocity is past threshold
 		LDY #2                      ; SLOW_FALL_SPEED offset
 		JMP @decelerate
-@newly_fast:                  ; for first times using fast falling set flag
+@newly_fast:                  	; for first times using fast falling set flag
 		LDA playerFlags             ; updates the flag to save cpu cycles
 		AND #%01111111
 		STA playerFlags
@@ -229,6 +229,16 @@
 		LDA fall_speeds,Y
 		ADC velocityY+1
 		STA velocityY+1
+
+		CMP #$08
+		BNE @done
+
+		; clamp to max fall speed if exceeded
+		LDA #>Jump::MAX_FALL_SPEED	
+		STA velocityY+1
+		LDA #<Jump::MAX_FALL_SPEED
+		STA velocityY
+	@done:
 		RTS
 fall_speeds:
 		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL
