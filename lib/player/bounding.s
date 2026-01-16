@@ -157,10 +157,7 @@
 	JSR check_collision_y ; loads the accumulator with the collision data
   ; set the collision pointer to the correct collider table
 
-  STA $50
   JSR enact_collision_y
-  LDA $50
-
 
 
 
@@ -189,9 +186,9 @@
 	BIT velocityY+1
 	BPL @add_offset_y
 	LDA motionState
-	CPY MotionState::Airborne
+	CMP MotionState::Airborne
 	BNE @add_offset_y
-	LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
+  ;LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
 @add_offset_y:	
 	CLC
 	LDA tmpProposedPosFinal+1 ; highy byte is pixel position

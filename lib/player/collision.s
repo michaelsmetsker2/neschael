@@ -7,6 +7,7 @@
 
 .INCLUDE "lib/player/collision.inc"
 .INCLUDE "lib/player/player.inc"
+.INCLUDE "lib/game/gameData.inc"
 
 .IMPORT background_index ; TODO this is temp until level pointers
 .IMPORT metatiles
@@ -19,21 +20,22 @@
 
 ; lookup table of collision reactions for both x and y interactions
 .SCOPE CollisionsX
-empty:
-	RTS
-solid:
-	RTS
-hazard:
-	RTS
+  empty:
+    RTS
+  solid:
+    RTS
+  hazard:
+    RTS
 .ENDSCOPE
 
 .SCOPE CollisionsY
   empty:
-
-
-
-	 
-	  RTS
+  ;LDA #MotionState::Airborne
+  ;LDA #$03
+  
+  ;STA motionState
+  RTS
+  
   solid:
     ; zero velocity
     LDA #$00
@@ -53,7 +55,6 @@ hazard:
     LDA #MotionState::Still
     STA motionState
 
-    
     RTS
 
   hazard:
@@ -77,7 +78,6 @@ collision_index_x:
 	;STX tmpCollisionPointer
 	;LDX collision_index_y+1
 	;STX tmpCollisionPointer+1
-	LDA $50
 	ASL
 	TAX
 	
