@@ -24,7 +24,7 @@
     RTS
   solid: ;=============================================================================================
     RTS
-  hazard: ;=============================================================================================
+  hazard: ;============================================================================================
     RTS
 .ENDSCOPE
 
@@ -108,9 +108,7 @@ collision_index_x:
 	PHA
 	RTS
 
-
 .ENDPROC
-
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision

@@ -24,9 +24,9 @@
 
 	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET     = $09 ; 8 pixels to players feet, plus one to check ground
+	PLAYER_RIGHT_OFFSET		 = $07 ; 7 pixels to the right border of the player character 
 		
 	; unsafe memory constants (in scratch memory)
-
 	tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
@@ -52,12 +52,10 @@
 	ADC tmpDeltaX+1
 	STA tmpProposedPosFinal+1
 
-	; TODO here would be collision checking,
-	; a collision would edit deltaX and zero velocity
-
+	JSR check_collision_x
+	; TODO JSR enact_collision_x
 	JSR check_scroll
-
-		; add deltax to the position, simple 16 bit addition
+	; add deltax to the position, simple 16 bit addition
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -65,6 +63,60 @@
 	LDA positionX+1
 	ADC tmpDeltaX+1
 	STA positionX+1
+	RTS
+.ENDPROC
+
+; check if the player collides wiht anything and adjust deltax accordingly
+.PROC check_collision_x
+
+	; load original x and offset it
+	CLC
+	LDA positionX+1           ; pixel position
+	ADC #PLAYER_RIGHT_OFFSET
+	STA $10			              ; pixel position original
+	AND #%11111000
+	STA $11			              ; tile position original
+
+	;load proposed x and offset it
+	LDA tmpProposedPosFinal+1
+	CLC
+	ADC #PLAYER_RIGHT_OFFSET
+	AND #%11111000
+	STA $12     ; proposed position final
+
+	SEC
+	SBC $11
+	BNE @boundary_crossed ; branch if tile boundary has been crossed
+	; TODO RTS	                  ; in none crossed, return early
+@boundary_crossed:
+
+	LSR A
+	LSR A
+	LSR A
+	STA $14 ; should store the ammount of tiles crossed posive only? need to shift first otheriwse? ; TODO
+
+	; if more than one then we do it twice, here we would branch left or right?
+	; TODO conditionally check at a midpoint
+		
+	; load tmpcollision points
+	LDA positionY+1
+	;CLC
+	;ADC $01 ; TODO
+	STA tmpCollisionPointY
+
+	CLC
+	LDA screenPosX
+	ADC $10                   ; add the offest player position plus world position (for right side of the player)
+	STA tmpCollisionPointX
+	LDA screenPosX+1
+	ADC #$00									; add carry
+	STA tmpCollisionPointX+1
+
+	JSR find_collision
+	STA $70 ; TODO debug
+
+	; update deltax
+
 	RTS
 .ENDPROC
 
@@ -82,7 +134,6 @@
 	; TODO check the ammount we want to scroll with the end of the level
 
 	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
-
 	JMP @end_threshold_check
 @left_threshold:
 
@@ -116,8 +167,8 @@
 	JMP @apply_scroll ; TEMP
 
 	JMP @compare_difference
-@difference_zero:
 
+@difference_zero:
 	CLC
 	LDA screenPosX
 	ADC tmpProposedScroll
@@ -126,7 +177,6 @@
 	ADC #$FF
 
 @compare_difference:
-
 	BPL @apply_scroll       ; test sign of difference high byte, branch if no overshoot
 	LDA tmpProposedScroll
 	SEC

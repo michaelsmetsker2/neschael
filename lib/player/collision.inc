@@ -1,8 +1,15 @@
-  ; these are defined and set in the bounding.s file, they are not memory safe. only for use in find_collision
+  ;
+  ; neschael
+  ; lib/player/collision.inc
+  ;
+  ; variables and enums relating to proccessing player collision
+  ;
+
+  ; not memory safe. only for use in find_collision
 	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
 	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 
 
-  tmpCollisionPointer = $10 ; pointer to the label corrosponding to the collision type collided with 
+  tmpCollisionPointer = $0C ; pointer to the label corrosponding to the collision type collided with 
 
 	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
 
