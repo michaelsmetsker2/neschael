@@ -256,7 +256,7 @@
   LDY #$00 ; loop index
 
 @loop:                    ; sets all 8 attribute bytes of the column
-  LDA (tmpBufferPointer), Y
+  LDA (tmpBufferPointer), Y  ; BUG this is reading from memory locations in $0100 to $010F range
   STA ScrollBuffer::attribute, Y    
   INY
   CPY #$08

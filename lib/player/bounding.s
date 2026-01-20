@@ -43,9 +43,9 @@
 	LDA velocityX+1
 	STA tmpDeltaX+1  
 
-	; calculate the proposed end position of the change
+	; add position do deltax to find proposed end pos
 	CLC
-	LDA positionX    ; simple 16 bit addition
+	LDA positionX
 	ADC tmpDeltaX
 	STA tmpProposedPosFinal
 	LDA positionX+1
@@ -53,9 +53,10 @@
 	STA tmpProposedPosFinal+1
 
 	JSR check_collision_x
-	; TODO JSR enact_collision_x
+	JSR enact_collision_x
 	JSR check_scroll
-	; add deltax to the position, simple 16 bit addition
+
+	; add deltax to the position
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -66,7 +67,7 @@
 	RTS
 .ENDPROC
 
-; check if the player collides wiht anything and adjust deltax accordingly
+; check if the player collides with anything and adjust deltax accordingly
 .PROC check_collision_x
 
 	; load original x and offset it
@@ -87,7 +88,8 @@
 	SEC
 	SBC $11
 	BNE @boundary_crossed ; branch if tile boundary has been crossed
-	; TODO RTS	                  ; in none crossed, return early
+	LDA #$00              ; no collision data
+	;RTS	                  ; in none crossed, return early
 @boundary_crossed:
 
 	LSR A
@@ -97,13 +99,9 @@
 
 	; if more than one then we do it twice, here we would branch left or right?
 	; TODO conditionally check at a midpoint
-		
-	; load tmpcollision points
-	LDA positionY+1
-	;CLC
-	;ADC $01 ; TODO
-	STA tmpCollisionPointY
+	; if the conditional collision data is empty, then check again at the endpoint
 
+@check_top:
 	CLC
 	LDA screenPosX
 	ADC $10                   ; add the offest player position plus world position (for right side of the player)
@@ -112,11 +110,31 @@
 	ADC #$00									; add carry
 	STA tmpCollisionPointX+1
 
+	; load tmpcollision points
+	LDA positionY+1 ; hight byte of y position (pixel pos)
+	CLC
+	ADC #$01
+	STA tmpCollisionPointY
+
 	JSR find_collision
+	STA $1F
 	STA $70 ; TODO debug
 
-	; update deltax
+@check_bottom: ; check again at a lower position
+	CLC
+	LDA tmpCollisionPointY
+	ADC #07
+	STA tmpCollisionPointY
 
+	JSR find_collision
+	STA $71
+	
+  TAX
+  CMP $1F                  ; see which check has the higher prioriy collision
+  BCS @done                ; branch if accumulator has the highest pri already
+  LDA $1F
+@done:
+	TXA ; BUG repeated one from end of the file
 	RTS
 .ENDPROC
 

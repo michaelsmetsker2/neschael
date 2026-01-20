@@ -93,12 +93,17 @@ collision_index_x:
 
   ; these are entry points to proccess the collision data in the accumulator,
 	; they will be returned from in the corolating collision function they jump to
+.PROC enact_collision_x
+	ASL
+	TAX
+	
+	LDA collision_index_x+1, x
+	PHA 
+	LDA collision_index_x, x
+	PHA
+	RTS
+.ENDPROC
 .PROC enact_collision_y
-	; sets the collision pointer to the y table
-	;LDX collision_index_y
-	;STX tmpCollisionPointer
-	;LDX collision_index_y+1
-	;STX tmpCollisionPointer+1
 	ASL
 	TAX
 	
@@ -131,8 +136,8 @@ collision_index_x:
 	LSR A
 	LSR A
 	STA $0A ; store /8 tile index X for later
-	LSR	A ; / 16 to get index of metacolumn
-	ASL A ; * 2 for byte offset
+	LSR	A   ; / 16 to get index of metacolumn
+	ASL A   ; * 2 for byte offset
 	TAY
 	LDA (tmpTilePointer), Y ; update the pointer
 	TAX
