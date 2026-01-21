@@ -11,8 +11,8 @@
 
   tmpCollisionPointer = $0C ; pointer to the label corrosponding to the collision type collided with 
 
+  tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
 	tmpProposedPosFinal = $02 ; unsigned 8.8, proposed position after velocity is applied, high byte is mainly used
-
 
 	; the collision type *2 is the corollating function in collision index
 .ENUM CollisionType

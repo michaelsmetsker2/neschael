@@ -17,6 +17,7 @@
 
 .EXPORT update_position_x
 .EXPORT update_position_y
+.EXPORT tmpDeltaX
 
 		; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT  = $55
@@ -27,9 +28,8 @@
 	PLAYER_RIGHT_OFFSET		 = $07 ; 7 pixels to the right border of the player character 
 		
 	; unsafe memory constants (in scratch memory)
-	tmpDeltaX           = $00 ; signed 8.8,   proposed position change in either X, can change based on collision
+	
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
-
 
 ; =====================================================================
 ; bound X
@@ -37,7 +37,7 @@
 
 ; adds the velocity to the position
 .PROC update_position_x
-		; copy velocity into deltaX
+	; copy velocity into deltaX
 	LDA velocityX
 	STA tmpDeltaX
 	LDA velocityX+1
@@ -56,7 +56,7 @@
 	JSR enact_collision_x
 	JSR check_scroll
 
-	; add deltax to the position
+	; add deltaX to position
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -70,12 +70,17 @@
 ; check if the player collides with anything and adjust deltax accordingly
 .PROC check_collision_x
 
-	; load original x and offset it
+	; load Acc with the appropriate x offset
+	LDA #$08                  ; the next tile over
+	BIT velocityX+1
+	BPL	@offset_pos
+	LDA #$00
+	
+	@offset_pos:
 	CLC
-	LDA positionX+1           ; pixel position
-	ADC #PLAYER_RIGHT_OFFSET
+	ADC positionX+1 					; add the offset to the screen position
 	STA $10			              ; pixel position original
-	AND #%11111000
+	AND #%11111111
 	STA $11			              ; tile position original
 
 	;load proposed x and offset it
@@ -83,19 +88,19 @@
 	CLC
 	ADC #PLAYER_RIGHT_OFFSET
 	AND #%11111000
-	STA $12     ; proposed position final
+	STA $12                   ; proposed position final
 
 	SEC
 	SBC $11
-	BNE @boundary_crossed ; branch if tile boundary has been crossed
-	LDA #$00              ; no collision data
-	;RTS	                  ; in none crossed, return early
+	BNE @boundary_crossed     ; branch if tile boundary has been crossed
+	LDA #$00                  ; no collision data
+	;RTS	                    ; TODO this logic is broken, if none crossed, return early
 @boundary_crossed:
 
 	LSR A
 	LSR A
 	LSR A
-	STA $14 ; should store the ammount of tiles crossed posive only? need to shift first otheriwse? ; TODO
+	STA $14 ; should store the ammount of tiles crossed posive only? need to shift first otheriwse?
 
 	; if more than one then we do it twice, here we would branch left or right?
 	; TODO conditionally check at a midpoint
@@ -127,7 +132,7 @@
 	STA tmpCollisionPointY
 
 	JSR find_collision
-	STA $71
+	STA $71 ; TODO debug
 	
   TAX
   CMP $1F                  ; see which check has the higher prioriy collision
@@ -263,7 +268,7 @@
 @check_collision_right:
 	CLC
 	LDA tmpCollisionPointX
-	ADC #$08 									; offest to right side
+	ADC #PLAYER_RIGHT_OFFSET 									; offest to right side
 	STA tmpCollisionPointX
 	LDA tmpCollisionPointX+1
 	ADC #$00

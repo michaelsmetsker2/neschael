@@ -12,7 +12,7 @@
 .IMPORT background_index ; TODO this is temp until level pointers
 .IMPORT metatiles
 
-;.EXPORT enact_collision_x
+.EXPORT enact_collision_x
 .EXPORT enact_collision_y
 .EXPORT find_collision
 
@@ -22,8 +22,29 @@
 .SCOPE CollisionsX
   empty: ;=============================================================================================
     RTS
+		
   solid: ;=============================================================================================
-    RTS
+		; zero velocity
+		LDA #$00
+		STA velocityX
+		STA velocityX+1
+		
+		; TODO this is temp just for right collision
+
+		; mod 8, the ammount overshot into a new tile
+		CLC
+		LDA tmpProposedPosFinal+1
+		ADC screenPosX
+		AND #%00000111
+		STA $16
+
+		SEC
+		LDA tmpDeltaX+1
+		SBC $16 
+		STA tmpDeltaX+1
+		
+		RTS
+
   hazard: ;============================================================================================
     RTS
 .ENDSCOPE

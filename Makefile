@@ -7,7 +7,7 @@ ASSEMBLER = ca65
 LINKER    = ld65
 EMU       = mesen
 
-ASMFLAGS  = --cpu 6502 -I .
+ASMFLAGS  = --cpu 6502 -g -I .
 LINKFLAGS = --config config/nes.cfg --dbgfile bin/neschael.dbg
 
 BIN_DIR = bin
