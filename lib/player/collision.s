@@ -41,8 +41,7 @@
 		SEC
 		LDA tmpDeltaX+1
 		SBC $16 
-		STA tmpDeltaX+1
-		
+		STA tmpDeltaX+1		
 		RTS
 
   hazard: ;============================================================================================
@@ -71,8 +70,8 @@
     STA velocityY+1
     STA tmpProposedPosFinal
 
-		TXA ; sets negative flag
-		BMI @hit_head ; branch depending on direction
+		TXA 										; sets negative flag
+		BMI @hit_head 					; branch depending on direction
 
 	@land:
 		; clamp position to top of tile
@@ -83,7 +82,6 @@
     SEC
     SBC #$01   						    ; move up one pixel
     STA tmpProposedPosFinal+1
-
     ; set motion state
     LDA #MotionState::Still
     STA motionState
@@ -112,8 +110,8 @@ collision_index_x:
 	.WORD CollisionsX::solid-1
 	.WORD CollisionsX::hazard-1
 
-  ; these are entry points to proccess the collision data in the accumulator,
-	; they will be returned from in the corolating collision function they jump to
+  ; TODO this is mostly duplicate code 
+	; uses rts trick to jump to the correct collision subproccess
 .PROC enact_collision_x
 	ASL
 	TAX
@@ -133,7 +131,6 @@ collision_index_x:
 	LDA collision_index_y, x
 	PHA
 	RTS
-
 .ENDPROC
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
@@ -149,7 +146,6 @@ collision_index_x:
 	INY
 	LDA background_index, Y
 	STA tmpTilePointer+1
-
 	; set the collision pointer to the correct metcolumn
 @find_meta_column:
 	LDA tmpCollisionPointX  
@@ -204,8 +200,7 @@ collision_index_x:
 	ADC $0A        ; add for tile offset
 	ADC #$04			 ; add collision data offset for final offset
 	TAY
-
-    ; return collision
+  ; return collision in ACC
 	LDA (tmpTilePointer), Y
 	RTS
 .ENDPROC

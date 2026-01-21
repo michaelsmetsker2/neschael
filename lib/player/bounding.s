@@ -94,7 +94,7 @@
 	SBC $11
 	BNE @boundary_crossed     ; branch if tile boundary has been crossed
 	LDA #$00                  ; no collision data
-	;RTS	                    ; TODO this logic is broken, if none crossed, return early
+	RTS	                    ; TODO this logic is broken, if none crossed, return early
 @boundary_crossed:
 
 	LSR A
@@ -123,7 +123,6 @@
 
 	JSR find_collision
 	STA $1F
-	STA $70 ; TODO debug
 
 @check_bottom: ; check again at a lower position
 	CLC
@@ -132,14 +131,10 @@
 	STA tmpCollisionPointY
 
 	JSR find_collision
-	STA $71 ; TODO debug
-	
-  TAX
   CMP $1F                  ; see which check has the higher prioriy collision
   BCS @done                ; branch if accumulator has the highest pri already
   LDA $1F
 @done:
-	TXA ; BUG repeated one from end of the file
 	RTS
 .ENDPROC
 
@@ -275,12 +270,10 @@
 	STA tmpCollisionPointX+1 ; add carry
 
 	JSR find_collision       ; load accumulator with data again
-  TAX
   CMP $1F                  ; see which check has the higher prioriy collision
   BCS @done                ; branch if accumulator has the highest pri already
   LDA $1F
   RTS
 @done:
-  TXA ; BUG it is a mystery why i have to TAX and TXA it should work without but alas z 
 	RTS
 .ENDPROC

@@ -21,8 +21,8 @@
 		JSR accelerate_x
 		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for hor boost
 																	; and before apply_velocity_x so the boost can be applied frame one
+    JSR update_position_x				; x collision first to avoid getting stuck on walls
 		JSR update_position_y
-    JSR update_position_x
 		RTS
 .ENDPROC
 
