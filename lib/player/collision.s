@@ -24,25 +24,41 @@
     RTS
 		
   solid: ;=============================================================================================
-		; zero velocity
-		LDA #$00
-		STA velocityX
-		STA velocityX+1
-		
-		; TODO this is temp just for right collision
 
-		; mod 8, the ammount overshot into a new tile
+		; world position mod 8, is the ammount into a tile
 		CLC
 		LDA tmpProposedPosFinal+1
 		ADC screenPosX
 		AND #%00000111
 		STA $16
 
+    BIT velocityX+1
+    BPL @solid_right       ; branch if checking right
+  @solid_left:
+    SEC
+    LDA #$08               ; subtract overshoot from 8 overshoot left
+    SBC $16 
+    STA $16
+
+    CLC
+    LDA tmpDeltaX+1
+    ADC $16
+    STA tmpDeltaX+1
+
+    JMP @solid_done
+  @solid_right:
+
 		SEC
 		LDA tmpDeltaX+1
 		SBC $16 
 		STA tmpDeltaX+1		
-		RTS
+
+  @solid_done:
+		; zero velocity
+		LDA #$00
+		STA velocityX
+		STA velocityX+1
+    RTS
 
   hazard: ;============================================================================================
     RTS
@@ -62,7 +78,7 @@
 		CMP #MotionState::Airborne
 		BNE @return
 
-		LDX velocityY+1 ; store for later
+		LDX velocityY+1 ; store to find direction after zeroing
 
     ; zero velocity and fractional position
     LDA #$00
@@ -73,7 +89,7 @@
 		TXA 										; sets negative flag
 		BMI @hit_head 					; branch depending on direction
 
-	@land:
+  @land:
 		; clamp position to top of tile
     LDX tmpProposedPosFinal+1
 		INX

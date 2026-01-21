@@ -19,16 +19,15 @@
 .EXPORT update_position_y
 .EXPORT tmpDeltaX
 
-		; pixel values where the screen will scroll instead of move the player
+	; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT  = $55
 	SCROLL_THRESHOLD_RIGHT = $AB
 
 	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET     = $09 ; 8 pixels to players feet, plus one to check ground
-	PLAYER_RIGHT_OFFSET		 = $07 ; 7 pixels to the right border of the player character 
+	PLAYER_RIGHT_OFFSET	   = $07 ; 7 pixels to the right border of the player character 
 		
 	; unsafe memory constants (in scratch memory)
-	
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
 ; =====================================================================
@@ -70,31 +69,31 @@
 ; check if the player collides with anything and adjust deltax accordingly
 .PROC check_collision_x
 
-	; load Acc with the appropriate x offset
+	; load ACC with the appropriate x offset
 	LDA #$08                  ; the next tile over
 	BIT velocityX+1
-	BPL	@offset_pos
+	BPL	@offset_position
 	LDA #$00
 	
-	@offset_pos:
+@offset_position:
 	CLC
-	ADC positionX+1 					; add the offset to the screen position
-	STA $10			              ; pixel position original
-	AND #%11111111
-	STA $11			              ; tile position original
+	ADC positionX+1 		  ; add the offset to the screen position
+	STA $10			          ; pixel position original
+	AND #%11111100
+	STA $11			          ; tile position original
 
 	;load proposed x and offset it
 	LDA tmpProposedPosFinal+1
 	CLC
 	ADC #PLAYER_RIGHT_OFFSET
-	AND #%11111000
+	AND #%11111000			  ; BUG i think this is where its broken
 	STA $12                   ; proposed position final
 
 	SEC
 	SBC $11
 	BNE @boundary_crossed     ; branch if tile boundary has been crossed
 	LDA #$00                  ; no collision data
-	RTS	                    ; TODO this logic is broken, if none crossed, return early
+	;RTS	                  ; TODO Logic is broken here
 @boundary_crossed:
 
 	LSR A
@@ -112,7 +111,7 @@
 	ADC $10                   ; add the offest player position plus world position (for right side of the player)
 	STA tmpCollisionPointX
 	LDA screenPosX+1
-	ADC #$00									; add carry
+	ADC #$00				          ; add carry
 	STA tmpCollisionPointX+1
 
 	; load tmpcollision points
