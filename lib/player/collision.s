@@ -25,29 +25,35 @@
 		
   solid: ;=============================================================================================
 
-		; world position mod 8, is the ammount into a tile
+		; find proposed world position
 		CLC
 		LDA tmpProposedPosFinal+1
-		ADC screenPosX
+		ADC screenPosX							
+
+    BIT velocityX+1
+    BPL @solid_right       			; branch based on direction
+  @solid_left:
+		; find ammount overshoot tile boundary
+		ADC #$FF
 		AND #%00000111
 		STA $16
 
-    BIT velocityX+1
-    BPL @solid_right       ; branch if checking right
-  @solid_left:
-    SEC
-    LDA #$08               ; subtract overshoot from 8 overshoot left
-    SBC $16 
-    STA $16
-
-    CLC
+		SEC
+		LDA #$07
+		SBC $16
+		STA $16 ; invert so its overshoot left
+		; remove amount overshot from deltaX
+		CLC
     LDA tmpDeltaX+1
-    ADC $16
+		ADC $16
     STA tmpDeltaX+1
 
     JMP @solid_done
   @solid_right:
-
+		; find ammount overshot tile boundary
+		AND #%00000111
+		STA $16
+		; remove ammount overshot from deltaX
 		SEC
 		LDA tmpDeltaX+1
 		SBC $16 
@@ -66,12 +72,12 @@
 
 .SCOPE CollisionsY
   empty: ;=============================================================================================
-  LDA #MotionState::Airborne
-  LDA #$03
-  
-  STA motionState
-  RTS
-  
+		LDA #MotionState::Airborne
+		LDA #$03
+		
+		STA motionState
+		RTS
+		
   solid: ;=============================================================================================
 		; only do anything if airborne (land or bonk)
 		LDA motionState

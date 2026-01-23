@@ -23,9 +23,12 @@
 	SCROLL_THRESHOLD_LEFT  = $55
 	SCROLL_THRESHOLD_RIGHT = $AB
 
-	PLAYER_HEAD_OFFSET     = $0  ; zero pixels to players head
-	PLAYER_FEET_OFFSET     = $09 ; 8 pixels to players feet, plus one to check ground
-	PLAYER_RIGHT_OFFSET	   = $07 ; 7 pixels to the right border of the player character 
+	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
+	PLAYER_FEET_OFFSET           = $09 ; 9 pixels down to players feet, plus one to check ground
+	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
+
+	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
+	PLAYER_RIGHT_OFFSET          = $08 ; 8 pixels, the players width plus an extra for external checking	
 		
 	; unsafe memory constants (in scratch memory)
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
@@ -41,8 +44,7 @@
 	STA tmpDeltaX
 	LDA velocityX+1
 	STA tmpDeltaX+1  
-
-	; add position do deltax to find proposed end pos
+	; add position do deltax to find proposed end position
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -50,11 +52,12 @@
 	LDA positionX+1
 	ADC tmpDeltaX+1
 	STA tmpProposedPosFinal+1
-
+	
+  ; bounds checking
 	JSR check_collision_x
 	JSR enact_collision_x
 	JSR check_scroll
-
+	
 	; add deltaX to position
 	CLC
 	LDA positionX
@@ -69,31 +72,29 @@
 ; check if the player collides with anything and adjust deltax accordingly
 .PROC check_collision_x
 
-	; load ACC with the appropriate x offset
-	LDA #$08                  ; the next tile over
+	; load ACC with the appropriate x offset depending on direction
+	LDA #PLAYER_RIGHT_OFFSET
 	BIT velocityX+1
 	BPL	@offset_position
-	LDA #$00
-	
-@offset_position:
+	LDA #PLAYER_LEFT_OFFSET
+@offset_position:				; add the offset to the position
 	CLC
-	ADC positionX+1 		  ; add the offset to the screen position
-	STA $10			          ; pixel position original
-	AND #%11111100
-	STA $11			          ; tile position original
+	ADC positionX+1
+	STA $10			          ; store in scratch
 
-	;load proposed x and offset it
+	AND #%11111100
+	STA $11			          ; mask offset position to get the tile position after offset
+
+	; offset the proposet position
 	LDA tmpProposedPosFinal+1
 	CLC
-	ADC #PLAYER_RIGHT_OFFSET
-	AND #%11111000			  ; BUG i think this is where its broken
-	STA $12                   ; proposed position final
+	ADC #PLAYER_FEET_RIGHT_OFFSET
+	AND #%11111000
+	STA $12
 
-	SEC
-	SBC $11
 	BNE @boundary_crossed     ; branch if tile boundary has been crossed
 	LDA #$00                  ; no collision data
-	;RTS	                  ; TODO Logic is broken here
+	RTS	                      ; TODO Logic is broken here ( i think )
 @boundary_crossed:
 
 	LSR A
@@ -260,9 +261,9 @@
   STA $1F
   
 @check_collision_right:
-	CLC
+	CLC      
 	LDA tmpCollisionPointX
-	ADC #PLAYER_RIGHT_OFFSET 									; offest to right side
+	ADC #PLAYER_FEET_RIGHT_OFFSET 									; offest to right side
 	STA tmpCollisionPointX
 	LDA tmpCollisionPointX+1
 	ADC #$00
