@@ -100,7 +100,6 @@
 		TXA
     AND #%11111000  					; allign to the top of the tile
     SEC
-    SBC #$01   						    ; move up one pixel
 		STA tmpProposedPosFinal+1
     ; set motion state
     LDA #MotionState::Still
@@ -112,7 +111,7 @@
 	  LDA tmpProposedPosFinal+1
     AND #%11111000
 		CLC
-		ADC #$07									; move down the player height minus one
+		ADC #$08									; move down one tile 
 		STA tmpProposedPosFinal+1
 	@return:
 		RTS
@@ -155,10 +154,6 @@ collision_index_x:
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision
-	; increment one since nes displays one pixel up 
-	;INC tmpCollisionPointY
-	; BUG
-
 	; TODO find the correct level
 
 	; set the collision pointer to the correct background

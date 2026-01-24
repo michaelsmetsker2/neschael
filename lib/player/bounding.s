@@ -116,6 +116,7 @@
 	; if the conditional collision data is empty, then check again at the endpoint
 
 @check_top:
+	; load collision point x
 	CLC
 	LDA screenPosX
 	ADC $10                   ; add the offest player position plus world position (for right side of the player)
@@ -123,11 +124,8 @@
 	LDA screenPosX+1
 	ADC #$00				          ; add carry
 	STA tmpCollisionPointX+1
-
-	; load tmpcollision points
+	; load y
 	LDA positionY+1 ; hight byte of y position (pixel pos)
-	CLC
-	ADC #$01
 	STA tmpCollisionPointY
 
 	JSR find_collision
@@ -226,7 +224,6 @@
 	LDA positionY
 	ADC velocityY 				   	; add low bytes
 	STA tmpProposedPosFinal
-	STA $91
 	LDA positionY+1      			; high bytes with carry
 	ADC velocityY+1
 	STA tmpProposedPosFinal+1 ; pixel position

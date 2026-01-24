@@ -36,7 +36,8 @@
     ; copies the sprite x and y variables to the players data
     LDA positionX+1
     STA $0200 + _OAM_X
-    LDA positionY+1
-    STA $0200 + _OAM_Y
+    LDY positionY+1
+    DEY                     ; NES displays sprites one pixel lower than they should, this counteracts that
+    STY $0200 + _OAM_Y
     RTS
 .ENDPROC
