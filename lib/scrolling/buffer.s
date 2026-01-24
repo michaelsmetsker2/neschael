@@ -11,7 +11,7 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/levels/testLevel4.s"
+.INCLUDE "data/levels/testLevel2.s"
 .INCLUDE "data/tiles/metatiles.s"
 
 .EXPORT fill_scroll_buffer
@@ -58,7 +58,7 @@
 .PROC fill_buff_addr_high
 
   LDA velocityX+1
-  BPL @flip_table         ; draw to opposite nametable when scrolling right
+  BPL @flip_table  ; draw to opposite nametable when scrolling right
 @use_current:
   LDA nametable    ; use the current when scrolling left
   JMP @final

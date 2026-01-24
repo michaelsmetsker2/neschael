@@ -58,14 +58,6 @@
 	JSR check_collision_x
 	JSR enact_collision_x
 
-	CLC
-	LDA positionX
-	ADC tmpDeltaX
-	STA tmpProposedPosFinal
-	LDA positionX+1
-	ADC tmpDeltaX+1
-	STA tmpProposedPosFinal+1
-
 	JSR check_scroll
 	
 	; add deltaX to position
@@ -89,13 +81,13 @@
 	LDA #PLAYER_LEFT_OFFSET
 @offset_position:				; add the offset to the position
 	CLC
-	ADC positionX+1
+	ADC tmpProposedPosFinal+1
 	STA $10			          ; store in scratch
 
 	AND #%11111100
 	STA $11			          ; mask offset position to get the tile position after offset
 
-	; offset the proposet position
+; offset the proposed position
 	LDA tmpProposedPosFinal+1
 	CLC
 	ADC #PLAYER_FEET_RIGHT_OFFSET

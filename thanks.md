@@ -1,1 +1,1 @@
-zlago/sylvie on discord
+zlago/sylvie on NESDEV discord for help with lzss encoding

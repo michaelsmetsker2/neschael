@@ -28,7 +28,7 @@
 		; find proposed world position
 		CLC
 		LDA tmpProposedPosFinal+1
-		ADC screenPosX							
+		ADC screenPosX
 
     BIT velocityX+1
     BPL @solid_right       			; branch based on direction
@@ -55,6 +55,7 @@
 		; find ammount overshot tile boundary
 		AND #%00000111
 		STA $16
+
 		; remove ammount overshot from deltaX
 		SEC
 		LDA tmpDeltaX+1
