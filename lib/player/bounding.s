@@ -163,7 +163,7 @@
 	JMP @end_threshold_check
 @left_threshold:
 
-	LDA tmpProposedPosFinal+1
+	; ACC contains tmpProposedPosFinal+1
 	SEC
 	SBC #SCROLL_THRESHOLD_LEFT 
 	BCS @no_scroll                 ; proposed position >= left threshold, threshold not passed

@@ -34,14 +34,16 @@
     BPL @solid_right       			; branch based on direction
   @solid_left:
 		; find ammount overshoot tile boundary
+		CLC
 		ADC #$FF
 		AND #%00000111
 		STA $16
-
+		; invert amount for signed math
 		SEC
 		LDA #$07
 		SBC $16
-		STA $16 ; invert so its overshoot left
+		STA $16 
+		
 		; remove amount overshot from deltaX
 		CLC
     LDA tmpDeltaX+1
@@ -128,6 +130,7 @@ collision_index_x:
 
   ; TODO this is mostly duplicate code 
 	; uses rts trick to jump to the correct collision subproccess
+	; BUG these will crash when jumping to uninitialized metatiles, could add a check to ensure this doesnt happen
 .PROC enact_collision_x
 	ASL
 	TAX
