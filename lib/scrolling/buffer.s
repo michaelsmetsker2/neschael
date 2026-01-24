@@ -11,7 +11,7 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/levels/testLevel3.s"
+.INCLUDE "data/levels/testLevel4.s"
 .INCLUDE "data/tiles/metatiles.s"
 
 .EXPORT fill_scroll_buffer

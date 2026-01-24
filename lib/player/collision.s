@@ -95,11 +95,8 @@
 
   @land:
 		; clamp position to top of tile
-    LDX tmpProposedPosFinal+1
-		INX
-		TXA
+    LDA tmpProposedPosFinal+1
     AND #%11111000  					; allign to the top of the tile
-    SEC
 		STA tmpProposedPosFinal+1
     ; set motion state
     LDA #MotionState::Still

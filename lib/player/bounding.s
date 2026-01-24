@@ -24,11 +24,12 @@
 	SCROLL_THRESHOLD_RIGHT = $AB
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
-	PLAYER_FEET_OFFSET           = $09 ; 7 pixels down to players feet, plus one to check ground
+	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
 
 	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
 	PLAYER_RIGHT_OFFSET          = $08 ; 8 pixels, the players width plus an extra for external checking	
+	PLAYER_LOWER_OFFSET          = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
 		
 	; unsafe memory constants (in scratch memory)
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
@@ -134,7 +135,7 @@
 @check_bottom: ; check again at a lower position
 	CLC
 	LDA tmpCollisionPointY
-	ADC #07
+	ADC #PLAYER_LOWER_OFFSET			; offset to lower check
 	STA tmpCollisionPointY
 
 	JSR find_collision
