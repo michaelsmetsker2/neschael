@@ -146,9 +146,6 @@
 		LDA btnPressed
 		AND #_BUTTON_A
 		BNE @begin_jump            ; branch if a new jump is detected
-		LDA #0
-		STA velocityY              ; dont move if on the ground and not jumping ; this can be changed for colision implemenetations?
-		STA velocityY+1
 		RTS
 @begin_jump:
 		LDA playerFlags

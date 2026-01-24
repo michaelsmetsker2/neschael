@@ -24,7 +24,7 @@
 	SCROLL_THRESHOLD_RIGHT = $AB
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
-	PLAYER_FEET_OFFSET           = $09 ; 9 pixels down to players feet, plus one to check ground
+	PLAYER_FEET_OFFSET           = $09 ; 7 pixels down to players feet, plus one to check ground
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
 
 	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
@@ -56,6 +56,15 @@
   ; bounds checking
 	JSR check_collision_x
 	JSR enact_collision_x
+
+	CLC
+	LDA positionX
+	ADC tmpDeltaX
+	STA tmpProposedPosFinal
+	LDA positionX+1
+	ADC tmpDeltaX+1
+	STA tmpProposedPosFinal+1
+
 	JSR check_scroll
 	
 	; add deltaX to position
@@ -217,6 +226,7 @@
 	LDA positionY
 	ADC velocityY 				   	; add low bytes
 	STA tmpProposedPosFinal
+	STA $91
 	LDA positionY+1      			; high bytes with carry
 	ADC velocityY+1
 	STA tmpProposedPosFinal+1 ; pixel position
@@ -236,7 +246,8 @@
 ; sets offsets and returns the highest priority collision value in the accumulator
 .PROC check_collision_y
 @check_left: ; check collision at top left or bottom left
-	CLC                       ; player pos plus world pos
+  ; player pos plus world pos
+	CLC                       
 	LDA screenPosX
 	ADC positionX+1           ; high byte is pixel position
 	STA tmpCollisionPointX
@@ -244,7 +255,7 @@
 	ADC #$00									; add carry
 	STA tmpCollisionPointX+1
 
-	; set Y offset depending on the sign of the velocity
+	; load the accumulator with the appropriate Y offset (head of feet)
 	LDA #PLAYER_FEET_OFFSET     ; used if player is grounded or moving down
 	LDX motionState
 	CPX #MotionState::Airborne
@@ -252,7 +263,7 @@
 	BIT velocityY+1
 	BPL @add_offset_y
   LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
-@add_offset_y:	
+@add_offset_y:								; add the offset to the proposed position	
 	CLC
 	ADC tmpProposedPosFinal+1   ; add offset to the pixel position
 	STA tmpCollisionPointY
