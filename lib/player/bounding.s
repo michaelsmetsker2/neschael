@@ -20,8 +20,8 @@
 .EXPORT tmpDeltaX
 
 	; pixel values where the screen will scroll instead of move the player
-	SCROLL_THRESHOLD_LEFT  = $55
-	SCROLL_THRESHOLD_RIGHT = $AB
+	SCROLL_THRESHOLD_LEFT        = $55
+	SCROLL_THRESHOLD_RIGHT       = $AB
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
@@ -45,7 +45,55 @@
 	STA tmpDeltaX
 	LDA velocityX+1
 	STA tmpDeltaX+1  
-	; add position do deltax to find proposed end position
+
+	; see if velocity magnitude is over 8 to warent a mid check
+	LDA velocityX+1
+	BPL @positive
+
+	EOR #$FF ; two's compliment to turn p0ositive
+	CLC
+	ADC #$01
+@positive:
+	CMP #08
+	BCC @check_collision
+
+@midpoint_check:	; check collision halfway through the movement to prevent skipping a tile
+	; divide deltaX by two and check collision at the midpoint
+	;JMP @check_collision
+	LDA tmpDeltaX+1        ; high byte
+	ROL A                  ; shift sign bit into cary
+	LDA tmpDeltaX+1        ; reload
+	ROR A                  ; shift right, pulling sign back
+	STA $08
+	LDA tmpDeltaX          ; low byte
+	ROR A                  ; shift right
+	STA $07
+	; set the proposed position to the midpoint
+	CLC
+	LDA positionX
+	ADC $07
+	STA tmpProposedPosFinal
+	LDA positionX+1
+	ADC $08
+	STA tmpProposedPosFinal+1
+
+	JSR check_collision_x
+
+	TAX 									; reset cpu flags
+	BEQ @check_collision  ; use endpoint collision of no collision found
+
+
+	LDA $07					; update deltaX to the /2 values
+	STA tmpDeltaX
+	LDA $08
+	STA tmpDeltaX+1
+
+	TXA ; put collision data back in accumulator for enacting
+	JMP @enact_collision
+
+@check_collision: ; check the collision at the endpoint
+
+	; add position do deltax to find screen position endpoint
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -54,8 +102,9 @@
 	ADC tmpDeltaX+1
 	STA tmpProposedPosFinal+1
 	
-  ; bounds checking
 	JSR check_collision_x
+
+@enact_collision:
 	JSR enact_collision_x
 
 	JSR check_scroll
@@ -71,52 +120,33 @@
 	RTS
 .ENDPROC
 
-; check if the player collides with anything and adjust deltax accordingly
+; check if the player collides with anything and return collision data
+; returns the collision data in accumulator
 .PROC check_collision_x
+	offset_x = $10	; the correct x ammount to offset the collision point from the characters position
 
-	; load ACC with the appropriate x offset depending on direction
+	; calculate the correct x offset based on direction
 	LDA #PLAYER_RIGHT_OFFSET
 	BIT velocityX+1
 	BPL	@offset_position
 	LDA #PLAYER_LEFT_OFFSET
-@offset_position:				; add the offset to the position
+	STA offset_x								; store the offset
+
+@offset_position:						; add the offset to the position
 	CLC
-	ADC tmpProposedPosFinal+1
-	STA $10			          ; store in scratch
-
-	AND #%11111100
-	STA $11			          ; mask offset position to get the tile position after offset
-
-; offset the proposed position
-	LDA tmpProposedPosFinal+1
-	CLC
-	ADC #PLAYER_FEET_RIGHT_OFFSET
-	AND #%11111000
-	STA $12
-
-	BNE @boundary_crossed     ; branch if tile boundary has been crossed
-	LDA #$00                  ; no collision data
-	RTS	                      ; TODO Logic is broken here ( i think )
-@boundary_crossed:
-
-	LSR A
-	LSR A
-	LSR A
-	STA $14 ; should store the ammount of tiles crossed posive only? need to shift first otheriwse?
-
-	; if more than one then we do it twice, here we would branch left or right?
-	; TODO conditionally check at a midpoint
-	; if the conditional collision data is empty, then check again at the endpoint
+	ADC tmpProposedPosFinal+1 ; BUG this may overflow when the player at the very end of a level?
+	STA $16			          		; store in scratch
 
 @check_top:
 	; load collision point x
 	CLC
 	LDA screenPosX
-	ADC $10                   ; add the offest player position plus world position (for right side of the player)
+	ADC $16                   ; add the offest player position plus world position (for right side of the player)
 	STA tmpCollisionPointX
 	LDA screenPosX+1
 	ADC #$00				          ; add carry
 	STA tmpCollisionPointX+1
+	
 	; load y
 	LDA positionY+1 ; hight byte of y position (pixel pos)
 	STA tmpCollisionPointY

@@ -21,6 +21,7 @@ player_sprite:
   .BYTE <Initial::POSITION_Y, $1, %00000000, <Initial::POSITION_X
 
 .PROC player_init
+  ; スパイダーマン
   JSR init_x
   JSR init_y
   JSR init_sprite

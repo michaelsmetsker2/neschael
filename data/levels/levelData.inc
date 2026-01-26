@@ -9,8 +9,9 @@ levels:
 
 ; each level should include
 ; starting x and y positions
-; length of the level
+; length of the level, in screens
 ; pointer to the level data
 ; pointer to attribute data?
+; music?
 
 ; End of data/levelData.inc
