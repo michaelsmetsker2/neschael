@@ -14,13 +14,48 @@
 
 .PROC update_player_sprite
     ;JSR update_motion_state
-    ;JSR update_animation_frame
+    JSR update_animation_frame
     JSR update_heading
-    ;JSR update_sprite_tiles
     JSR update_sprite_position
     RTS
 .ENDPROC
 
+; update the currently displayed player sprite based on motion_state and time
+.PROC update_animation_frame
+	; TODO add all the motionstate stuff
+
+	LDA motionState
+	CMP #MotionState::Airborne
+	BNE @grounded
+@Airborne:
+	BIT velocityY+1
+	BPL @falling
+
+@rising:
+	LDA #$04
+	JMP @write
+@falling:
+	LDA #$05
+	JMP @write
+
+
+@grounded:
+	INC animationTimer
+	LDA animationTimer
+	LSR A
+	LSR A
+	LSR A
+	AND #%00000011
+	TAY
+	LDA test_frames, Y
+@write:
+	STA $0200 + _OAM_TILE 
+	RTS
+test_frames:
+	.BYTE $01, $02, $01, $03
+.ENDPROC
+
+; changed the direction the player sprite is facing based on heading
 .PROC update_heading
     ; heading is already set during x movement
     LDA playerFlags
@@ -32,8 +67,8 @@
     STA $0200 + _OAM_ATTR
 .ENDPROC
 
+; copies the sprite x and y variables to the players data
 .PROC update_sprite_position
-    ; copies the sprite x and y variables to the players data
     LDA positionX+1
     STA $0200 + _OAM_X
     LDY positionY+1
