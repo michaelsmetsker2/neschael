@@ -12,6 +12,13 @@
 
 .EXPORT update_player_sprite
 
+	; sprite constants
+	STANDING_SPRITE   = $01
+	RIGHT_WALK_SPRITE = $02
+	LEFT_WALK_SPRITE  = $03
+	RISING_SPRITE     = $04
+	FALLING_SPRITE    = $05
+
 .PROC update_player_sprite
     ;JSR update_motion_state
     JSR update_animation_frame
@@ -22,26 +29,31 @@
 
 ; update the currently displayed player sprite based on motion_state and time
 .PROC update_animation_frame
-	; TODO add all the motionstate stuff
-
+	; check if grounded
 	LDA motionState
 	CMP #MotionState::Airborne
 	BNE @grounded
-@Airborne:
+@Airborne:        ; check direction
+	LDA velocityY+1
+	BEQ @low_speed
 	BIT velocityY+1
 	BPL @falling
-
 @rising:
-	LDA #$04
+	LDA #RISING_SPRITE
+	JMP @write
+
+@low_speed:
+	LDA #STANDING_SPRITE
 	JMP @write
 @falling:
-	LDA #$05
+	LDA #FALLING_SPRITE 
 	JMP @write
 
-
 @grounded:
+	; increment animation timer
 	INC animationTimer
 	LDA animationTimer
+	LSR A
 	LSR A
 	LSR A
 	LSR A
@@ -52,7 +64,7 @@
 	STA $0200 + _OAM_TILE 
 	RTS
 test_frames:
-	.BYTE $01, $02, $01, $03
+	.BYTE STANDING_SPRITE, LEFT_WALK_SPRITE, STANDING_SPRITE, RIGHT_WALK_SPRITE
 .ENDPROC
 
 ; changed the direction the player sprite is facing based on heading
