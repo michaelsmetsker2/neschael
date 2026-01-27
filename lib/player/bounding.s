@@ -20,8 +20,8 @@
 .EXPORT tmpDeltaX
 
 	; pixel values where the screen will scroll instead of move the player
-	SCROLL_THRESHOLD_LEFT        = $55
-	SCROLL_THRESHOLD_RIGHT       = $AB
+	SCROLL_THRESHOLD_LEFT        = $6A
+	SCROLL_THRESHOLD_RIGHT       = $96
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground

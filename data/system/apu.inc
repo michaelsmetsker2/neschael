@@ -56,6 +56,15 @@ _FR_COUNTER	= $4017               ; Reference: https://wiki.nesdev.com/w/index.p
 
 .MACRO DisableAudioOutput
     LDA #%01000000
-    STA _FR_COUNTER             ; Disable APU frame IRQ
-    STA _DMC_FREQ               ; Disable digital sound IRQs
+    STA _FR_COUNTER       ; Disable APU frame IRQ
+    STA _DMC_FREQ         ; Disable digital sound IRQs
+.ENDMACRO
+
+.MACRO EnableAudioOutput
+    LDA #$00
+    STA _FR_COUNTER      ; Enable APU frame IRQ
+    ; STA _DMC_FREQ      ; Enable DMC IRQs, unused
+
+    LDA #$0F
+    STA _SND_CHN ; enable all channels except DMC
 .ENDMACRO

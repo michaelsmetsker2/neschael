@@ -7,6 +7,7 @@
 
   ; macro definitions used in main loop
 .INCLUDE "data/system/ppu.inc"
+.INCLUDE "data/system/apu.inc"
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT scroll_screen
@@ -30,6 +31,15 @@
   JSR game_init
   JSR player_init
   EnableVideoOutput
+  EnableAudioOutput
+
+  LDA #%10111111 ;Duty 10, Volume F
+  STA _SQ1_VOL
+ 
+  LDA #$C9
+  STA $4002
+  LDA #$00
+  STA $4003
 
   ; the main game loop
 game_loop:

@@ -14,10 +14,9 @@
   positionX         = $26   ; Unsigned Fixed Point 8.8
   positionY         = $28   ; Unsigned Fixed Point 8.8
 
-  motionState       = $2A   ; See `.ENUM MotionState`
+  motionState       = $2A   ; See .ENUM MotionState
 
-  animationFrame    = $2B
-  animationTimer    = $2C
+  animationTimer    = $2B   ; determines the current frame of the walking animation
 
   playerFlags       = $2D   ; holds various player flags in various bit positions
                             ; 0-5 unused 
