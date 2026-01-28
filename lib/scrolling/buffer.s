@@ -16,7 +16,7 @@
 
 .EXPORT fill_scroll_buffer
 
-  COLUMN_Y_OFFSET        = $40 ; the offset of the low bytes, since we don't draw the top 8 scanlines   
+  COLUMN_Y_OFFSET        = $40 ; the offset of the low bytes, since we don't draw the top 16 scanlines   
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
   tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer

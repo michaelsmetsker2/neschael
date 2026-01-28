@@ -13,8 +13,8 @@
     addrLowLeft   = $0301  ; offset left
     addrLowRight  = $0302
     colLeft       = $0303 ; uncompressed tile data for left column
-    colRight      = $031F
-    attribute     = $033B ; attribute data shared by both columns, 4 tiles per attribute vertically
+    colRight      = $031D
+    attribute     = $0337 ; attribute data shared by both columns, 4 tiles per attribute vertically
 .ENDSCOPE
 
   COLUMN_LENGTH          = $1A  ; the amount of tiles per the column

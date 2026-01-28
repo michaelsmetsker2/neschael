@@ -7,16 +7,19 @@
 
   ; macro definitions used in main loop
 .INCLUDE "data/system/ppu.inc"
-.INCLUDE "data/system/apu.inc"
 .INCLUDE "lib/game/gameData.inc"
 
-.IMPORT scroll_screen
 .IMPORT game_init
+.IMPORT audio_init
+.IMPORT player_init
+
+.IMPORT play_sound_frame
 .IMPORT read_joypad_1
 
-.IMPORT player_init
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
+
+.IMPORT scroll_screen
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -30,19 +33,13 @@
     ; initialize basic systems and enable visuals
   JSR game_init
   JSR player_init
+  JSR audio_init
   EnableVideoOutput
-  EnableAudioOutput
-
-  LDA #%10111111 ;Duty 10, Volume F
-  STA _SQ1_VOL
  
-  LDA #$C9
-  STA $4002
-  LDA #$00
-  STA $4003
-
-  ; the main game loop
+  ; the main game loop, triggers after each NMI
 game_loop:
+  JSR play_sound_frame ; first thing after NMI so consistant timing
+
   JSR read_joypad_1
 
   JSR update_player_movement

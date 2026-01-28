@@ -23,8 +23,8 @@
 ;-------------------------------------------------------------------------------
 ; $0300-$0343:  Horizontal scroll buffer, see data/memory/scrollBuffer.inc
 .SEGMENT "SCROLL_BUFF"
-    adresses:    .res 3
-    TileData:    .res 56
+    addresses:   .res 3
+    TileData:    .res 52
     attribute:   .res 8
 ;-------------------------------------------------------------------------------
 ; $034E-$07FF:  General Purpose RAM

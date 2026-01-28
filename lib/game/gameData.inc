@@ -1,13 +1,14 @@
 ;
 ; neschael
-; lib/game/game.inc
+; lib/game/gameData.inc
 ;
 ; memory constants and explinations for variables stored in the game data section of zeropage $40-$FF and
 ; macros concerning them
 ;
 
   ; gameFlags holds major flags for the state of the Game
-  ; bit 0-5: unused
+  ; bit 0-4: unused
+  ; bit 5:   audioFlag, set when audio is enabled
   ; bit 6:   drawFlag, set when data from the scroll buffer should be copied to VRAM next NMI
   ; bit 7:   renderFlag, indicates that logic is complete and vram can be updated
 gameFlags      = $40

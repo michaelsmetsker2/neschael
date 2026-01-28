@@ -18,7 +18,7 @@
 
   animationTimer    = $2B   ; determines the current frame of the walking animation
 
-  playerFlags       = $2D   ; holds various player flags in various bit positions
+  playerFlags       = $2C   ; holds various player flags in various bit positions
                             ; 0-5 unused 
                             ; 6   heading, 0 for right, 1 for left
                             ; 7   if the player has been holding A since the start of the jump
