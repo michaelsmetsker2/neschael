@@ -20,7 +20,8 @@
 		JSR set_target_velocity_x
 		JSR accelerate_x
 		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for hor boost
-																	; and before apply_velocity_x so the boost can be applied frame one
+																	; and before apply_velocity_x so the jump boost can be applied frame one
+		JSR charge_boost
     JSR update_position_x				; x collision first to avoid getting stuck on walls
 		JSR update_position_y
 		RTS
@@ -240,4 +241,85 @@
 fall_speeds:
 		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL
 		.BYTE <Jump::SLOW_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
+.ENDPROC
+
+; proccess the b button charge ability
+.PROC charge_boost
+	; check if b button is held down
+	LDA btnDown
+	AND #_BUTTON_B
+	BEQ @no_press
+@b_held:           ; check if we were already charging
+	LDA playerFlags
+	AND #%00100000 	 ; mask chargeState
+	BNE @store_charge
+@new_charge:       ; start a new charge
+
+	; set chargeStat
+	LDA playerFlags
+	ORA #%00100000
+	STA playerFlags
+
+	; set charge target to current velocity's magnitude
+	BIT velocityX+1
+	BMI @flip_target
+	; velocity is positive so store it 
+	LDA velocityX
+	STA charge_target
+	LDA velocityX+1
+	STA charge_target+1
+	JMP @store_charge
+
+@flip_target:
+	CLC
+	LDA velocityX
+	EOR #$FF
+	ADC #$01
+	STA charge_target
+	LDA velocityX+1
+	EOR #$FF
+	ADC #$01
+	STA charge_target+1
+
+@store_charge:     ; store current velocity up to target
+	BIT velocityX+1
+	;BMI @store_neg ; TODO temp
+@store_pos: ; TODO TEMP
+	
+	CLC
+	LDA stored_velocity
+	ADC #$01
+	STA stored_velocity
+	LDA stored_velocity+1
+	ADC #$00
+	STA stored_velocity+1
+	RTS
+@store_neg:
+
+	RTS
+
+@no_press:
+	
+	LDA playerFlags
+	AND #%00100000
+	BEQ @done
+@release_charge:
+
+	CLC	
+	LDA velocityX
+	ADC stored_velocity
+	STA velocityX
+	LDA velocityX+1
+	ADC stored_velocity+1
+	STA velocityX+1
+
+	LDA #$00
+	STA stored_velocity
+	STA stored_velocity+1
+
+	LDA playerFlags
+	AND #%00100000
+	STA playerFlags
+@done:
+	RTS
 .ENDPROC

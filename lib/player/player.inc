@@ -19,9 +19,13 @@
   animationTimer    = $2B   ; determines the current frame of the walking animation
 
   playerFlags       = $2C   ; holds various player flags in various bit positions
-                            ; 0-5 unused 
+                            ; 0-4 unused
+                            ; 4   chargeState, if player is charging boost 0 for no
                             ; 6   heading, 0 for right, 1 for left
                             ; 7   if the player has been holding A since the start of the jump
+
+  stored_velocity   = $2D   ; Unsigned 8.8 ammount of boost stored
+  charge_target     = $2F   ; Unsigned 8.8 magnitude of velocit when charge started
 
 .SCOPE Jump
   MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
@@ -42,7 +46,6 @@
 .ENUM MotionState
   Still = 0
   Walk = 1
-  Pivot = 2 ; actively turning around
+  Sliding = 2 ; TODO remove due to down ability?
   Airborne = 3 
-  Sliding = 4
 .ENDENUM
