@@ -248,78 +248,121 @@ fall_speeds:
 	; check if b button is held down
 	LDA btnDown
 	AND #_BUTTON_B
-	BEQ @no_press
-@b_held:           ; check if we were already charging
+	BNE @b_pressed     ; branch if b isn't pressed
+@no_charge:
+	; check if we were charging last frame
 	LDA playerFlags
-	AND #%00100000 	 ; mask chargeState
-	BNE @store_charge
-@new_charge:       ; start a new charge
+	AND #%00100000
+	BEQ @done       ; if not, return
+	JMP release_charge	
 
-	; set chargeStat
+@b_pressed:				; B button is held
+	; check if there is a charge currently ongoing
+	LDA playerFlags
+	AND #%00100000
+	BNE @store_charge
+
+
+@new_charge:        ; start a new charge
+	; set chargeFlag
 	LDA playerFlags
 	ORA #%00100000
 	STA playerFlags
 
-	; set charge target to current velocity's magnitude
-	BIT velocityX+1
+	; set charge target charge to current velocity's magnitude
+	BIT velocityX+1 	; get sign
 	BMI @flip_target
+
 	; velocity is positive so store it 
 	LDA velocityX
-	STA charge_target
+	STA chargeTarget
 	LDA velocityX+1
-	STA charge_target+1
+	STA chargeTarget+1
 	JMP @store_charge
-
-@flip_target:
+	
+@flip_target:	;velocity is negative, store two's compliment
 	CLC
 	LDA velocityX
 	EOR #$FF
 	ADC #$01
-	STA charge_target
+	STA chargeTarget
 	LDA velocityX+1
 	EOR #$FF
-	ADC #$01
-	STA charge_target+1
+	ADC #$00
+	STA chargeTarget+1
 
 @store_charge:     ; store current velocity up to target
+	; check if we have exceeded the target already
+	LDA storedVelocity+1     ; high byte
+	CMP chargeTarget+1
+	BCS @done
+	;LDA storedVelocity			 ; low byte
+	;CMP chargeTarget
+	;BCS @done
+
+	; subtract/add velocity
 	BIT velocityX+1
-	;BMI @store_neg ; TODO temp
-@store_pos: ; TODO TEMP
+	BMI @add_vel
+
+@sub_vel: 		; moving right, sub to slow
+	SEC
+	LDA velocityX
+	SBC #$07
+	LDA velocityX+1
+	SBC #$00
 	
+	;BMI @store_vel ; overshot?
+	;LDA #$00
+	;STA velocityX
+	;STA velocityX+1
+
+
+JMP @store_vel 
+@add_vel:    ; moving left, add vel to slow
+
 	CLC
-	LDA stored_velocity
+	LDA velocityX
 	ADC #$01
-	STA stored_velocity
-	LDA stored_velocity+1
+	LDA velocityX+1
 	ADC #$00
-	STA stored_velocity+1
-	RTS
-@store_neg:
-
-	RTS
-
-@no_press:
 	
-	LDA playerFlags
-	AND #%00100000
-	BEQ @done
-@release_charge:
+	;BPL @store_vel ; overshot?
+	;LDA #$00
+	;STA velocityX
+	;STA velocityX+1
+
+
+@store_vel:
+	CLC
+	LDA storedVelocity
+	ADC #$01
+	STA storedVelocity
+	LDA storedVelocity+1
+	ADC #$00
+	STA storedVelocity+1
+
+@done:
+	RTS
+.ENDPROC
+
+
+.PROC release_charge
 
 	CLC	
 	LDA velocityX
-	ADC stored_velocity
+	ADC storedVelocity
 	STA velocityX
 	LDA velocityX+1
-	ADC stored_velocity+1
+	ADC storedVelocity+1
 	STA velocityX+1
 
 	LDA #$00
-	STA stored_velocity
-	STA stored_velocity+1
+	STA storedVelocity
+	STA storedVelocity+1
 
 	LDA playerFlags
-	AND #%00100000
+	AND #%11011111
 	STA playerFlags
-@done:
+
 	RTS
 .ENDPROC
