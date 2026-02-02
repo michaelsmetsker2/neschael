@@ -268,28 +268,12 @@ fall_speeds:
 	LDA playerFlags
 	ORA #CHARGE_STATE_MASK
 	STA playerFlags
-
-	; set charge target to current velocity magnitude
-	BIT velocityX+1 	; get sign
-	BMI @flip_target
-
-	; store positive velocity
-	LDA velocityX
-	STA chargeTarget
-	LDA velocityX+1
-	STA chargeTarget+1
-	JMP @store_charge
-
-@flip_target:	;velocity is negative, store two's compliment
-	CLC
-	LDA velocityX
-	EOR #$FF
-	ADC #$01
-	STA chargeTarget
-	LDA velocityX+1
-	EOR #$FF
-	ADC #$00
-	STA chargeTarget+1
+; reset stored charge and timer
+	LDA #$00
+	STA storedVelocity
+	STA storedVelocity+1
+	; TODO reset timer?
+	; TODO reset other flag?
 
 @store_charge:
 	JSR store_charge
@@ -298,14 +282,41 @@ fall_speeds:
 .ENDPROC
 
 .PROC store_charge
-	; check if we have exceeded the target already
-	; remove velocity from the player
-		; make sure we don't overshoot zero
 
+	; increment a timer
+	; find the ammount of speed we takin away based on the _ of the timer
+	; raw or lookup table works
+	TEST_AMMOUNT = $07
+	BIT velocityX+1 ; maybe we should mask and stre sign
+	BMI @add_vel
+@sub_vel:
+	SEC
+	LDA velocityX
+	SBC #TEST_AMMOUNT
+	STA velocityX
+	LDA velocityX+1
+	SBC #$00
+	STA velocityX+1
+
+	JMP @check_sign
+@add_vel:
+	CLC
+	LDA velocityX
+	ADC #TEST_AMMOUNT
+	STA velocityX
+	LDA velocityX+1
+	ADC #$00
+	STA velocityX+1
+
+@check_sign:
+
+	; make sure we don't overshoot zero (change sign)
+
+; maybe add one stored to each tick to dupe velocity a little bit :)
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
 	LDA storedVelocity
-	ADC #$01
+	ADC #TEST_AMMOUNT  ; TODO temp value
 	STA storedVelocity
 	LDA storedVelocity+1
 	ADC #$00
@@ -315,6 +326,17 @@ fall_speeds:
 .ENDPROC
 
 .PROC release_charge
+	; reset the chargeState flag
+	LDA playerFlags
+	AND #%11011111
+	STA playerFlags
+
+	; get the player's heading direction
+	LDA playerFlags
+	AND #HEADING_MASK
+	BNE @boost_left
+
+	@boost_right: ; add boost (right)
 	CLC	
 	LDA velocityX
 	ADC storedVelocity
@@ -322,14 +344,14 @@ fall_speeds:
 	LDA velocityX+1
 	ADC storedVelocity+1
 	STA velocityX+1
-
-	LDA #$00
-	STA storedVelocity
-	STA storedVelocity+1
-
-	LDA playerFlags
-	AND #%11011111
-	STA playerFlags
-
+	RTS
+	@boost_left: ; subtract boost (left)
+	SEC	
+	LDA velocityX
+	SBC storedVelocity
+	STA velocityX
+	LDA velocityX+1
+	SBC storedVelocity+1
+	STA velocityX+1
 	RTS
 .ENDPROC

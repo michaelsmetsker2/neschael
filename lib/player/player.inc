@@ -26,9 +26,9 @@
 
   ; chargable flag
   CHARGE_STATE_MASK = %00100000
+  HEADING_MASK      = %01000000
 
   storedVelocity   = $2D   ; Unsigned 8.8 ammount of boost stored
-  chargeTarget     = $2F   ; Unsigned 8.8 magnitude of velocit when charge started
 
 .SCOPE Jump
   MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
