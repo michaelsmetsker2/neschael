@@ -22,7 +22,10 @@
                             ; 0-4 unused
                             ; 5   chargeState, if player is charging boost 0 for no
                             ; 6   heading, 0 for right, 1 for left
-                            ; 7   if the player has been holding A since the start of the jump
+                            ; 7   slowJump flag if the player has been holding A since the start of the jump
+
+  ; chargable flag
+  CHARGE_STATE_MASK = %00100000
 
   storedVelocity   = $2D   ; Unsigned 8.8 ammount of boost stored
   chargeTarget     = $2F   ; Unsigned 8.8 magnitude of velocit when charge started

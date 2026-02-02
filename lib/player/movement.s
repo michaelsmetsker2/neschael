@@ -245,41 +245,41 @@ fall_speeds:
 
 ; proccess the b button charge ability
 .PROC charge_boost
-	; check if b button is held down
+	; check the input
 	LDA btnDown
 	AND #_BUTTON_B
-	BNE @b_pressed     ; branch if b isn't pressed
-@no_charge:
-	; check if we were charging last frame
-	LDA playerFlags
-	AND #%00100000
-	BEQ @done       ; if not, return
-	JMP release_charge	
+	BNE @b_pressed     ; branch if b is pressed
 
-@b_pressed:				; B button is held
+@no_press: ; check if we were charging last frame
+	LDA playerFlags
+	AND #CHARGE_STATE_MASK
+	BEQ @done								; no charge, return	
+	JSR release_charge			; existing charge, release
+	JMP @done	
+
+@b_pressed:
 	; check if there is a charge currently ongoing
 	LDA playerFlags
-	AND #%00100000
+	AND #CHARGE_STATE_MASK
 	BNE @store_charge
 
-
-@new_charge:        ; start a new charge
+@new_charge:  			; no existing, make a new one 
 	; set chargeFlag
 	LDA playerFlags
-	ORA #%00100000
+	ORA #CHARGE_STATE_MASK
 	STA playerFlags
 
-	; set charge target charge to current velocity's magnitude
+	; set charge target to current velocity magnitude
 	BIT velocityX+1 	; get sign
 	BMI @flip_target
 
-	; velocity is positive so store it 
+	; store positive velocity
 	LDA velocityX
 	STA chargeTarget
 	LDA velocityX+1
 	STA chargeTarget+1
 	JMP @store_charge
-	
+
 @flip_target:	;velocity is negative, store two's compliment
 	CLC
 	LDA velocityX
@@ -291,48 +291,18 @@ fall_speeds:
 	ADC #$00
 	STA chargeTarget+1
 
-@store_charge:     ; store current velocity up to target
+@store_charge:
+	JSR store_charge
+@done:
+	RTS
+.ENDPROC
+
+.PROC store_charge
 	; check if we have exceeded the target already
-	LDA storedVelocity+1     ; high byte
-	CMP chargeTarget+1
-	BCS @done
-	;LDA storedVelocity			 ; low byte
-	;CMP chargeTarget
-	;BCS @done
+	; remove velocity from the player
+		; make sure we don't overshoot zero
 
-	; subtract/add velocity
-	BIT velocityX+1
-	BMI @add_vel
-
-@sub_vel: 		; moving right, sub to slow
-	SEC
-	LDA velocityX
-	SBC #$07
-	LDA velocityX+1
-	SBC #$00
-	
-	;BMI @store_vel ; overshot?
-	;LDA #$00
-	;STA velocityX
-	;STA velocityX+1
-
-
-JMP @store_vel 
-@add_vel:    ; moving left, add vel to slow
-
-	CLC
-	LDA velocityX
-	ADC #$01
-	LDA velocityX+1
-	ADC #$00
-	
-	;BPL @store_vel ; overshot?
-	;LDA #$00
-	;STA velocityX
-	;STA velocityX+1
-
-
-@store_vel:
+@store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
 	LDA storedVelocity
 	ADC #$01
@@ -340,14 +310,11 @@ JMP @store_vel
 	LDA storedVelocity+1
 	ADC #$00
 	STA storedVelocity+1
-
-@done:
 	RTS
+
 .ENDPROC
 
-
 .PROC release_charge
-
 	CLC	
 	LDA velocityX
 	ADC storedVelocity
