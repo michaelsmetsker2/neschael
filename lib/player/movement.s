@@ -287,31 +287,41 @@ fall_speeds:
 	; find the ammount of speed we takin away based on the _ of the timer
 	; raw or lookup table works
 	TEST_AMMOUNT = $07
-	BIT velocityX+1 ; maybe we should mask and stre sign
+
+	LDA velocityX+1
+	AND #%10000000   ; mask sign bit
+	STA $00          ; store sign bit in scratch memory for later
 	BMI @add_vel
+
 @sub_vel:
 	SEC
 	LDA velocityX
 	SBC #TEST_AMMOUNT
-	STA velocityX
+	TAX              		 ; low byte in X
 	LDA velocityX+1
-	SBC #$00
-	STA velocityX+1
+	SBC #$00             ; subtract carry
+	TAY                  ; high byte in Y
 
 	JMP @check_sign
 @add_vel:
 	CLC
 	LDA velocityX
 	ADC #TEST_AMMOUNT
-	STA velocityX
+	TAX                 ; low byte in X
 	LDA velocityX+1
-	ADC #$00
-	STA velocityX+1
+	ADC #$00				    ; add carry
+	TAY                 ; high byte in Y
 
 @check_sign:
-
-	; make sure we don't overshoot zero (change sign)
-
+	; high byte should still be in ACC
+	AND #%10000000 ; mask sign bit
+	CMP $00        ; compare to the velocities sign
+	BNE @done      ; sign has fliped, return ; TODO make this flip the no more flag or something?
+	
+	; sign has not flipped, apply new velocity
+	STX velocityX
+	STY velocityX+1
+	
 ; maybe add one stored to each tick to dupe velocity a little bit :)
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
@@ -321,17 +331,18 @@ fall_speeds:
 	LDA storedVelocity+1
 	ADC #$00
 	STA storedVelocity+1
-	RTS
 
+@done:
+	RTS
 .ENDPROC
 
+; releases the stored charge into players velocity
 .PROC release_charge
 	; reset the chargeState flag
 	LDA playerFlags
 	AND #%11011111
 	STA playerFlags
-
-	; get the player's heading direction
+	; get the player's heading
 	LDA playerFlags
 	AND #HEADING_MASK
 	BNE @boost_left
