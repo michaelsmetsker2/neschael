@@ -282,7 +282,7 @@ fall_speeds:
 .ENDPROC
 
 .PROC store_charge
-
+	INC chargeCounter
 	; increment a timer
 	; find the ammount of speed we takin away based on the _ of the timer
 	; raw or lookup table works
@@ -296,7 +296,7 @@ fall_speeds:
 @sub_vel:
 	SEC
 	LDA velocityX
-	SBC #TEST_AMMOUNT
+	SBC #chargeCounter
 	TAX              		 ; low byte in X
 	LDA velocityX+1
 	SBC #$00             ; subtract carry
@@ -306,7 +306,7 @@ fall_speeds:
 @add_vel:
 	CLC
 	LDA velocityX
-	ADC #TEST_AMMOUNT
+	ADC #chargeCounter
 	TAX                 ; low byte in X
 	LDA velocityX+1
 	ADC #$00				    ; add carry
@@ -326,7 +326,7 @@ fall_speeds:
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
 	LDA storedVelocity
-	ADC #TEST_AMMOUNT  ; TODO temp value
+	ADC #chargeCounter  ; TODO temp value
 	STA storedVelocity
 	LDA storedVelocity+1
 	ADC #$00
@@ -338,6 +338,11 @@ fall_speeds:
 
 ; releases the stored charge into players velocity
 .PROC release_charge
+	; TODO add extra charge if the direction the player is goind is opposite to heading
+	; check if velocity sign is different from heading
+	; if so double the charge ( or 1.5x by lsr then add)
+
+
 	; reset the chargeState flag
 	LDA playerFlags
 	AND #%11011111

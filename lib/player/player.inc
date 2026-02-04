@@ -18,7 +18,10 @@
 
   animationTimer    = $2B   ; determines the current frame of the walking animation
 
-  playerFlags       = $2C   ; holds various player flags in various bit positions
+  storedVelocity    = $2C   ; Unsigned 8.8 ammount of boost stored
+  chargeCounter     = $2E   ; counter that determines how much boost is stored per tick
+
+  playerFlags       = $2F   ; holds various player flags in various bit positions
                             ; 0-4 unused
                             ; 5   chargeState, if player is charging boost 0 for no
                             ; 6   heading, 0 for right, 1 for left
@@ -27,8 +30,6 @@
   ; chargable flag
   CHARGE_STATE_MASK = %00100000
   HEADING_MASK      = %01000000
-
-  storedVelocity   = $2D   ; Unsigned 8.8 ammount of boost stored
 
 .SCOPE Jump
   MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
