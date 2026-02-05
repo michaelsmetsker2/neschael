@@ -272,7 +272,8 @@ fall_speeds:
 	LDA #$00
 	STA storedVelocity
 	STA storedVelocity+1
-	; TODO reset timer?
+	STA chargeCounter
+
 	; TODO reset other flag?
 
 @store_charge:
@@ -281,12 +282,16 @@ fall_speeds:
 	RTS
 .ENDPROC
 
+; proccess adding to an existing charge
 .PROC store_charge
-	INC chargeCounter
-	; increment a timer
-	; find the ammount of speed we takin away based on the _ of the timer
-	; raw or lookup table works
-	TEST_AMMOUNT = $07
+	
+	curCharge = $01
+
+	LDA #chargeCounter
+	;LSR
+	;LSR
+	STA $01
+
 
 	LDA velocityX+1
 	AND #%10000000   ; mask sign bit
@@ -296,7 +301,7 @@ fall_speeds:
 @sub_vel:
 	SEC
 	LDA velocityX
-	SBC #chargeCounter
+	SBC #curCharge
 	TAX              		 ; low byte in X
 	LDA velocityX+1
 	SBC #$00             ; subtract carry
@@ -306,7 +311,7 @@ fall_speeds:
 @add_vel:
 	CLC
 	LDA velocityX
-	ADC #chargeCounter
+	ADC #curCharge
 	TAX                 ; low byte in X
 	LDA velocityX+1
 	ADC #$00				    ; add carry
@@ -326,33 +331,39 @@ fall_speeds:
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
 	LDA storedVelocity
-	ADC #chargeCounter  ; TODO temp value
+	ADC #curCharge
 	STA storedVelocity
 	LDA storedVelocity+1
 	ADC #$00
 	STA storedVelocity+1
 
+	INC chargeCounter ; increment the timer upon a succesful charge
 @done:
 	RTS
 .ENDPROC
 
 ; releases the stored charge into players velocity
 .PROC release_charge
-	; TODO add extra charge if the direction the player is goind is opposite to heading
-	; check if velocity sign is different from heading
-	; if so double the charge ( or 1.5x by lsr then add)
-
-
 	; reset the chargeState flag
 	LDA playerFlags
 	AND #%11011111
 	STA playerFlags
-	; get the player's heading
+
+	LDA playerFlags
+	AND HEADING_MASK
+	ASL
+	CMP $00          ; sign bit of velocity stored in store_charge
+	BEQ @get_heading
+
+	; TODO do some duplicating of velocity
+
+
+@get_heading:      ; branch based on boost direction
 	LDA playerFlags
 	AND #HEADING_MASK
 	BNE @boost_left
 
-	@boost_right: ; add boost (right)
+@boost_right: ; add boost (right)
 	CLC	
 	LDA velocityX
 	ADC storedVelocity
@@ -361,7 +372,7 @@ fall_speeds:
 	ADC storedVelocity+1
 	STA velocityX+1
 	RTS
-	@boost_left: ; subtract boost (left)
+@boost_left: ; subtract boost (left)
 	SEC	
 	LDA velocityX
 	SBC storedVelocity
