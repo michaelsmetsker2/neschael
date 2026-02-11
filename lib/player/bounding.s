@@ -59,7 +59,6 @@
 
 @midpoint_check:	; check collision halfway through the movement to prevent skipping a tile
 	; divide deltaX by two and check collision at the midpoint
-	;JMP @check_collision
 	LDA tmpDeltaX+1        ; high byte
 	ROL A                  ; shift sign bit into cary
 	LDA tmpDeltaX+1        ; reload
@@ -81,7 +80,6 @@
 
 	TAX 									; reset cpu flags
 	BEQ @check_collision  ; use endpoint collision of no collision found
-
 
 	LDA $07					; update deltaX to the /2 values
 	STA tmpDeltaX

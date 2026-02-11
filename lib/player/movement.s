@@ -284,14 +284,14 @@ fall_speeds:
 
 ; proccess adding to an existing charge
 .PROC store_charge
-	
-	curCharge = $01
+
+	 ; ammount of velocity to store and remove from player
+	tmpCurCharge = $01
 
 	LDA #chargeCounter
-	;LSR
-	;LSR
-	STA $01
-
+	LSR
+	LSR
+	STA tmpCurCharge
 
 	LDA velocityX+1
 	AND #%10000000   ; mask sign bit
@@ -301,7 +301,7 @@ fall_speeds:
 @sub_vel:
 	SEC
 	LDA velocityX
-	SBC #curCharge
+	SBC tmpCurCharge
 	TAX              		 ; low byte in X
 	LDA velocityX+1
 	SBC #$00             ; subtract carry
@@ -311,7 +311,7 @@ fall_speeds:
 @add_vel:
 	CLC
 	LDA velocityX
-	ADC #curCharge
+	ADC tmpCurCharge
 	TAX                 ; low byte in X
 	LDA velocityX+1
 	ADC #$00				    ; add carry
@@ -331,7 +331,7 @@ fall_speeds:
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
 	LDA storedVelocity
-	ADC #curCharge
+	ADC tmpCurCharge
 	STA storedVelocity
 	LDA storedVelocity+1
 	ADC #$00
@@ -349,14 +349,18 @@ fall_speeds:
 	AND #%11011111
 	STA playerFlags
 
+	; check if heading and direction don't match
 	LDA playerFlags
 	AND HEADING_MASK
 	ASL
 	CMP $00          ; sign bit of velocity stored in store_charge
-	BEQ @get_heading
+	BNE @get_heading
 
-	; TODO do some duplicating of velocity
-
+	; TODO make 1.5 instead of 2x
+	; BUG logic may be broken verify
+	; double stored velocity
+	ASL storedVelocity
+	ROL storedVelocity+1
 
 @get_heading:      ; branch based on boost direction
 	LDA playerFlags
