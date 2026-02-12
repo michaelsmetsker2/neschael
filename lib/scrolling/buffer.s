@@ -81,12 +81,9 @@
   LSR A
   LSR A
   LSR A          ; divide by 8 to find the column index
+  AND #%11111110 ; aligns to metatile (prevents errors at speeds over 8)
   TAX
 
-  LDA velocityX+1
-  BPL @final
-@left:                 ; if were scrolling left, decrement by one metatile
-  DEX
 @final:
   TXA
   AND #%00011111        ; mask incase of overflow

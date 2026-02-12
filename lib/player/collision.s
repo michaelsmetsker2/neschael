@@ -24,7 +24,6 @@
     RTS
 		
   solid: ;=============================================================================================
-
 		; find proposed world position
 		CLC
 		LDA tmpProposedPosFinal+1

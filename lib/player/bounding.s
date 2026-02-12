@@ -63,14 +63,13 @@
 
 @midpoint_check:	; check collision halfway through the movement to prevent skipping a tile
 	; divide deltaX by two and check collision at the midpoint
-	; TODO i think this is the wrong way to do signed division
 	LDA tmpDeltaX+1        ; high byte
 	ROL A                  ; shift sign bit into cary
-	LDA tmpDeltaX+1        ; reload
+	LDA tmpDeltaX+1
 	ROR A                  ; shift right, pulling sign back
 	STA $08
 	LDA tmpDeltaX          ; low byte
-	ROR A                  ; shift right
+	ROR A
 	STA $07
 	; set the proposed position to the midpoint
 	CLC
@@ -83,16 +82,8 @@
 
 	JSR check_collision_x
 
-	TAX 									; reset cpu flags
-	BEQ @check_collision  ; use endpoint collision of no collision found
-
-	LDA $07					; update deltaX to the /2 values
-	STA tmpDeltaX
-	LDA $08
-	STA tmpDeltaX+1
-
-	TXA ; put collision data back in accumulator for enacting
-	JMP @enact_collision
+	TAX 									; sets cpu flags
+	BNE @enact_collision  ; enact if collision found
 
 @check_collision: ; check the collision at the endpoint
 
@@ -110,7 +101,7 @@
 @enact_collision:
 	JSR enact_collision_x
 
-	JSR check_scroll
+	JSR check_scroll	; see if we need to scroll the screen or not
 	
 	; add deltaX to position
 	CLC
