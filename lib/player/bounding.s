@@ -19,9 +19,13 @@
 .EXPORT update_position_y
 .EXPORT tmpDeltaX
 
+	; TODO make some of the constants subproccess scope instead of file scope
+
 	; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT        = $6A
 	SCROLL_THRESHOLD_RIGHT       = $96
+
+	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
@@ -48,17 +52,18 @@
 
 	; see if velocity magnitude is over 8 to warent a mid check
 	LDA velocityX+1
-	BPL @positive
-
-	EOR #$FF ; two's compliment to turn p0ositive
+	BPL @check_speed
+@negative:
+	EOR #$FF ; two's compliment to invert sign
 	CLC
 	ADC #$01
-@positive:
-	CMP #08
-	BCC @check_collision
+@check_speed:
+	CMP #MIDPOINT_THRESHOLD
+	BCC @check_collision		; branch if under the threshold
 
 @midpoint_check:	; check collision halfway through the movement to prevent skipping a tile
 	; divide deltaX by two and check collision at the midpoint
+	; TODO i think this is the wrong way to do signed division
 	LDA tmpDeltaX+1        ; high byte
 	ROL A                  ; shift sign bit into cary
 	LDA tmpDeltaX+1        ; reload
