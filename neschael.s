@@ -38,7 +38,7 @@
  
   ; the main game loop, triggers after each NMI
 game_loop:
-  JSR play_sound_frame ; first thing after NMI so consistant timing
+  JSR play_sound_frame ; first thing after NMI so consistant timing ; TODO unfinished
 
   JSR read_joypad_1
 
@@ -53,7 +53,7 @@ game_loop:
   BMI @wait_for_render
 
   JMP game_loop
-  RTS                   ; shouldn't ever get called
+  RTS                   ; should never get called
 .ENDPROC
 
 ; Interrupt service routines

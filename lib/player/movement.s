@@ -80,12 +80,12 @@
 		SEC
 		LDA targetVelocityX
 		SBC velocityX
-		STA $02
+		STA $00
 		LDA targetVelocityX+1
 		SBC velocityX+1
-		STA $03
+		STA $01
 
-		ORA $02             ; exit if the player is at the target velocity
+		ORA $00             ; exit if the player is at the target velocity
 		BEQ @done
 
 		; TODO here we would determing what acceleration values to actually use depending on the surface
@@ -97,7 +97,7 @@
 		; TODO all of that is temp ====================================================================================
 
 		; check sign of velocity difference
-		BIT $03
+		BIT $01
 		BPL @apply_acceleration ; if the difference is positive, accelerate to the right
 		; invert the acceleration if we're accelerating left
 		LDA #0
@@ -125,7 +125,7 @@
 		LDA targetVelocityX+1
 		SBC velocityX+1
 		; if the sign of the difference has flipped, then velocity was overshot
-		EOR $03
+		EOR $01
 		BPL @done
 		; clamp to the target on overshoot
 		LDA targetVelocityX
@@ -168,7 +168,7 @@
 		; add vertical velocity boost in heading direction
 @horizontal_boost:
 		LDA #<Jump::HORIZONRAL_BOOST
-		STA $07
+		STA $00
 		LDA #>Jump::HORIZONRAL_BOOST
 		STA $08      
 
@@ -177,18 +177,17 @@
 		BEQ @apply_boost ; if heading is left, invert the boost velocity
 		LDA #0
 		SEC
-		SBC $07
-		STA $07
+		SBC $00					 ; unused, only carry is needed
 		LDA #0
-		SBC $08
-		STA $08
+		SBC $01
+		STA $01
 @apply_boost:
 		CLC 
 		LDA velocityX
-		ADC $07
+		ADC $00
 		STA velocityX
 		LDA velocityX+1
-		ADC $08
+		ADC $01
 		STA velocityX+1      
 		RTS
 @airborne:

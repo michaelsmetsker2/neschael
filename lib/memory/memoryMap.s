@@ -9,7 +9,7 @@
 .SEGMENT "ZEROPAGE" ; first page of memory, faster I/O
 
 ; $00-$1F:      General use Subroutine Scratch Memory
-  SCRATCH:    .res 32
+  SCRATCH:      .res 32
 
 ; $20-3F:       Player data, states and animation, see lib/player/init.s      
   PLAYER_DATA:  .res 32
