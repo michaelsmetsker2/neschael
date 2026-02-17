@@ -67,23 +67,31 @@
 	ROL A                  ; shift sign bit into cary
 	LDA tmpDeltaX+1
 	ROR A                  ; shift right, pulling sign back
-	STA $08
+	STA $0D
 	LDA tmpDeltaX          ; low byte
 	ROR A
-	STA $07
+	STA $0C
 	; set the proposed position to the midpoint
 	CLC
 	LDA positionX
-	ADC $07
+	ADC $0C
 	STA tmpProposedPosFinal
 	LDA positionX+1
-	ADC $08
+	ADC $0D
 	STA tmpProposedPosFinal+1
 
 	JSR check_collision_x
 
-	TAX 									; sets cpu flags
-	BNE @enact_collision  ; enact if collision found
+	TAX 									; reset cpu flags
+	BEQ @check_collision  ; use endpoint collision of no collision found
+
+	LDA $0C					; update deltaX to the /2 values
+	STA tmpDeltaX
+	LDA $0D
+	STA tmpDeltaX+1
+
+	TXA ; put collision data back in accumulator for enacting
+	JMP @enact_collision
 
 @check_collision: ; check the collision at the endpoint
 

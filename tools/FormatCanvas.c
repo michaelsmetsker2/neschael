@@ -1,9 +1,5 @@
 /*
-simple script, used for formatting level data,
-THIS DOES NOT COMPRESS IT
-
-all it does is assign an arbitrary ID to the metatiles it uses and converts it to column major order
-
+	simple script, used for formatting level data,
 */
 
 #include <stdio.h>
@@ -18,7 +14,6 @@ all it does is assign an arbitrary ID to the metatiles it uses and converts it t
 #define META_WIDTH  16
 #define META_HEIGHT 13
 #define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
-
 #define MAX_UNIQUE 256 
 
 typedef struct {
@@ -28,6 +23,23 @@ typedef struct {
   uint8_t b2;
 } Metatile;
 
+// array of match structs
+struct {
+	size_t length;
+	size_t index;
+} longest[META_SIZE];
+
+// returns number of consecutive equal bytes for lzss
+static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
+	for (size_t i = 0; i < len; i++) {
+		if (a[i] != b[i]) {
+			return i;
+		}
+	}
+	return len;
+}
+
+// get the index of the metatile in the list of unique metatiles
 int getMetatileIndex(Metatile m, Metatile unique[], int uniqueCount) {
     for (int i = 0; i < uniqueCount; i++) {
         Metatile u = unique[i];
@@ -39,10 +51,82 @@ int getMetatileIndex(Metatile m, Metatile unique[], int uniqueCount) {
     return -1; // should never happen if map was built from unique[]
 }
 
+void lzss(const uint8_t *input) {
+
+	uint8_t output[META_SIZE] = {0};
+
+	// look back 256 times to find the biggest match
+	for (unsigned lookBack = 1; lookBack <= 256; lookBack++) {
+		
+		// i is the index of the pice of data we are looking at in the array
+		for (size_t i = lookBack; i < META_SIZE; i++) {
+			
+			// find the ammount of matching bytes starting from lookBack
+			// skip through the matches then start analyzing again
+			for (size_t len = cmp(input + i, input + i - lookBack, META_SIZE - i); len > 0; len--, i++) {
+				
+				if (len > longest[i].length) {
+					longest[i].length = len;
+					longest[i].index = lookBack;
+				}
+			}
+		}
+	}
+
+	size_t outputIndex = 0;
+
+	// add compressed data to ouput array
+	for (size_t i = 0; i < META_SIZE;) {
+		
+		if (longest[i].length > 2) {
+			output[outputIndex++] = longest[i].length; // 2 - 128, works as command byte
+			output[outputIndex++] = longest[i].index;
+			
+			i += longest[i].length;
+		} else {
+
+			// add the ammount of consecutively literals
+			size_t literals = 0;
+			for (literals = 0; i < META_SIZE && literals < 128; i++, literals++) {
+				if (longest[i].length > 2) {
+					break;
+				}
+			}
+
+			if (literals) {
+				output[outputIndex++] = 256 - literals;
+
+				for (size_t l = 0; l < literals; l++) {
+					output[outputIndex++] = input[i - literals + l];
+				}
+			}
+		}
+	}
+
+	// print and format output
+	size_t prindex = 0; // print index
+	
+	while (prindex <= outputIndex) {
+		if (prindex % 16 == 0) {
+			printf("\n  .BYTE "); // start of line
+		}
+
+		printf("$%02X", output[prindex++]);
+
+		if (prindex % 16 == 0) {
+			printf(" ");
+		} else {
+			printf(", ");
+		}
+	}
+	printf("$00\n"); // end of stream
+
+	return;
+}
 
 int main() {
   char line[1024];            // max line size when reading from file
-  uint8_t input[SIZE];
+  uint8_t input[SIZE] = {0};
 
 	int index = 0;
 
@@ -120,20 +204,29 @@ int main() {
     }
   } 
 
-  // print result in column row order
-  for (int col = 0; col < META_WIDTH; col++) {
-      printf("column0z_%i:\n", col);
-      printf("\t.BYTE ");
-      for (int row = 0; row < META_HEIGHT; row++) {
+	// 8bit array of max size initialized to zero
+	uint8_t colMajor[META_SIZE] = {0};
 
-          int index = row * META_WIDTH + col;
-          int id = getMetatileIndex(mMap[index], mTiles, uniqueCount);
+	// loop counter
+	int streamIndex = 0;
+
+	// print result in column major order
+  for (int col = 0; col < META_WIDTH; col++) {
+    printf("\n");
+    for (int row = 0; row < META_HEIGHT; row++) {
+
+      int index = row * META_WIDTH + col;
+      int id = getMetatileIndex(mMap[index], mTiles, uniqueCount);
         
-          printf("$%02X", id);
-          if (row < META_HEIGHT - 1) printf(", ");
-      }
-      printf("\n");
+			colMajor[streamIndex++] = id;
+			
+      printf("$%02X ", id + 1); // 1 based to prevent end of stream
+
+    }
   }
-  
-  return 0;
+
+	printf("\n\n");
+	lzss(colMajor);
+
+	return 0;
 }

@@ -121,11 +121,9 @@
 		; recompute updated difference between velocity and target
 		SEC
 		LDA targetVelocityX
-		SBC velocityX
-		STA $06                 ; storing stuff like this is for debugging mostly, it uses cycles so if i need performance, remove
+		SBC velocityX   				; only need carry
 		LDA targetVelocityX+1
 		SBC velocityX+1
-		STA $07
 		; if the sign of the difference has flipped, then velocity was overshot
 		EOR $03
 		BPL @done
