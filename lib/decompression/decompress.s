@@ -54,7 +54,7 @@ refference:			 ; control byte is a match
 	INY
 	INX
 	DEC length
-	BPL @ref_loop
+	BNE @ref_loop
 	LDY temp			 ; restore and increment read offset
 	INY
 	BNE decomp_loop
