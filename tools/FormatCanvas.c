@@ -67,7 +67,7 @@ void lzss(const uint8_t *input) {
 				
 				if (len > longest[i].length) {
 					longest[i].length = len;
-					longest[i].index = lookBack;
+					longest[i].index = i - lookBack; // index of the start of the match in decompressed data
 				}
 			}
 		}
@@ -220,7 +220,7 @@ int main() {
         
 			colMajor[streamIndex++] = id;
 			
-      printf("$%02X ", id + 1); // 1 based to prevent end of stream
+      printf("$%02X ", id);
 
     }
   }

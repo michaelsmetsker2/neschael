@@ -32,9 +32,6 @@
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
 
 	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
-	PLAYER_RIGHT_OFFSET          = $08 ; 8 pixels, the players width plus an extra for external checking	
-	PLAYER_LOWER_OFFSET          = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
-		
 	; unsafe memory constants (in scratch memory)
 	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
@@ -125,10 +122,14 @@
 ; check if the player collides with anything and return collision data
 ; returns the collision data in accumulator
 .PROC check_collision_x
+
+	RIGHT_OFFSET   = $08 ; 8 pixels, the players width plus an extra for external checking	
+	LOWER_OFFSET   = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
+		
 	offset_x = $10	; the correct x ammount to offset the collision point from the characters position
 
 	; calculate the correct x offset based on direction
-	LDA #PLAYER_RIGHT_OFFSET
+	LDA #RIGHT_OFFSET
 	BIT velocityX+1
 	BPL	@offset_position
 	LDA #PLAYER_LEFT_OFFSET
@@ -159,7 +160,7 @@
 @check_bottom: ; check again at a lower position
 	CLC
 	LDA tmpCollisionPointY
-	ADC #PLAYER_LOWER_OFFSET			; offset to lower check
+	ADC #LOWER_OFFSET			; offset to lower check
 	STA tmpCollisionPointY
 
 	JSR find_collision

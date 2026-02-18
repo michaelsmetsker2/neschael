@@ -168,26 +168,26 @@
 		; add vertical velocity boost in heading direction
 @horizontal_boost:
 		LDA #<Jump::HORIZONRAL_BOOST
-		STA $00
+		STA $02
 		LDA #>Jump::HORIZONRAL_BOOST
-		STA $08      
+		STA $03      
 
 		LDA playerFlags
 		AND #%01000000   ; check heading
 		BEQ @apply_boost ; if heading is left, invert the boost velocity
 		LDA #0
 		SEC
-		SBC $00					 ; unused, only carry is needed
+		SBC $02					 ; unused, only carry is needed
 		LDA #0
-		SBC $01
-		STA $01
+		SBC $03
+		STA $03
 @apply_boost:
 		CLC 
 		LDA velocityX
-		ADC $00
+		ADC $02
 		STA velocityX
 		LDA velocityX+1
-		ADC $01
+		ADC $03
 		STA velocityX+1      
 		RTS
 @airborne:

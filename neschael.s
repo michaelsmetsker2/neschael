@@ -21,6 +21,8 @@
 
 .IMPORT scroll_screen
 
+.IMPORT lzss_decompress; TODO test
+
 ; =================================================================================================
 ;  ROM (PRG) Data
 ; =================================================================================================
@@ -39,6 +41,9 @@
   ; the main game loop, triggers after each NMI
 game_loop:
   JSR play_sound_frame ; first thing after NMI so consistant timing ; TODO unfinished
+
+  JSR lzss_decompress
+
 
   JSR read_joypad_1
 
