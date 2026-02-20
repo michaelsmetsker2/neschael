@@ -1,11 +1,11 @@
 ;   
 ; nechael
-; lib/player/collision.s
+; lib/player/collision/collision.s
 ;
 ; subroutines containing logic concerning what happens when a collision is detected 
 ;
 
-.INCLUDE "lib/player/collision.inc"
+.INCLUDE "lib/player/collision/collision.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
 

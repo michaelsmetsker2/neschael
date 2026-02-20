@@ -13,7 +13,9 @@ LINKFLAGS = --config config/nes.cfg --dbgfile bin/neschael.dbg
 BIN_DIR = bin
 
 # source files
-SRC = neschael.s $(wildcard lib/**/*.s)
+SRC = neschael.s \
+      $(shell find lib -name '*.s') \
+    	$(shell find data/levels -maxdepth 1 -name '*.s')
 
 # objects
 OBJECTS = $(SRC:%.s=$(BIN_DIR)/%.o)

@@ -1,6 +1,6 @@
   ;
   ; neschael
-  ; lib/player/collision.inc
+  ; lib/player/collision/collision.inc
   ;
   ; variables and enums relating to proccessing player collision
   ;

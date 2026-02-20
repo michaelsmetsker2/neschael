@@ -11,8 +11,10 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/levels/testLevel4.s"
 .INCLUDE "data/tiles/metatiles.s"
+
+.IMPORT attribute_index
+.IMPORT background_index ; TODO temp until level structure
 
 .EXPORT fill_scroll_buffer
 

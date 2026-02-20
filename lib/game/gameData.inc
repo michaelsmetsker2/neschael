@@ -21,8 +21,9 @@ nametable      = $43  ; which primary nametable to use, 0 or 1
 screenPosX     = $44  ; 16 bit, pixel position of the left side of the screen relative to the world start
 scrollAmount   = $46  ; signed, the ammount to scroll the screen by the end of the frame
 
+levelId        = $47  ; element number of the current level in the level_index lookup table
+levelPtr       = $48  ; 16 bit, points to the level data of the current level
 ; TODO gameState ; for main menu, game, credits?
-; TODO levelPtr   = $47  ; or should i just do levelIndex
 
 ; update the render flag so the game logic will wait on NMI
 .MACRO SetRenderFlag

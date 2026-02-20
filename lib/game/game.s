@@ -10,21 +10,45 @@
 
 .SEGMENT "CODE"
 
+.IMPORT level_index
 .IMPORT draw_first_screen
 
 .EXPORT game_init
 .EXPORT read_joypad_1
+.EXPORT load_level
 
 .PROC game_init
-    ; Initialize rendering and starting graphics
+
+  ; TODO empty proccess
+  ; levelID is already 0 so no need to set it
+
+  RTS
+.ENDPROC
+
+.PROC load_level
+
+  ClearOamMemory ; remove all current sprites
+
+  ; set the level pointer to the id of levelID
+  LDA levelId
+  ASL A         ; *2 as 2 bytes for each address
+  LDA level_index,Y
+  STA levelPtr
+  LDA level_index+1,Y
+  STA levelPtr+1
+
+    ; set up palletes for current level
+
+    ; Initialize starting graphics
   JSR draw_first_screen
 
+  RTS
 .ENDPROC
 
 .PROC read_joypad_1
     ; read button presses from joypad 1 and find what are new presses
   LDA btnDown
-  tay              ; store previousely held inputs in Y
+  TAY              ; store previousely held inputs in Y
   LDA #1
   STA _JOYPAD_1      ; latch buttons states
   STA btnDown      ; Clear pressed buttons

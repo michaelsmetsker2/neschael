@@ -9,7 +9,7 @@
 
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
-.INCLUDE "lib/player/collision.inc"
+.INCLUDE "lib/player/collision/collision.inc"
 
 .IMPORT find_collision
 .IMPORT enact_collision_x

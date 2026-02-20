@@ -84,3 +84,12 @@ _FLAG_N = %10000000  ; Negative
   INX
   BNE :-       ; breaks on overflow
 .ENDMACRO
+
+.MACRO ClearOamMemory ; clears just the OAM page of memory
+  LDA #$00
+:
+  LDA #_RAM_CLEAR_PATTERN_2
+  STA $0200, X
+  INX
+  BNE :-
+.ENDMACRO

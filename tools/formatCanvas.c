@@ -220,7 +220,7 @@ int main() {
         
 			colMajor[streamIndex++] = id;
 			
-      printf("$%02X ", id);
+      printf("$%02X ", id); // 1 based to prevent end of stream
 
     }
   }

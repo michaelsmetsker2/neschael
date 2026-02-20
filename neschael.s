@@ -13,6 +13,8 @@
 .IMPORT audio_init
 .IMPORT player_init
 
+.IMPORT load_level
+
 .IMPORT play_sound_frame
 .IMPORT read_joypad_1
 
@@ -30,19 +32,23 @@
 
 .EXPORT main ; jumped to from reset entrypoint
 
-  ; main entry point after the syste from reset interrupt
+  ; main entry point after the system from reset interrupt
 .PROC main
     ; initialize basic systems and enable visuals
   JSR game_init
-  JSR player_init
   JSR audio_init
+
+;load_level:
+  JSR load_level
+
+  JSR player_init
   EnableVideoOutput
  
   ; the main game loop, triggers after each NMI
 game_loop:
   JSR play_sound_frame ; first thing after NMI so consistant timing ; TODO unfinished
 
-  JSR lzss_decompress
+  JSR lzss_decompress ; TODO temp testing
 
 
   JSR read_joypad_1

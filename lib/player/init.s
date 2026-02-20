@@ -2,67 +2,49 @@
 ; neschael
 ; lib/player/init.s
 ;
-; initializes and declares player related variables
+; initializes and declares player related variables when loading a level
 ;
 
 .SEGMENT "CODE"
 
 .INCLUDE "lib/player/player.inc"
+.INCLUDE "lib/game/gameData.inc"
 
+; offset in level data for initial player positions
+POSITION_OFFSET = $06
+
+playerTile      = $0201 ; player's sprite in OAM buffer
+playerAttribute = $0202 ; player's attribute byte in OAM buffer
+
+  ; スパイダーマン
 .EXPORT player_init
 
-  ; Initialization values
-.SCOPE Initial
-  POSITION_X = $3000 ; unsigned 8.8
-  POSITION_Y = $8F00 ; unsigned 8.8
-.ENDSCOPE
-
-player_sprite:
-  .BYTE <Initial::POSITION_Y, $1, %00000000, <Initial::POSITION_X
-
 .PROC player_init
-  ; スパイダーマン
-  JSR init_x
-  JSR init_y
-  JSR init_sprite
-  RTS
-.ENDPROC
+  ; load the starting position in pixels from the current level's data
+  LDY #POSITION_OFFSET
+  LDA (levelPtr),y
+  STA positionX+1
+  STA $E0
+  INY
+  LDA (levelPtr),y
+  STA positionY+1
 
-.PROC init_x
     ; zero velocity and target velocity
-  LDA #%00
+  LDA #$00
   STA targetVelocityX
   STA targetVelocityX+1
   STA velocityX 
   STA velocityX+1
-    ; Sets initial X-position to 110 or $06E0 in 12.4 fixed point
-  LDA #<Initial::POSITION_X
-  STA positionX
-  LDA #>Initial::POSITION_X
-  STA positionX+1
-  RTS   
-.ENDPROC
-
-.PROC init_y
-    ; zero velocity
-  LDA #$00
   STA velocityY 
   STA velocityY+1
-    ; Set initial Y-position
-  LDA #<Initial::POSITION_Y
+  ; zero the low byte of the player's position
+  STA positionX
   STA positionY
-  LDA #>Initial::POSITION_Y
-  STA positionY + 1
-  RTS
-.ENDPROC
 
-.PROC init_sprite
-  LDX #$00
-@loop:
-  LDA player_sprite, x
-  STA $0200, x         ; Write to OAM buffer in CPU RAM
-  INX
-  CPX #4
-  BNE @loop
+  ; set the player's OAM sprite data
+  STA playerAttribute
+  LDA #$01
+  STA playerTile
+
   RTS
 .ENDPROC

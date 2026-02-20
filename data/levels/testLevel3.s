@@ -1,5 +1,5 @@
-.EXPORT background_index
-.EXPORT attribute_index
+;.EXPORT background_index
+;.EXPORT attribute_index
 
 background_index:
     .WORD background_00, background_01
