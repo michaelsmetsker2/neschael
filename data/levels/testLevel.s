@@ -5,6 +5,9 @@
 ; simple sandbox for testing
 ;
 
+.EXPORT background_index; TODO temp
+.EXPORT attribute_index ; TODO temp
+
 .EXPORT test_level 
 
 test_level:
