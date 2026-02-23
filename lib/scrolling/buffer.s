@@ -31,7 +31,8 @@
   STA tmpMetatileIndex
   LDA screenPosX+1
   STA tmpMetatileIndex+1
-  
+
+  ; CLC ; BUG potentially necessary? look into
   ROR tmpMetatileIndex+1
   LSR tmpMetatileIndex
   ROR tmpMetatileIndex+1
@@ -59,7 +60,7 @@
 ; fills the high address byte in the scroll buffer
 .PROC fill_buff_addr_high
 
-  LDA velocityX+1
+  LDA scrollAmount ; BUG if player hits wall and scrol screen it draws right column
   BPL @flip_table  ; draw to opposite nametable when scrolling right
 @use_current:
   LDA nametable    ; use the current when scrolling left
@@ -86,8 +87,6 @@
   AND #%11111110 ; aligns to metatile (prevents errors at speeds over 8)
   TAX
 
-@final:
-  TXA
   AND #%00011111        ; mask incase of overflow
 
   CLC
@@ -103,7 +102,7 @@
 ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
 .PROC locate_tile_data
 
-  LDA velocityX+1
+  LDA scrollAmount
   BMI @left           ; branch based on scroll direction
 @right:
 
@@ -206,7 +205,7 @@
 
 ; set the buffer pointer to the location of the attribute data column that we want to copy
 .PROC locate_attrib_data
-  LDA velocityX+1
+  LDA scrollAmount
   BMI @left           ; branch based on scroll direction
 @right:
 

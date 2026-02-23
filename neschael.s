@@ -23,7 +23,7 @@
 
 .IMPORT scroll_screen
 
-.IMPORT lzss_decompress; TODO test
+.IMPORT lzss_decompress; TODO a test of decompression
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -38,7 +38,7 @@
   JSR game_init
   JSR audio_init
 
-;load_level:
+;load_level: ; BUG uncommenting this breaks everything?
   JSR load_level
 
   JSR player_init
@@ -46,11 +46,11 @@
  
   ; the main game loop, triggers after each NMI
 game_loop:
-  JSR play_sound_frame ; first thing after NMI so consistant timing ; TODO unfinished
+  JSR play_sound_frame ; first thing after NMI so consistant timing
 
   JSR lzss_decompress ; TODO temp testing
 
-
+  
   JSR read_joypad_1
 
   JSR update_player_movement

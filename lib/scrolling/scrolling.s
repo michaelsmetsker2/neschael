@@ -24,7 +24,6 @@
 
 ; apply the scrollAmount, swap nametables and fill the scroll buffer if neccessary
 .PROC scroll_screen
-
   LDA scrollAmount
   BEQ @done            ; return early if no scroll is needed 
 
