@@ -21,10 +21,10 @@
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
 ;-------------------------------------------------------------------------------
-; $0300-$0343:  Horizontal scroll buffer, see data/memory/scrollBuffer.inc
+; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF"
     addresses:   .res 3
     TileData:    .res 52
-    attribute:   .res 8
+    attribute:   .res 7
 ;-------------------------------------------------------------------------------
 ; $034E-$07FF:  General Purpose RAM

@@ -25,8 +25,6 @@
 	SCROLL_THRESHOLD_LEFT        = $6A
 	SCROLL_THRESHOLD_RIGHT       = $96
 
-	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
-
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
@@ -41,6 +39,9 @@
 
 ; adds the velocity to the position
 .PROC update_position_x
+
+	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
+
 	; copy velocity into deltaX
 	LDA velocityX
 	STA tmpDeltaX
@@ -182,7 +183,9 @@
 	SEC
 	SBC #SCROLL_THRESHOLD_RIGHT 
 	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
-	; TODO check the ammount we want to scroll with the end of the level
+
+	STA tmpProposedScroll
+	JSR bound_scroll
 
 	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
 	JMP @end_threshold_check
@@ -209,16 +212,27 @@
 ; see if the proposed scroll ammount hits the borders of the current level
 .PROC bound_scroll
 
+	LEVEL_SIZE_OFFSET = $08 ; offset for the level size from level pointer
+
 	BIT tmpDeltaX+1			; see what to bound based on direction
 	BMI @difference_zero
 
 @difference_level_end: ; find the difference betweent the screenPos and end of the level
+	CLC
+	LDA screenPosX
+	ADC tmpProposedScroll
+	STA $11							; low byte, ammount overshot
+	LDA screenPosX+1
+	ADC #$00
+	STA $12							; high byte, background index
 
-	;TODO set up this whole thing :)
-	JMP @apply_scroll ; TEMP
+	; compare high byte to the level size
+	LDY #LEVEL_SIZE_OFFSET
+	LDA (levelPtr), Y
+	CMP $12
+	BNE @apply_scroll ; branch if defferent, (no bounding)
 
-	JMP @compare_difference
-
+	JMP @remove_overshoot
 @difference_zero:
 	CLC
 	LDA screenPosX
@@ -226,9 +240,9 @@
 	STA $11                 ; low byte, ammount we may have overshot by 
 	LDA screenPosX+1
 	ADC #$FF
-
-@compare_difference:
 	BPL @apply_scroll       ; test sign of difference high byte, branch if no overshoot
+
+@remove_overshoot:
 	LDA tmpProposedScroll
 	SEC
 	SBC $11 					      ; subtract the overshoot from the proposed scroll

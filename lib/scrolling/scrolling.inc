@@ -58,6 +58,7 @@
   BNE @right_loop
 .ENDMACRO
 
+
 ; copy uncompressed attribute data to the PPU at the correct memory location
 .MACRO DrawOffscreenAttributes
 
@@ -73,24 +74,24 @@
   LSR
   LSR                           ; 4 tiles ber attribute
   CLC
-  ADC #<ATTRIBUTE_TABLE_OFFSET    ; add the low byte of the attribute table
-  STA $09
+  ADC #<ATTRIBUTE_TABLE_OFFSET  ; add the low byte of the attribute table
+  STA $02                       ; holds low byte adress in temp memory
   
   LDY #$00 ; loop index
 @loop:
   STX _PPUADDR ; high byte
-  LDA $09
+  LDA $02
   STA _PPUADDR ; low byte
   
   CLC
   ADC #$08
-  STA $09
+  STA $02
 
   LDA ScrollBuffer::attribute, y
   STA _PPUDATA
   INY
 
-  CPY #$08
+  CPY #$07
   BNE @loop
 .ENDMACRO
 

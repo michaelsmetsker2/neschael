@@ -252,12 +252,11 @@
 ; store the uncompressed attrib data in the buffer
 .PROC fill_attrib_data
   LDY #$00 ; loop index
-
-@loop:                    ; sets all 8 attribute bytes of the column
-  LDA (tmpBufferPointer), Y  ; BUG this is reading garbage from memory locations in $0100 to $010F range
+@loop:                    ; sets all 7 attribute bytes of the column
+  LDA (tmpBufferPointer), Y
   STA ScrollBuffer::attribute, Y    
   INY
-  CPY #$08
+  CPY #$07
   BCC @loop
 
   RTS
