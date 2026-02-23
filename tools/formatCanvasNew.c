@@ -1,5 +1,5 @@
 /*
-	simple script, used for formatting level data,
+	script, used for formatting level data,
 */
 
 #include <stdio.h>
@@ -7,14 +7,21 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>	
+#include <math.h>
 
-#define WIDTH  32
-#define HEIGHT 26
-#define SIZE (WIDTH * HEIGHT)
+#define MAX_DATA 307200 // just a big ass number, enought for a 300 nametable level
+
+#define NT_WIDTH  32
+#define NT_HEIGHT 26
+#define NT_SIZE (NT_WIDTH * NT_HEIGHT)
 #define META_WIDTH  16
 #define META_HEIGHT 13
 #define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
 #define MAX_UNIQUE 256 
+
+#define BYTES_PER_NT 888
+#define BYTES_PER_TILE_DATA 832
+#define BYTES_PER_ATTR 64
 
 typedef struct {
   uint8_t t1;
@@ -125,45 +132,66 @@ void lzss(const uint8_t *input) {
 }
 
 int main() {
-  char line[1024];            // max line size when reading from file
-  uint8_t input[SIZE] = {0};
+  // open the file
+  FILE *fptr = fopen("canvas.s", "r");	
+	if (!fptr) {
+    fprintf(stderr, "couldn't find/open the file\n");
+		return 1;
+	}
 
-	int index = 0;
+  char line[1024]; // max line size
+
+	// throw away the first line (filename)
+	fgets(line, sizeof(line), fptr);  
+	
+  // raw data read from file
+  uint8_t input[MAX_DATA] = {0};
+  
+  int data = 0; // ammount of bytes found in the file
+  while(fgets(line, sizeof(line), fptr)) {
+    // only grab the numbers following a $
+    for (char *p = line; *p;) {
+      if (*p++ == '$') {
+        input[data++] = (uint8_t)strtol(p, NULL, 16); // and store them in the array
+      }
+		}
+  }
+ 
+  printf("found: %d bytes\n", data);
+  if (data % BYTES_PER_NT) {
+    printf("invalid ammount of bytes");
+    return 1;
+  }
+
+  int nametables = data / BYTES_PER_NT; // ammount of nametables being formatted
+
+  // loop through all tile data
+  for (uint8_t i = 0; i < nametables; i++) {
+    uint8_t *nt_ptr = data + i * BYTES_PER_TILE_DATA;
+
+    // allocate memory for an array of 208 metatiles
+
+    // 832 bytes per nametable uncompressed
+    // 208 metatiles
+    // separate
+    // convert to metatiles
+    // column major order
+    // lzss
+
+  }
+
+  // loop through all the attribute data  
+  for (uint8_t i = 0; i < nametables; i++) {
+    // 56 bytes per attribute table
+    //separate
+    // lzss
+
+  }
 
   Metatile mTiles[MAX_UNIQUE];
   Metatile mMap[META_SIZE];
-
-	FILE *fptr = fopen("canvas.s", "r");
-	
-	if (!fptr) {
-		fprintf(stderr, "couldn't find/open the file\n");
-		return 1;
-	}
-	
-	// throw away the first line (filename)
-	fgets(line, sizeof(line), fptr);
-
-  for (int row = 0; row < HEIGHT * 2; row++) { // read file line by line
-    if (!fgets(line, sizeof(line), fptr)) {
-			fprintf(stderr, "not enough lines\n");
-      return 1;
-    }
-    
-		// only grab the numbers
-    for (char *p = line; *p;) {
-      if (*p++ == '$') {
-        input[index++] = (uint8_t)strtol(p, NULL, 16); // and store them in the matrix
-      }
-		}
-	}
   
-	// make sure we got all we needed
-	if (index != SIZE) {
-    fprintf(stderr, "sumthin fucked up, %d index != %d size\n", index, SIZE);
-		return 1;
-	}
-  
-  // create an index of metatiles being used in the current canvas
+  // create an index of metatiles being used in the canvas
 	int mIndex = 0;
 	for(int mRow = 0; mRow < META_HEIGHT; mRow++) {
     for(int mCol = 0; mCol < META_WIDTH; mCol++) {
@@ -171,10 +199,10 @@ int main() {
       int row = mRow * 2;
 			int col = mCol * 2;
       
-			mMap[mIndex].t1 = input[row * WIDTH + col];
-			mMap[mIndex].t2 = input[row * WIDTH + col + 1];
-			mMap[mIndex].b1 = input[(row + 1) * WIDTH + col];
-			mMap[mIndex].b2 = input[(row + 1 )* WIDTH + col + 1];
+			mMap[mIndex].t1 = input[row * NT_WIDTH + col];
+			mMap[mIndex].t2 = input[row * NT_WIDTH + col + 1];
+			mMap[mIndex].b1 = input[(row + 1 ) * NT_WIDTH + col];
+			mMap[mIndex].b2 = input[(row + 1 ) * NT_WIDTH + col + 1];
       
 			mIndex++;
 		}
@@ -188,7 +216,7 @@ int main() {
     for (int j = 0; j < uniqueCount; j++) {
       Metatile u = mTiles[j];
       if (m.t1 == u.t1 && m.t2 == u.t2 &&
-          m.b1 == u.b1 && m.b2 == u.b2) {
+         m.b1 == u.b1 && m.b2 == u.b2) {
 
           found = 1;
           break;
@@ -227,6 +255,6 @@ int main() {
 
 	printf("\n\n");
 	lzss(colMajor);
-
+  fclose(fptr);
 	return 0;
 }

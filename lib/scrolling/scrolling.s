@@ -62,6 +62,9 @@
   EOR #$01                ; flip nametable
   STA nametable  
 
+  ; TODO check the direction we are scrolling, and update the buffered nametable data
+
+
 @check_metatile_boundary: ; see if we crossed into a new metatile so we must draw more
   LDA tmpOldScrollPos
   EOR screenPosX

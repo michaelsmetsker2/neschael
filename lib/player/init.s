@@ -24,7 +24,6 @@ playerAttribute = $0202 ; player's attribute byte in OAM buffer
   LDY #POSITION_OFFSET
   LDA (levelPtr),y
   STA positionX+1
-  STA $E0
   INY
   LDA (levelPtr),y
   STA positionY+1

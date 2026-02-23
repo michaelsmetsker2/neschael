@@ -40,6 +40,8 @@
     ; set up palletes for current level
 
     ; Initialize starting graphics
+
+  ; TODO decompress the first two nametables
   JSR draw_first_screen
 
   RTS

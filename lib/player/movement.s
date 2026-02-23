@@ -271,8 +271,6 @@ fall_speeds:
 	STA storedVelocity+1
 	STA chargeCounter
 
-	; TODO reset other flag?
-
 @store_charge:
 	JSR store_charge
 @done:

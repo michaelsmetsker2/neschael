@@ -19,7 +19,7 @@ test_lzss_data:
   ptr    = $0    ; 16 bit pointer to input data
 	length = $02	 ; scratch memory
 	temp   = $03	 ; scratch memory
-	Buf    = $0400 ; memory location of the buffer
+	Buf    = $033E ; memory location of the buffer
 
 	LDA #<test_lzss_data
 	STA ptr

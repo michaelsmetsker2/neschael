@@ -23,8 +23,13 @@
 ;-------------------------------------------------------------------------------
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF"
-    addresses:   .res 3
-    TileData:    .res 52
-    attribute:   .res 7
+  addresses:   .res 3
+  tileData:    .res 52
+  attribute:   .res 7
 ;-------------------------------------------------------------------------------
-; $034E-$07FF:  General Purpose RAM
+; $033E-Undetermined ; TODO decompress bufferse for tile and attribute data
+  dbufTile1:   .res 208
+
+
+
+; ???-$07FF:  General Purpose RAM
