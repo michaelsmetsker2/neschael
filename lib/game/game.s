@@ -6,26 +6,34 @@
 ;
 
 .INCLUDE "data/system/cpu.inc"
+.INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/game/gameData.inc"
 
 .SEGMENT "CODE"
 
 .IMPORT level_index
 .IMPORT draw_first_screen
+.IMPORT player_init
 
 .EXPORT game_init
 .EXPORT read_joypad_1
-.EXPORT load_level
+.EXPORT level_init
 
 .PROC game_init
 
-  ; TODO empty proccess
-  ; levelID is already 0 so no need to set it
+  ; init base palettes?
+  .IF 0
+  
+    ; levelID is already 0 so no need to set it
+  .ENDIF
 
   RTS
 .ENDPROC
 
-.PROC load_level
+.PROC level_init
+  ; disable output since we are drawing to the ppu
+    ; should already be disabled on entry
+  DisableVideoOutput 
 
   ClearOamMemory ; remove all current sprites
 
@@ -37,13 +45,17 @@
   LDA level_index+1,Y
   STA levelPtr+1
 
-    ; set up palletes for current level
+    ; set up palletes for current level?
+    ; set music for current level and clear audio streams
 
-    ; Initialize starting graphics
+    ; decompress starting nambetables
 
   ; TODO decompress the first two nametables
   JSR draw_first_screen
 
+  JSR player_init
+
+  EnableVideoOutput
   RTS
 .ENDPROC
 

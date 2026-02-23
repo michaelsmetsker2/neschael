@@ -7,7 +7,8 @@
 ;
 
   ; gameFlags holds major flags for the state of the Game
-  ; bit 0-4: unused
+  ; bit 0-3: unused
+  ; bit 4:   levelFlag, set when a new level needs to be loaded
   ; bit 5:   audioFlag, set when audio is enabled
   ; bit 6:   drawFlag, set when data from the scroll buffer should be copied to VRAM next NMI
   ; bit 7:   renderFlag, indicates that logic is complete and vram can be updated
@@ -21,7 +22,7 @@ nametable      = $43  ; which primary nametable to use, 0 or 1
 screenPosX     = $44  ; 16 bit, pixel position of the left side of the screen relative to the world start
 scrollAmount   = $46  ; signed, the ammount to scroll the screen by the end of the frame
 
-levelId        = $47  ; element number of the current level in the level_index lookup table
+levelId        = $47  ; level to load, corolates to index of the level_index lookup table
 levelPtr       = $48  ; 16 bit, points to the level data of the current level
 ; TODO gameState ; for main menu, game, credits?
 

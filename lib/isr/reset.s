@@ -40,7 +40,7 @@
   ClearNametables
   JSR wait_for_vblank
 
-  LoadPaletteData
+  LoadPaletteData ; FIXME outdated place for this
 
   JMP main
   RTS         ; This should never be called

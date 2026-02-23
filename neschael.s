@@ -6,14 +6,12 @@
 ;
 
   ; macro definitions used in main loop
-.INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT game_init
 .IMPORT audio_init
-.IMPORT player_init
 
-.IMPORT load_level
+.IMPORT level_init
 
 .IMPORT play_sound_frame
 .IMPORT read_joypad_1
@@ -34,19 +32,18 @@
 
   ; main entry point after the system from reset interrupt
 .PROC main
-    ; initialize basic systems and enable visuals
+    ; initialize basic systems and variables
   JSR game_init
   JSR audio_init
 
-;load_level: ; BUG uncommenting this breaks everything?
-  JSR load_level
-
-  JSR player_init
-  EnableVideoOutput
+load_level: ; loads the level in levelId
+  JSR level_init
  
-  ; the main game loop, triggers after each NMI
+  ; the main game loop, runs after each NMI
 game_loop:
+  ; BUG this is not constant due to conditional buffer drawing
   JSR play_sound_frame ; first thing after NMI so consistant timing
+
 
   JSR lzss_decompress ; TODO temp testing
 
@@ -58,6 +55,11 @@ game_loop:
 
   JSR scroll_screen
 
+  ; conditionally load a new level based on the levelFlag
+  LDA gameFlags
+  AND #%00010000 ; mask levelFlag
+  BNE load_level
+  
   SetRenderFlag
 @wait_for_render:       ; Loop until NMI has finished for the current frame
   BIT gameFlags
@@ -71,6 +73,8 @@ game_loop:
 .IMPORT isr_reset
 .IMPORT isr_nmi
 .IMPORT isr_custom
+
+.INCLUDE "data/palettes/palettes.inc"
 
 ; Graphics tile data, used by the sprites
 .SEGMENT "TILES"
