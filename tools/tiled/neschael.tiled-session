@@ -1,0 +1,121 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "metas.tsx",
+    "expandedProjectPaths": [
+        "levels",
+        "metas",
+        "."
+    ],
+    "fileStates": {
+        "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx": {
+            "scale": 8,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 139.5625,
+                "y": 114.4375
+            }
+        },
+        "Z:/projects/nes/linux/neschael/data/tiles/metas.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "attributes.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 8,
+            "scaleInEditor": 23
+        },
+        "chr.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 2,
+            "scaleInEditor": 32
+        },
+        "levels/testLvl.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 110.81818181818183,
+                "y": 155.18181818181822
+            }
+        },
+        "levels/test_level.tmx": {
+            "scale": 8,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 140.1875,
+                "y": 112.8125
+            }
+        },
+        "metas.tsx": {
+            "scaleInDock": 3,
+            "scaleInEditor": 5.5
+        },
+        "metas/chr.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 5.5
+        },
+        "metas/skytmx.tmx": {
+            "scale": 46.074999999999996,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 7.997829625610418,
+                "y": 7.99782962561042
+            }
+        },
+        "metas/test_block_1.tmx": {
+            "scale": 112.1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 7.997323818019625,
+                "y": 7.997323818019626
+            }
+        },
+        "metatiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 4,
+            "scaleInEditor": 64
+        },
+        "test_level.tmx": {
+            "scale": 8.623076923076923,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 127.97056199821591,
+                "y": 103.96520963425515
+            }
+        }
+    },
+    "last.imagePath": "Z:/projects/nes/linux/neschael/data/tiles/raw",
+    "map.height": 13,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 16,
+    "openFiles": [
+        "levels/testLvl.tmx",
+        "metas.tsx"
+    ],
+    "project": "neschael.tiled-project",
+    "property.type": "int",
+    "recentFiles": [
+        "levels/testLvl.tmx",
+        "metas.tsx",
+        "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx",
+        "Z:/projects/nes/linux/neschael/data/tiles/metas.tsx",
+        "levels/test_level.tmx",
+        "attributes.tsx",
+        "metatiles.tsx",
+        "test_level.tmx",
+        "metas/test_block_1.tmx",
+        "metas/skytmx.tmx",
+        "chr.tsx",
+        "metas/chr.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

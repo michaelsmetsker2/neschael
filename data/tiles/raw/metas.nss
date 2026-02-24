@@ -59,8 +59,8 @@ VarPalBank_mapBuffer=0
 VarPalBank_msprBuffer=0
 VarTileViewTagBuf=0
 VarBgPalCur=0
-VarPalActive=1
-VarTileActive=1
+VarPalActive=0
+VarTileActive=0
 VarBankActive=4096
 VarPPUMask=0
 VarPPUMaskSet0=0
@@ -75,19 +75,19 @@ VarSpriteActive=-1
 VarSpriteGridX=64
 VarSpriteGridY=64
 VarNameW=32
-VarNameH=26
+VarNameH=30
 VarNameViewX=0
-VarNameViewY=-3
+VarNameViewY=-1
 VarNameViewX2=0
-VarNameViewY2=-3
+VarNameViewY2=-1
 VarNameSelectionL=-1
 VarNameSelectionR=0
 VarNameSelectionT=-1
 VarNameSelectionB=0
 VarNameCopyW=-1
 VarNameCopyH=-1
-VarCHRSelectionL=1
-VarCHRSelectionR=2
+VarCHRSelectionL=0
+VarCHRSelectionR=1
 VarCHRSelectionT=0
 VarCHRSelectionB=1
 VarCHRCopyW=-1
@@ -158,9 +158,9 @@ MetaspritePlayBackCursor=0
 
 
 FilterCHR=1
-FilterName=2
+FilterName=1
 FileNameCHR=Z:\projects\nes\linux\neschael\data\tiles\neschael.chr
-FileNameName=Z:\projects\nes\linux\neschael\data\levels\raw\canvas.s
+FileNameName=Z:\projects\nes\linux\neschael\data\tiles\metas
 FileNamePal=
 FileNameMetaSpriteBank=
 FileNameTileProps=
@@ -175,7 +175,7 @@ RadioAutoexport_UseSubDir_NEXXT=0
 CheckAutoexport_MetatileAsBMP=0
 
 
-VarCHRSelected=000100[fe]
+VarCHRSelected=0100[ff]
 
 
 Palette=0f2710300f0c21320f0516270f0b1a290f1c21320f1122330f1223340f1324350f1324360f1526370f1627370f1928380f1829380f1b2a390f1b2b3c0f1c2c3b
@@ -193,22 +193,22 @@ CHRUndo=00[10]3c745480003800[3]083ebf3d38aa6c3c745400[2]3800[3]083e3f3db8ea0c3c7
 CHRCopy=00[4000]
 
 
-NameTable=00[226]03[a]00[10]0300[1f]0300[1f]0300[17]010200[6]0300[11]03[6]111200[6]0300[17]010200[6]0300[17]111200[6]01020102010201020102010201020102010201020102010201020102010201021112111211121112111211121112111211121112111211121112111211121112
+NameTable=00[2]010200[2]030004[2]00[18]111203[3]0004[2]00[396]
 
 
-NameCopy=00[340]
+NameCopy=00[3c0]
 
 
-NameUndo=010200[1e]111200[204]03[a]00[10]0300[1f]0300[1f]0300[17]010200[6]0300[11]03[6]111200[6]0300[17]010200[6]0300[17]111200[6]01020102010201020102010201020102010201020102010201020102010201021112111211121112111211121112111211121112111211121112111211121112
+NameUndo=00[2]010200[2]030004[2]00[18]111203[3]0004[2]00[396]
 
 
-AttrTable=00[16]0800[21]
+AttrTable=00[16]0800[29]
 
 
-AttrCopy=00[38]
+AttrCopy=00[40]
 
 
-AttrUndo=00[16]0800[21]
+AttrUndo=00[16]0800[29]
 
 
 MetaSprites=ff[10000]
@@ -279,10 +279,10 @@ BrushMask_7b=00[2]01[3]00[c]01[5]00[a]01[7]00[9]01[7]00[9]01[7]00[a]01[5]00[c]01
 BrushMask_8b=00[2]01[4]00[b]01[6]00[9]01[8]00[8]01[8]00[8]01[8]00[8]01[8]00[9]01[6]00[b]01[4]00[8a]
 
 
-32_BankViewTable=00000000[19]0000100000000000[e6]00001000[100]00002000[100]00003000[100]
+32_BankViewTable=00000000[100]00001000[100]00002000[100]00003000[100]
 
 
-32_BankViewTableUndo=00000000[19]0000100000000000[e6]00001000[100]00002000[100]00003000[100]
+32_BankViewTableUndo=00000000[100]00001000[100]00002000[100]00003000[100]
 
 
 8_TileCollisionProperties=00[400]
@@ -357,14 +357,14 @@ MetatileSet_8x8_props=00[2000]
 MetatileSet_8x8_propsUndo=00[2000]
 
 
-MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-MetatileSetLabels_8x8=Unlabeled,Unlabeled
-MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
+MetatileSetLabels_8x8=Unlabeled,Unlabeled
+MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
 
 CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
@@ -436,16 +436,16 @@ Checkpoint_CHRMain=00[4000]
 Checkpoint_CHRUndo=00[4000]
 
 
-Checkpoint_NameTable=00[340]
+Checkpoint_NameTable=00[3c0]
 
 
-Checkpoint_NameUndo=00[340]
+Checkpoint_NameUndo=00[3c0]
 
 
-Checkpoint_AttrTable=00[38]
+Checkpoint_AttrTable=00[40]
 
 
-Checkpoint_AttrUndo=00[38]
+Checkpoint_AttrUndo=00[40]
 
 
 Checkpoint_MetaSprites=ff[10000]
@@ -460,10 +460,10 @@ Checkpoint_MetaSpritesUndo=ff[10000]
 Checkpoint_MetaSpritesUndo_show=0[4000]
 
 
-Checkpoint_32_BankViewTable=00000000[19]0000100000000000[e6]00001000[100]00002000[100]00003000[100]
+Checkpoint_32_BankViewTable=00000000[100]00001000[100]00002000[100]00003000[100]
 
 
-Checkpoint_32_BankViewTableUndo=00000000[19]0000100000000000[e6]00001000[100]00002000[100]00003000[100]
+Checkpoint_32_BankViewTableUndo=00000000[100]00001000[100]00002000[100]00003000[100]
 
 
 Checkpoint_8_TileCollisionProperties=00[400]
@@ -538,18 +538,18 @@ Checkpoint_MetatileSet_8x8_props=00[2000]
 Checkpoint_MetatileSet_8x8_propsUndo=00[2000]
 
 
-Checkpoint_MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_MetatileSetLabels_8x8=Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_8x8=Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
 
-Checkpoint_CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_CHRBankLabelsUndo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_CHRBankLabelsUndo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
 
 Checkpoint_32_NTSC_MsprDuration=00000006[100]
@@ -618,7 +618,7 @@ Current preset ID=0
 
 GUI behaviour:
 ---------------------------------------------------------
-Use paired mode if possible=1
+Use paired mode if possible=0
 Affect backgrounds=1
 Affect sprites=1
 
