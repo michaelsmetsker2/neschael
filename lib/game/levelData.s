@@ -8,9 +8,10 @@
 .EXPORT level_index
 
 .IMPORT test_level
+.IMPORT test_level_5
 
 level_index:
-  .WORD test_level
+  .WORD test_level_5, test_level
 
 ; TODO make this formally
 ; level data format

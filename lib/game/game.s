@@ -10,7 +10,8 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .INCLUDE "data/palettes/palettes.inc" ; TODO temp until i find a better place for this
-.IMPORT lzss_decompress; TODO a test of decompression
+
+.IMPORT decompress_nametable
 
 .IMPORT level_index
 .IMPORT draw_first_screen
@@ -51,7 +52,7 @@
     ; set music for current level and clear audio streams
 
     ; decompress starting nambetables
-  JSR lzss_decompress ; TODO temp?
+  JSR decompress_nametable   ; TODO temp?
 
   JSR draw_first_screen
 

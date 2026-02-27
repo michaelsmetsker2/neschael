@@ -10,14 +10,14 @@
 
 test_level_5:
 	.WORD background_index, attribute_index, spawn_stream
-	.BYTE $00, $00 ; high byte of player starting X and Y
+	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $04 ; length of background, zero based
 
 background_index:
 	.WORD background_0, background_1, background_2, background_3
 attribute_index:
 	.WORD attrib_0, attrib_1, attrib_2, attrib_3
-spawn_stream
+spawn_stream:
 	.WORD spawn_stream ; todo
 
 background_0:

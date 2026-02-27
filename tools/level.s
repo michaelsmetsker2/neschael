@@ -17,8 +17,8 @@ background_index:
 	.WORD background_0, background_1, background_2, background_3
 attribute_index:
 	.WORD attrib_0, attrib_1, attrib_2, attrib_3
-spawn_stream
-	.WORD spawn_stream ; todo
+spawn_stream:
+	.WORD stream_0,stream_1,stream_2,stream_3
 
 background_0:
   .BYTE $FF, $00, $08, $00, $FF, $01, $03, $09, $04, $05, $FF, $02, $07, $0D, $05, $0C 
@@ -29,6 +29,9 @@ background_0:
 attrib_0:
   .BYTE $FC, $04, $00, $01, $00, $07, $03, $FF, $02, $08, $03, $BC, $13, $00
 
+stream_0:
+	; todo :)
+
 background_1:
   .BYTE $FF, $00, $06, $00, $FF, $01, $09, $03, $11, $04, $FF, $01, $03, $19, $08, $19 
   .BYTE $FD, $00, $00, $02, $26, $24, $0B, $16, $09, $55, $08, $5A, $FF, $02, $05, $67 
@@ -37,6 +40,9 @@ background_1:
 attrib_1:
   .BYTE $FF, $00, $AF, $00, $FD, $41, $05, $02, $1D, $93, $00
 
+stream_1:
+	; todo :)
+
 background_2:
   .BYTE $FF, $00, $08, $00, $FF, $01, $03, $09, $09, $00, $04, $06, $18, $0D, $27, $0B 
   .BYTE $1A, $25, $28, $66, $23, $82, $0C, $0A, $06, $BF, $00
@@ -44,9 +50,15 @@ background_2:
 attrib_2:
   .BYTE $FF, $00, $77, $00, $FD, $41, $05, $02, $55, $23, $00
 
+stream_2:
+	; todo :)
+
 background_3:
   .BYTE $FF, $00, $05, $00, $FE, $01, $01, $06, $00, $06, $01, $0B, $08, $0F, $12, $36 
   .BYTE $13, $18, $3D, $1C, $3B, $1C, $2E, $1C, $8A, $00
 
 attrib_3:
   .BYTE $FF, $00, $3F, $00, $FD, $41, $05, $02, $40, $00, $4D, $82, $00
+
+stream_3:
+	; todo :)

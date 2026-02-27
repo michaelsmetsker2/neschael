@@ -250,8 +250,17 @@ int main(int argc, char *argv[]) {
     fprintf(out, "attrib_%i", i);
   }
 	
-	fprintf(out, "\nspawn_stream\n\t.WORD spawn_stream ; todo\n"); // todo
-	
+	fprintf(out, "\nspawn_stream:\n\t.WORD ");
+	for (int i = 0; i < nametableCount; i++) {
+		if (i) {
+			fprintf(out, ",");
+		}
+		fprintf(out, "stream_%i", i);
+	}
+
+	fprintf(out, "\n");
+	// print data =============================================
+
 	for(uint8_t nt = 0; nt < nametableCount; nt++) {
 		// print tile data
 		fprintf(out, "\nbackground_%i:", nt);
@@ -262,16 +271,10 @@ int main(int argc, char *argv[]) {
 		lzss(attrData[nt], out);
 
 		//print spawn stream data
+		fprintf(out, "\nstream_%i:", nt);
+		fprintf(out, "\n\t; todo :)\n");
+		// TODO
 	}
-
-	/*
-	for (int i = 1; i < 7 * 8; i++) {
-		printf("%02X, " , attrData[0][i-1]);
-		if (i % 7 == 0) {
-			printf("\n"); 
-		}
-	}
-	*/
 	
 	return 0;
 }
