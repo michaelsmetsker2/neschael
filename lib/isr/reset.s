@@ -6,8 +6,6 @@
 ;
 .SEGMENT "CODE"
 
-.INCLUDE "data/palettes/palettes.inc"
-
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "data/system/apu.inc"
 .INCLUDE "data/system/cpu.inc"
@@ -39,8 +37,6 @@
   ClearCpuMemory
   ClearNametables
   JSR wait_for_vblank
-
-  LoadPaletteData ; FIXME outdated place for this
 
   JMP main
   RTS         ; This should never be called

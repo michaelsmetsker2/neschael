@@ -9,7 +9,8 @@
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/game/gameData.inc"
 
-.SEGMENT "CODE"
+.INCLUDE "data/palettes/palettes.inc" ; TODO temp until i find a better place for this
+.IMPORT lzss_decompress; TODO a test of decompression
 
 .IMPORT level_index
 .IMPORT draw_first_screen
@@ -21,7 +22,8 @@
 
 .PROC game_init
 
-  ; init base palettes?
+  LoadPaletteData
+
   .IF 0
   
     ; levelID is already 0 so no need to set it
@@ -49,8 +51,8 @@
     ; set music for current level and clear audio streams
 
     ; decompress starting nambetables
+  JSR lzss_decompress ; TODO temp?
 
-  ; TODO decompress the first two nametables
   JSR draw_first_screen
 
   JSR player_init

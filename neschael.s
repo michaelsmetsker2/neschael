@@ -3,7 +3,7 @@
 ; neshcael.s
 ;
 ; a hopefully functional platformer game for nes :)
-;
+; built with make on wsl
 
   ; macro definitions used in main loop
 .INCLUDE "lib/game/gameData.inc"
@@ -20,8 +20,6 @@
 .IMPORT update_player_movement
 
 .IMPORT scroll_screen
-
-.IMPORT lzss_decompress; TODO a test of decompression
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -43,10 +41,6 @@ load_level: ; loads the level in levelId
 game_loop:
   ; BUG this is not constant due to conditional buffer drawing
   JSR play_sound_frame ; first thing after NMI so consistant timing
-
-
-  JSR lzss_decompress ; TODO temp testing
-
   
   JSR read_joypad_1
 
@@ -73,8 +67,6 @@ game_loop:
 .IMPORT isr_reset
 .IMPORT isr_nmi
 .IMPORT isr_custom
-
-.INCLUDE "data/palettes/palettes.inc"
 
 ; Graphics tile data, used by the sprites
 .SEGMENT "TILES"

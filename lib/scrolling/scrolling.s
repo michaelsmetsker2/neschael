@@ -63,7 +63,8 @@
   STA nametable  
 
   ; TODO check the direction we are scrolling, and update the buffered nametable data
-
+  ; if scrolling left, update active nametable
+  ; if scrollingn right, update inactive
 
 @check_metatile_boundary: ; see if we crossed into a new metatile so we must draw more
   LDA tmpOldScrollPos
