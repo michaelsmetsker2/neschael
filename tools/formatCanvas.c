@@ -1,5 +1,8 @@
 /*
 	simple script, used for formatting level data,
+	args:
+	tile csv relative filepath
+	attr csv relative filepath
 */
 
 #include <stdio.h>
@@ -8,20 +11,12 @@
 #include <stdint.h>
 #include <ctype.h>	
 
-#define WIDTH  32
-#define HEIGHT 26
-#define SIZE (WIDTH * HEIGHT)
+#define LINE_SIZE 163840 // set and forget, increas if not enough
+
 #define META_WIDTH  16
 #define META_HEIGHT 13
 #define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
 #define MAX_UNIQUE 256 
-
-typedef struct {
-  uint8_t t1;
-  uint8_t t2;
-  uint8_t b1;
-  uint8_t b2;
-} Metatile;
 
 // array of match structs
 struct {
@@ -37,18 +32,6 @@ static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
 		}
 	}
 	return len;
-}
-
-// get the index of the metatile in the list of unique metatiles
-int getMetatileIndex(Metatile m, Metatile unique[], int uniqueCount) {
-    for (int i = 0; i < uniqueCount; i++) {
-        Metatile u = unique[i];
-        if (m.t1 == u.t1 && m.t2 == u.t2 &&
-            m.b1 == u.b1 && m.b2 == u.b2) {
-            return i; // found the ID
-        }
-    }
-    return -1; // should never happen if map was built from unique[]
 }
 
 void lzss(const uint8_t *input) {
@@ -124,109 +107,126 @@ void lzss(const uint8_t *input) {
 	return;
 }
 
-int main() {
-  char line[1024];            // max line size when reading from file
-  uint8_t input[SIZE] = {0};
+int main(int argc, char *argv[]) {
+	if (argc != 3) {
+		fprintf(stdout, "see file header for usage\n");
+		return 0;
+	}
 
-	int index = 0;
-
-  Metatile mTiles[MAX_UNIQUE];
-  Metatile mMap[META_SIZE];
-
-	FILE *fptr = fopen("canvas.s", "r");
+	// ammount of nametables in the file
+	uint8_t nametableCount = 0;
+	// max line size when reading file
+	char line[LINE_SIZE] = {0};
 	
-	if (!fptr) {
-		fprintf(stderr, "couldn't find/open the file\n");
+	// open tile file
+	FILE *tileFile = fopen(argv[1], "r");
+	if (!tileFile) {
+		fprintf(stderr, "couldn't open/find tile file");
 		return 1;
 	}
 	
-	// throw away the first line (filename)
-	fgets(line, sizeof(line), fptr);
-
-  for (int row = 0; row < HEIGHT * 2; row++) { // read file line by line
-    if (!fgets(line, sizeof(line), fptr)) {
-			fprintf(stderr, "not enough lines\n");
-      return 1;
-    }
-    
-		// only grab the numbers
-    for (char *p = line; *p;) {
-      if (*p++ == '$') {
-        input[index++] = (uint8_t)strtol(p, NULL, 16); // and store them in the matrix
-      }
+	{ // find the ammount of nametables
+		fgets(line, sizeof(line), tileFile);
+		char *tileken = strtok(line, ",");
+		int tokenCount = 0;
+		while (tileken) {
+			tokenCount++;
+			tileken = strtok(NULL, ",");   // advance
 		}
-	}
-  
-	// make sure we got all we needed
-	if (index != SIZE) {
-    fprintf(stderr, "sumthin fucked up, %d index != %d size\n", index, SIZE);
-		return 1;
-	}
-  
-  // create an index of metatiles being used in the current canvas
-	int mIndex = 0;
-	for(int mRow = 0; mRow < META_HEIGHT; mRow++) {
-    for(int mCol = 0; mCol < META_WIDTH; mCol++) {
-      
-      int row = mRow * 2;
-			int col = mCol * 2;
-      
-			mMap[mIndex].t1 = input[row * WIDTH + col];
-			mMap[mIndex].t2 = input[row * WIDTH + col + 1];
-			mMap[mIndex].b1 = input[(row + 1) * WIDTH + col];
-			mMap[mIndex].b2 = input[(row + 1 )* WIDTH + col + 1];
-      
-			mIndex++;
+
+		if (tokenCount % 16 != 0) {
+			fprintf(stderr, "file width doesn't allign with nametables, must be divisible by 16");
+			return 1;
 		}
+
+		nametableCount = tokenCount / 16;
+		rewind(tileFile);
 	}
+	
+	// read tile data ================================================================================================
+	uint8_t (*tileData)[META_SIZE];
+	tileData = malloc(nametableCount * sizeof(*tileData)); // maloc nametables
+	
+	uint8_t rowIndex = 0;
+	while (fgets(line, sizeof(line), tileFile)) { // increment though lines
 
-  int uniqueCount = 0;
-  for (int i = 0; i < META_SIZE; i++) {
-    Metatile m = mMap[i];
-    int found = 0;
+		char *tileken = strtok(line, ",");
 
-    for (int j = 0; j < uniqueCount; j++) {
-      Metatile u = mTiles[j];
-      if (m.t1 == u.t1 && m.t2 == u.t2 &&
-          m.b1 == u.b1 && m.b2 == u.b2) {
+		for (uint8_t nt = 0; nt < nametableCount; nt++) { // loop through all nametables in the row			
+			for (uint8_t tileIndex = 0; tileIndex < META_WIDTH; tileIndex++) { // loop through each piece of data
+				int tile = atoi(tileken);
 
-          found = 1;
-          break;
-      }  
-    }
+				tileData[nt][META_HEIGHT * tileIndex + rowIndex] = tile; // store in column major order
 
-    if (!found) {
-      if (uniqueCount >= MAX_UNIQUE) {
-       fprintf(stderr, "Too many unique metatiles\n");
-        return 1;
-      }
-      mTiles[uniqueCount++] = m;
-    }
-  } 
+				tileken = strtok(NULL, ",");   // advance token
+			}
+		}	
+		
+		rowIndex++;
+	}
+	fclose(tileFile);
 
-	// 8bit array of max size initialized to zero
-	uint8_t colMajor[META_SIZE] = {0};
+	printf("test");
+	// parse attribute data ====================================================================================
 
-	// loop counter
-	int streamIndex = 0;
+	uint8_t (*attrData)[8 * 7];
+	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
 
-	// print result in column major order
-  for (int col = 0; col < META_WIDTH; col++) {
-    printf("\n");
-    for (int row = 0; row < META_HEIGHT; row++) {
 
-      int index = row * META_WIDTH + col;
-      int id = getMetatileIndex(mMap[index], mTiles, uniqueCount);
-        
-			colMajor[streamIndex++] = id;
+	FILE *attrFile = fopen(argv[2], "r");
+
+	
+	
+	rowIndex = 0;
+	while(fgets(line, sizeof(line), attrFile)) {
+		
+		uint8_t attrByte[LINE_SIZE / 2] = {0};
+
+		// tokenize and put the stuff into nibbles
+		char *token = strtok(line, ",");
+		
+		for (int attrIndex = 0; attrIndex < nametableCount * META_WIDTH / 2; attrIndex++) {
 			
-      printf("$%02X ", id); // 1 based to prevent end of stream
+			uint8_t attrLeft = (uint8_t)atoi(token);
+			attrLeft = attrLeft << 2; // shift two bits left for top part of nibble
+			token = strtok(NULL, ","); // increment token
+			uint8_t attrRight = (uint8_t)atoi(token);
+			token = strtok(NULL, ","); // increment token
+			
+			uint8_t attrNibble = attrLeft | attrRight; // turn into nibble
 
-    }
-  }
+			if (rowIndex % 2 == 0) { // bottom
+				attrByte[attrIndex] = attrByte[attrIndex] | attrNibble;				
 
-	printf("\n\n");
-	lzss(colMajor);
+			} else { // top
+				attrByte[attrIndex] = attrNibble << 4; // bit shift to top nibble and overwrite old
+			}
+		}
+
+		if (rowIndex % 2 == 0) { // bottom
+			
+			// store in column-major order
+
+			for (uint8_t nt = 0; nt < nametableCount; nt++) {
+				for(uint8_t i = 0; i < 8 * 7; i++) {
+
+
+
+					attrData[nt][7 * i + rowIndex] = attrByte[i + nt * 7 * 8]; // store in column major order
+				}
+			} 
+
+
+
+		}
+
+		rowIndex++;
+	}
+
+
+	printf("test");
+	fclose(attrFile);
+
 
 	return 0;
 }
