@@ -48,11 +48,14 @@
   LDA level_index+1,Y
   STA levelPtr+1
 
-    ; set up palletes for current level?
-    ; set music for current level and clear audio streams
+    ; TODO set up palletes for current level?
+    ; TODO set music for current level and clear audio streams
 
     ; decompress starting nambetables
-  JSR decompress_nametable   ; TODO temp?
+  LDA #$00
+  JSR decompress_nametable
+  LDA #$01
+  JSR decompress_nametable
 
   JSR draw_first_screen
 

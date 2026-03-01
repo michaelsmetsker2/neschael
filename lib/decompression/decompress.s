@@ -51,10 +51,11 @@
 	STA $03
 
 	LDA #$00
-	LDX scrollAmount
+	LDX scrollAmount+1
 	BPL @find_backround ; when scrolling right, increment the background by one nametable
 	LDA #$01
 @find_backround:
+	CLC
 	ADC screenPosX+1
 	ASL A
 	TAY

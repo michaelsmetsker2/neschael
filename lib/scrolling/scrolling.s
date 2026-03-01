@@ -60,21 +60,17 @@
   BEQ @check_metatile_boundary ; branch if we havn't scrolled onto a new nametable
 
   LDA nametable
-  EOR #$01                ; flip nametable
+  EOR #$01                     ; flip nametable
   STA nametable  
   
-  JSR decompress_nametable
-  ; set a register based on the scroll direction
-  ; TODO check the direction we are scrolling, and update the buffered nametable data
-  ; if scrolling left, update active nametable
-  ; if scrollingn right, update inactive
+  JSR decompress_nametable     ; decompress scrolled to nametable
 
-@check_metatile_boundary: ; see if we crossed into a new metatile so we must draw more
+@check_metatile_boundary:      ; see if we crossed into a new metatile so we must draw more
   LDA tmpOldScrollPos
   EOR screenPosX
   AND #%11110000
   CMP #$00
-  BEQ @reset_scroll_amount  ; if we're on the same metatile, don't draw
+  BEQ @reset_scroll_amount     ; if we're on the same metatile, don't draw
 
   JSR fill_scroll_buffer
 @reset_scroll_amount:

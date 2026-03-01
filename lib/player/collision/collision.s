@@ -10,11 +10,18 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT background_index ; TODO this is temp until level pointers
+
+.IMPORT dbufTile1
+.IMPORT dbufTile2
+
 .IMPORT metatiles
+.IMPORT mult_13
 
 .EXPORT enact_collision_x
 .EXPORT enact_collision_y
 .EXPORT find_collision
+
+	OVERSCAN_OFFSET = $10 ; offset y position in draw buffer by 16 pixels to account for overscan
 
 	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
 
@@ -154,18 +161,23 @@ collision_index_x:
 
 	; finds the collision data at tmpCollisionPoint and return with it in Accumulator
 .PROC find_collision
-	; TODO find the correct level
 
-	; set the collision pointer to the correct background
-	LDA tmpCollisionPointX+1 ; upper byte is the current backround
-	ASL A                    ; *2 for byte offset
-	TAY
-	LDA background_index, Y
-	STA tmpTilePointer
-	INY
-	LDA background_index, Y
-	STA tmpTilePointer+1
-	; set the collision pointer to the correct metcolumn
+	; find draw buffer
+	LDA tmpCollisionPointX+1
+	AND #%00000001
+	BNE @nt_1
+@nt_0:
+	LDY #<dbufTile1
+	LDX #>dbufTile1
+	JMP @set_buf
+@nt_1:
+	LDY #<dbufTile2
+	LDX #>dbufTile2
+@set_buf:
+	STY tmpTilePointer
+	STX tmpTilePointer+1
+
+; set the collision pointer to the correct metcolumn
 @find_meta_column:
 	LDA tmpCollisionPointX  
 	LSR A
@@ -173,25 +185,26 @@ collision_index_x:
 	LSR A
 	STA $0A ; store /8 tile index X for later
 	LSR	A   ; / 16 to get index of metacolumn
-	ASL A   ; * 2 for byte offset
 	TAY
-	LDA (tmpTilePointer), Y ; update the pointer
-	TAX
-	INY
-	LDA (tmpTilePointer), Y
-	STX tmpTilePointer
+		;offset tilepointer to the correct column
+	CLC
+	LDA mult_13,Y	
+	ADC tmpTilePointer
+	STA tmpTilePointer
+	LDA tmpTilePointer+1
+	ADC #$00
 	STA tmpTilePointer+1
 
-	; TODO temp until compressions find the correct metatile
-@find_meta_tile:
+@find_meta_tile: ; offset the pointer to the correct metatile in the column
 	LDA tmpCollisionPointY
 	SEC
-	SBC #$10 ; TODO make this a const, this is compensating for the overscan
+	
+	SBC #OVERSCAN_OFFSET ; compensating for overscan
 	LSR A
 	LSR A
 	LSR A
 	STA $0B ; store /8 tile index Y for later
-	LSR A ; / 16 for metatile index
+	LSR A   ; / 16 for metatile index
 	TAY
 	
 	LDA (tmpTilePointer), Y ; get the value of the metatile
