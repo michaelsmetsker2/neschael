@@ -3,6 +3,11 @@
 ; lib/memory/memoryMap.s
 ;
 
+.EXPORT dbufTile1
+.EXPORT dbufAttr1
+.EXPORT dbufTile2
+.EXPORT dbufAttr2
+
 ;-------------------------------------------------------------------------------
 ; System Memory Map
 ;-------------------------------------------------------------------------------
@@ -29,6 +34,9 @@
 ;-------------------------------------------------------------------------------
 ; $033E-Undetermined ; TODO decompress bufferse for tile and attribute data
   dbufTile1:   .res 208
+  dbufAttr1:   .res 56
+  dbufTile2:   .res 208
+  dbufAttr2:   .res 56
 
 
 

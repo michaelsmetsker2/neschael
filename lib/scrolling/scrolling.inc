@@ -6,7 +6,7 @@
 ; and macros used for drawing from the scroll buffer during NMI
 ;
 
-.SCOPE ScrollBuffer
+.SCOPE ScrollBuffer ; FIXME set these to offsets of the reserved memory
       ; addresses in the ppu to place the top tile of each column
         ; both left and right addresses are needed as the NMI doesnt know what way we are scrolling
     addrHigh      = $0300  ; nametable address

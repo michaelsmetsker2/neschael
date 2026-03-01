@@ -13,8 +13,14 @@
 
 .INCLUDE "data/tiles/metatiles.s"
 
-.IMPORT attribute_index
-.IMPORT background_index ; TODO temp until level structure
+; buffers of uncompressed level data
+.IMPORT dbufTile1
+.IMPORT dbufAttr1
+.IMPORT dbufTile2
+.IMPORT dbufAttr2
+
+.IMPORT attribute_index ; TODO temp until level structure
+.IMPORT background_index ; temp until level structure
 
 .EXPORT fill_scroll_buffer
 
@@ -24,6 +30,9 @@
   tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
   tmpTilePointer         = $15 ; low byte first, points to the metatile to decode
 
+mult_13: ; multiples of thirteen, used for offseting the buffer pointer
+  .BYTE $00, $0D, $1A, $27, $34, $41, $4E, $5B, $68, $75, $82, $8F, $9C, $A9, $B6, $C3
+
 .PROC fill_scroll_buffer
 
     ; dividing the scroll position by 16 gives the index of the current metatile
@@ -32,7 +41,6 @@
   LDA screenPosX+1
   STA tmpMetatileIndex+1
 
-  ; CLC ; BUG potentially necessary? look into
   ROR tmpMetatileIndex+1
   LSR tmpMetatileIndex
   ROR tmpMetatileIndex+1
@@ -48,8 +56,8 @@
 
   JSR locate_tile_data    ; populates the buffer pointer
   JSR fill_tile_data
-  JSR locate_attrib_data
-  JSR fill_attrib_data
+  ;JSR locate_attrib_data
+  ;JSR fill_attrib_data
   
     ; set draw flag so for next NMI
   LDA gameFlags
@@ -60,7 +68,7 @@
 ; fills the high address byte in the scroll buffer
 .PROC fill_buff_addr_high
 
-  LDA scrollAmount ; BUG if player hits wall and scrol screen it draws right column
+  LDA scrollAmount
   BPL @flip_table  ; draw to opposite nametable when scrolling right
 @use_current:
   LDA nametable    ; use the current when scrolling left
@@ -102,6 +110,46 @@
 ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
 .PROC locate_tile_data
 
+; need to find the correct buffer to read from.
+
+  LDA nametable
+  LDX scrollAmount
+  BNE @find_buf
+@right:
+    ; when scrolling right, draw to opposite nametable, flip
+  EOR #$00000001
+
+@find_buf:
+  TAY ; set registers
+  BNE @nt_1
+@nt_0:
+  LDX #<dbufTile1
+  LDY #>dbufTile1
+  JMP @set_buf
+@nt_1:
+  LDX #<dbufTile2
+  LDY #>dbufTile2
+@set_buf:
+  STX tmpBufferPointer
+  STY tmpBufferPointer+1
+
+  ; find column
+
+    ; find offset of current metatile column in lookup table
+  LDA tmpMetatileIndex
+  AND #%00001111        ; get index of current metatile relative to background
+  TAY
+  LDA mult_13, Y
+
+  CLC
+  ADC tmpBufferPointer
+  STA tmpBufferPointer
+  LDA tmpBufferPointer+1
+  ADC #$00
+  STA tmpBufferPointer+1
+  
+
+.IF 0 ; old
   LDA scrollAmount
   BMI @left           ; branch based on scroll direction
 @right:
@@ -142,15 +190,14 @@
 
   STX tmpBufferPointer
   STA tmpBufferPointer+1
+.ENDIF
 
   RTS
 .ENDPROC
 
-  ; TODO this will drastically change when compression is introduced
 .PROC fill_tile_data
 
-  LDY #$00
-
+  LDY #$00  ; loop index
   STY $0F
 @loop:
     ; set the location of tmpTilePointer to the correct metatile

@@ -14,6 +14,7 @@
 .INCLUDE "lib/scrolling/scrolling.inc"
 
 .IMPORT fill_scroll_buffer
+.IMPORT decompress_nametable
 
 .EXPORT scroll_screen
 .EXPORT draw_first_screen
@@ -61,7 +62,9 @@
   LDA nametable
   EOR #$01                ; flip nametable
   STA nametable  
-
+  
+  JSR decompress_nametable
+  ; set a register based on the scroll direction
   ; TODO check the direction we are scrolling, and update the buffered nametable data
   ; if scrolling left, update active nametable
   ; if scrollingn right, update inactive

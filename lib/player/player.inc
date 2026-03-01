@@ -5,6 +5,7 @@
 ; player related memory constants, these are already allocated in the zeropage
 ;
 
+; FIXME set these to offsets of the reserved memory
     ; velocity
   targetVelocityX   = $20   ; Signed Fixed Point 8.8
   velocityX         = $22   ; Signed Fixed Point 8.8
