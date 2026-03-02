@@ -3,6 +3,10 @@
 ; lib/memory/memoryMap.s
 ;
 
+.EXPORT scrollBuffAddr
+.EXPORT scrollBuffData
+.EXPORT scrollBuffAttr
+
 .EXPORT dbufTile1
 .EXPORT dbufAttr1
 .EXPORT dbufTile2
@@ -27,17 +31,15 @@
 ; $0200-$02FF:  OAM Sprite Memory
 ;-------------------------------------------------------------------------------
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
-.SEGMENT "SCROLL_BUFF"
-  addresses:   .res 3
-  tileData:    .res 52
-  attribute:   .res 7
+.SEGMENT "SCROLL_BUFF" ; used to align after OAM
+  scrollBuffAddr:  .res 3   ; ppu addreses to draw to during NMI
+  scrollBuffData:  .res 52  ; tile data to be drawn
+  scrollBuffAttr:  .res 7   ; address data to be drawn
 ;-------------------------------------------------------------------------------
-; $033E-Undetermined ; TODO decompress bufferse for tile and attribute data
+; $033E-Undetermined ; TODO decompress buffers for tile and attribute data
   dbufTile1:   .res 208
   dbufAttr1:   .res 56
   dbufTile2:   .res 208
   dbufAttr2:   .res 56
-
-
 
 ; ???-$07FF:  General Purpose RAM

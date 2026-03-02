@@ -6,21 +6,24 @@
 ; and macros used for drawing from the scroll buffer during NMI
 ;
 
-.SCOPE ScrollBuffer ; FIXME set these to offsets of the reserved memory
+.IMPORT scrollBuffAddr
+.IMPORT scrollBuffData
+.IMPORT scrollBuffAttr
+
+.SCOPE ScrollBuffer
       ; addresses in the ppu to place the top tile of each column
         ; both left and right addresses are needed as the NMI doesnt know what way we are scrolling
-    addrHigh      = $0300  ; nametable address
-    addrLowLeft   = $0301  ; offset left
-    addrLowRight  = $0302
-    colLeft       = $0303 ; uncompressed tile data for left column
-    colRight      = $031D
-    attribute     = $0337 ; attribute data shared by both columns, 4 tiles per attribute vertically
+    addrHigh      = scrollBuffAddr    ; nametable address
+    addrLowLeft   = scrollBuffAddr+1  ; offset left
+    addrLowRight  = scrollBuffAddr+2
+    colLeft       = scrollBuffData    ; uncompressed tile data for left column
+    colRight      = scrollBuffData+26
+    attribute     = scrollBuffAttr    ; attribute data shared by both columns, 4 tiles per attribute vertically
 .ENDSCOPE
 
   COLUMN_LENGTH          = $1A  ; the amount of tiles per the column
   META_COLUMN_LENGTH     = $0D
   ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
-
 
 ; copy uncompressed nametable data to the PPU at the correct memory location
 .MACRO DrawOffscreenTiles    
@@ -57,7 +60,6 @@
   CPY #COLUMN_LENGTH
   BNE @right_loop
 .ENDMACRO
-
 
 ; copy uncompressed attribute data to the PPU at the correct memory location
 .MACRO DrawOffscreenAttributes

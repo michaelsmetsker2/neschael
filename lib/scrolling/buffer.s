@@ -28,8 +28,10 @@
   tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
   tmpTilePointer         = $15 ; low byte first, points to the metatile to decode
 
-mult_13: ; multiples of thirteen, used for offseting the buffer pointer
+mult_13: ; multiples of thirteen, used for offseting the tile buffer pointer
   .BYTE $00, $0D, $1A, $27, $34, $41, $4E, $5B, $68, $75, $82, $8F, $9C, $A9, $B6, $C3
+mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
+  .BYTE $00, $07, $0E, $15, $1C, $23, $2A, $31, $38, $3F, $46, $4D, $54, $5B, $62, $69
 
 .PROC fill_scroll_buffer
 ; FIXME do i need this garb?
@@ -55,7 +57,7 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
   JSR locate_tile_data    ; populates the buffer pointer
   JSR fill_tile_data
   ;JSR locate_attrib_data
-  ;JSR fill_attrib_data
+  ;JSR fill_attrib_data ; TEMP disabled
   
     ; set draw flag so for next NMI
   LDA gameFlags
@@ -108,16 +110,14 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
 ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
 .PROC locate_tile_data
 
-; need to find the correct buffer to read from.
-
+    ; find the correct buffer to read from.
   LDA nametable
   LDX scrollAmount
   BMI @find_buf
 @right:
-    ; when scrolling right, draw to opposite nametable, flip
+    ; when scrolling right, read from opposite buffer, flip
   EOR #$00000001
 
-;============================================================================================================
 @find_buf:
   TAY ; set registers
   BNE @nt_1
@@ -132,14 +132,13 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
   STX tmpBufferPointer
   STY tmpBufferPointer+1
 
-  ; find column
-
-    ; find offset of current metatile column in lookup table
+    ; find offset of current metatile column
+@find_column:
   LDA tmpMetatileIndex
   AND #%00001111        ; get index of current metatile relative to background
   TAY
   LDA mult_13, Y
-
+    ; add offset
   CLC
   ADC tmpBufferPointer
   STA tmpBufferPointer
@@ -206,57 +205,51 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
 .ENDPROC
 
 ; set the buffer pointer to the location of the attribute data column that we want to copy
+; TODO this is duplicate code, can save the buffer pointer from tile part
 .PROC locate_attrib_data
-.IF 0
-  LDA scrollAmount
-  BMI @left           ; branch based on scroll direction
+
+    ; find the correct buffer to read from.
+  LDA nametable
+  LDX scrollAmount
+  BMI @find_buf
 @right:
+    ; when scrolling right, read from opposite buffer, flip
+  EOR #$00000001
 
-    ; pull data from the next background
-  LDY screenPosX+1 ; pixel position / 256 or the high bit of screenPosX is our current background
-  INY              ; increment as we buffer the data from the next one
-  TYA
-  ASL A            ; multiply offset by two, as there are two bytes per address in the lookuptable
-  TAY
-
-  JMP @find_background
-@left:
-  ; pull data from the current background
-  
-  LDA screenPosX+1      ; pixel position / 256 or the high bit of screenPosX is our current background
-  ASL A                 ; * 2 to get byte offset in backgrounds lookup table
-  TAY
-
-@find_background:
-  LDA attribute_index, Y   ; point to the correct background
-  STA tmpBufferPointer
-  INY
-  LDA attribute_index, Y
-  STA tmpBufferPointer+1
-
-    ; find offset of current attribute column
-  LDA tmpMetatileIndex
-  AND #%00001110        ; get index of current metatile relative to background
-                          ; in the lookup table, 2 bytes per metatile, 2 metatiles per column
-  TAY
-
-    ; point to the correct metacolumn from the background's lookup table
-  LDA (tmpBufferPointer), Y
-  TAX
-  INY
-  LDA (tmpBufferPointer), Y
-
+@find_buf:
+  TAY ; set registers
+  BNE @nt_1
+@nt_0:
+  LDX #<dbufAttr1
+  LDY #>dbufAttr1
+  JMP @set_buf
+@nt_1:
+  LDX #<dbufAttr2
+  LDY #>dbufAttr2
+@set_buf:
   STX tmpBufferPointer
+  STY tmpBufferPointer+1
+
+    ; find offset of current attr column
+@find_column:
+  LDA tmpMetatileIndex
+  AND #%00001111        ; get index of current metatile relative to background
+  TAY
+  LDA mult_7, Y ; seven  bytes per col
+    ;add offset
+  CLC
+  ADC tmpBufferPointer
+  STA tmpBufferPointer
+  LDA tmpBufferPointer+1
+  ADC #$00
   STA tmpBufferPointer+1
 
   RTS
-.ENDIF
 
 .ENDPROC
 
 ; store the uncompressed attrib data in the buffer
 .PROC fill_attrib_data
-.IF 0
   LDY #$00 ; loop index
 @loop:                    ; sets all 7 attribute bytes of the column
   LDA (tmpBufferPointer), Y
@@ -266,5 +259,4 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
   BCC @loop
 
   RTS
-.ENDIF
 .ENDPROC
