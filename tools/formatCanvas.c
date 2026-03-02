@@ -207,7 +207,6 @@ int main(int argc, char *argv[]) {
 		if (rowIndex % 2 == 0) { // bottom
 			
 			// store in column-major order
-
 			for (uint8_t nt = 0; nt < nametableCount; nt++) {
 				for(uint8_t col = 0; col < 8 ; col++) {
 					attrData[nt][col * 7 + rowIndex] = attrByte[col + nt * 8 * 7];

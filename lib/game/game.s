@@ -53,8 +53,18 @@
 
     ; decompress starting nambetables
 
+  ; decompress second nametable normally
   JSR decompress_nametable
-;  JSR decompress_nametable
+  ; change primary nametable and scroll pos to decompress first nametable
+  LDA #$01
+  STA nametable
+  LDA #$FF
+  STA screenPosX+1
+  JSR decompress_nametable
+  ; reset values
+  LDA #$00
+  STA nametable
+  STA screenPosX+1
 
   JSR draw_first_screen
 
@@ -63,7 +73,6 @@
   EnableVideoOutput
   RTS
 .ENDPROC
-
 .PROC read_joypad_1
     ; read button presses from joypad 1 and find what are new presses
   LDA btnDown

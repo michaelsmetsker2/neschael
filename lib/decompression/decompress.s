@@ -14,12 +14,15 @@
 
 .INCLUDE "lib/game/gameData.inc"
 
+	TILE_BUF_SIZE   = $D0  ; size of the tile buffer, used to increment to attr buffer
+
 	; memory constants
-  tmpDataPointer  = $0   ; 16 bit pointer to input data
-	tmpLength 			= $02	 ; scratch memory
-	temp            = $03	 ; scratch memory
-	tmpBufferPtr    = $04  ; 16 bit pointer to the dbuffer to fill
-	tmpWritePtr			= $06  ; 16 bit pointer to dbuffer, incremented when writing
+  tmpDataPointer      = $0   ; 16 bit pointer to input data
+	tmpLength 			    = $02	; scratch memory
+	temp                = $03	; scratch memory
+	tmpBufferPtr        = $04  ; 16 bit pointer to the dbuffer to fill
+	tmpWritePtr			    = $06  ; 16 bit pointer to dbuffer, incremented when writing
+	tmpBackgroundOffset = $08	; background index to decompress
 
 .PROC decompress_nametable
 
@@ -30,7 +33,7 @@
 	EOR #$01
 @find_buf:
 
-	; set both pointers to the correct tile buffer
+		; set both pointers to the correct tile buffer
 	CMP #$00
 	BNE @nametable_1
 @nametable_0:
@@ -47,7 +50,7 @@
 	STY tmpWritePtr+1
 	STY tmpBufferPtr+1
 
-	; make a temporary pointer to the level's background index
+		; make a temporary pointer to the level's background index
 	LDY #$00
 	LDA (levelPtr),Y
 	STA $02
@@ -62,10 +65,11 @@
 	CLC
 	ADC #$01
 @offset:
-	ASL A		; two bytes per address
+	ASL A							      ; two bytes per address
+	STA tmpBackgroundOffset ; to reuse for attribute buffer
 	TAY
 	
-	; increment tmpdata pointer to the background of the correct nametable
+		; increment tmpdata pointer to the background of the correct nametable
 	LDA ($02),Y
 	STA tmpDataPointer
 	INY
@@ -74,9 +78,36 @@
 
 	JSR lzss_decompress
 
-	; decompress nametable
+@decompress_attribute: ; decompress attribute data ===============================================================
+	
+		; increment buffer pointers by 208 to attr buffer
+	LDA tmpBufferPtr
+	CLC
+	ADC TILE_BUF_SIZE
+	STA tmpBufferPtr
+	STA tmpWritePtr
+	LDA tmpBufferPtr+1
+	ADC #$00
+	STA tmpBufferPtr+1
+	STA tmpWritePtr+1
+	
+		; make a temporary pointer to the level's attribute index
+	LDY #$02					; offset to the attribute pointer
+	LDA (levelPtr),Y
+	STA $02
+	INY
+	LDA (levelPtr),Y
+	STA $03
 
-	; JSR lzss_decompress
+	LDY tmpBackgroundOffset
+		; increment tmpdata pointer to the background of the correct nametable
+	LDA ($02),Y
+	STA tmpDataPointer
+	INY
+	LDA ($02),Y
+	STA tmpDataPointer+1
+
+	;JSR lzss_decompress ; FIXME broken
 
 	RTS
 .ENDPROC
