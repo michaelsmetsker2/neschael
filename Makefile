@@ -48,7 +48,7 @@ build: bin/hdr.bin bin/prg.bin bin/chr.bin
 
 # Cleans bin directory
 clean:
-	$(RM) -r $(BIN_DIR)/* neschael.nes a.out
+	$(RM) -r $(BIN_DIR)/* neschael.nes a.out neschael.nes.deb
 
 .PHONY: default dev test assemble link build clean
 	

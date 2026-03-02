@@ -52,10 +52,9 @@
     ; TODO set music for current level and clear audio streams
 
     ; decompress starting nambetables
-  LDA #$00
+
   JSR decompress_nametable
-  LDA #$01
-  JSR decompress_nametable
+;  JSR decompress_nametable
 
   JSR draw_first_screen
 
@@ -70,10 +69,10 @@
   LDA btnDown
   TAY              ; store previousely held inputs in Y
   LDA #1
-  STA _JOYPAD_1      ; latch buttons states
+  STA _JOYPAD_1    ; latch buttons states
   STA btnDown      ; Clear pressed buttons
   LSR              ; A = 0
-  STA _JOYPAD_1      ; release button latch
+  STA _JOYPAD_1    ; release button latch
 @loop:             ; Fill BTN_DOWN with all buttons down
   LDA _JOYPAD_1
   LSR

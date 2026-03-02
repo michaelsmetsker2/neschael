@@ -1,8 +1,11 @@
 /*
 	simple script, used for formatting level data,
 	args:
-	tile csv relative filepath
-	attr csv relative filepath
+		tile csv relative filepath
+		attr csv relative filepath
+
+	tested on linux, built with:
+	gcc -Wall -o formatCanvas formatCanvas.c
 */
 
 #include <stdio.h>
@@ -232,7 +235,7 @@ int main(int argc, char *argv[]) {
   // lookup table
   fprintf(out, "LEVELNAME:\n\t.WORD background_index, attribute_index, spawn_stream\n");
 	fprintf(out, "\t.BYTE $00, $00 ; high byte of player starting X and Y\n");
-	fprintf(out, "\t.BYTE $%02X ; length of background, zero based\n\n", nametableCount);
+	fprintf(out, "\t.BYTE $%02X ; length of background, zero based\n\n", nametableCount - 1);
 	
 	fprintf(out, "background_index:\n\t.WORD ");
   for (int i = 0; i < nametableCount; i++) {

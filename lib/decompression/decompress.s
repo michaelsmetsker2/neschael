@@ -21,8 +21,14 @@
 	tmpBufferPtr    = $04  ; 16 bit pointer to the dbuffer to fill
 	tmpWritePtr			= $06  ; 16 bit pointer to dbuffer, incremented when writing
 
-	; ACC 0: nametable 0, 1: nametable 1
 .PROC decompress_nametable
+
+; determine what buffer to use depending on scroll direction and primary nametable 
+	LDA nametable
+	LDX scrollAmount
+	BMI @find_buf
+	EOR #$01
+@find_buf:
 
 	; set both pointers to the correct tile buffer
 	CMP #$00
@@ -41,7 +47,6 @@
 	STY tmpWritePtr+1
 	STY tmpBufferPtr+1
 
-
 	; make a temporary pointer to the level's background index
 	LDY #$00
 	LDA (levelPtr),Y
@@ -50,17 +55,17 @@
 	LDA (levelPtr),Y
 	STA $03
 
-	LDA #$00
-	LDX scrollAmount+1
-	BPL @find_backround ; when scrolling right, increment the background by one nametable
-	LDA #$01
-@find_backround:
+	  ;	determine the level background do decompress
+	LDA screenPosX+1
+	LDX scrollAmount
+	BMI @offset				; increment by one when scrolling right
 	CLC
-	ADC screenPosX+1
-	ASL A
+	ADC #$01
+@offset:
+	ASL A		; two bytes per address
 	TAY
 	
-	; sets tmpdata pointer to the background of the correct nametable
+	; increment tmpdata pointer to the background of the correct nametable
 	LDA ($02),Y
 	STA tmpDataPointer
 	INY

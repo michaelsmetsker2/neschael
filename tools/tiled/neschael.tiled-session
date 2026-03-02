@@ -6,8 +6,8 @@
     "activeFile": "levels/testLvl.tmx",
     "expandedProjectPaths": [
         "levels",
-        "metas",
-        "."
+        ".",
+        "metas"
     ],
     "fileStates": {
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx": {
@@ -33,11 +33,11 @@
             "scaleInEditor": 32
         },
         "levels/testLvl.tmx": {
-            "scale": 2,
+            "scale": 5.5,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 499.5,
-                "y": 117.25
+                "x": 150.90909090909093,
+                "y": 98.09090909090908
             }
         },
         "levels/test_level.tmx": {

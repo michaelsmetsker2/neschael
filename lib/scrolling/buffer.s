@@ -112,11 +112,12 @@ mult_13: ; multiples of thirteen, used for offseting the buffer pointer
 
   LDA nametable
   LDX scrollAmount
-  BNE @find_buf
+  BMI @find_buf
 @right:
     ; when scrolling right, draw to opposite nametable, flip
   EOR #$00000001
 
+;============================================================================================================
 @find_buf:
   TAY ; set registers
   BNE @nt_1

@@ -9,8 +9,6 @@
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
 
-.IMPORT background_index ; TODO this is temp until level pointers
-
 .IMPORT dbufTile1
 .IMPORT dbufTile2
 
