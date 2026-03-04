@@ -20,6 +20,9 @@
 #define META_HEIGHT 13
 #define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
 #define MAX_UNIQUE 256 
+#define ATTR_SIZE 56
+
+#define debug 0
 
 // array of match structs
 struct {
@@ -37,7 +40,14 @@ static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
 	return len;
 }
 
-void lzss(const uint8_t *input, FILE *out) {
+/**
+ * lzss compresses data
+ * 
+ * @param input     - pointer to array of uint8 data
+ * @param out       - output stream to print the data to 
+ * @param inputSize - size of the input array
+ */
+void lzss(const uint8_t *input, FILE *out, uint8_t inputSize) {
 
 	memset(longest, 0, sizeof(longest)); // Clear previous compression metadata
   uint8_t output[META_SIZE * 2] = {0}; // Increase size to handle literal overhead
@@ -46,11 +56,11 @@ void lzss(const uint8_t *input, FILE *out) {
 	for (unsigned lookBack = 1; lookBack <= 256; lookBack++) {
 		
 		// i is the index of the pice of data we are looking at in the array
-		for (size_t i = lookBack; i < META_SIZE; i++) {
+		for (size_t i = lookBack; i < inputSize; i++) {
 			
 			// find the ammount of matching bytes starting from lookBack
 			// skip through the matches then start analyzing again
-			for (size_t len = cmp(input + i, input + i - lookBack, META_SIZE - i); len > 0; len--, i++) {
+			for (size_t len = cmp(input + i, input + i - lookBack, inputSize - i); len > 0; len--, i++) {
 				
 				if (len > longest[i].length) {
 					longest[i].length = len;
@@ -63,7 +73,7 @@ void lzss(const uint8_t *input, FILE *out) {
 	size_t outputIndex = 0;
 
 	// add compressed data to ouput array
-	for (size_t i = 0; i < META_SIZE;) {
+	for (size_t i = 0; i < inputSize;) {
 		
 		if (longest[i].length > 2) {
 			output[outputIndex++] = longest[i].length; // 2 - 128, works as command byte
@@ -74,7 +84,7 @@ void lzss(const uint8_t *input, FILE *out) {
 
 			// add the ammount of consecutively literals
 			size_t literals = 0;
-			for (literals = 0; i < META_SIZE && literals < 128; i++, literals++) {
+			for (literals = 0; i < inputSize && literals < 128; i++, literals++) {
 				if (longest[i].length > 2) {
 					break;
 				}
@@ -106,7 +116,13 @@ void lzss(const uint8_t *input, FILE *out) {
 			fprintf(out, ", ");
 		}
 	}
-	fprintf(out, "$00\n"); // end of stream
+
+	// print null terminator
+	if (prindex % 16 == 0) {
+		fprintf(out, "\n\t.BYTE $00\n");
+	} else {
+		fprintf(out, "$00 \n");
+	}
 
 	return;
 }
@@ -178,47 +194,70 @@ int main(int argc, char *argv[]) {
 
 	FILE *attrFile = fopen(argv[2], "r");
 	
+	// line of output data, initialized to zero
+	uint8_t attrByte[LINE_SIZE / 2] = {0};
+
 	rowIndex = 0;
 	while(fgets(line, sizeof(line), attrFile)) {
 		
-		uint8_t attrByte[LINE_SIZE / 2] = {0};
-
-		// tokenize and put the stuff into nibbles
+		// tokenize attr data
 		char *token = strtok(line, ",");
 		
-		for (int attrIndex = 0; attrIndex < nametableCount * META_WIDTH / 2; attrIndex++) {
+		// proccess a row of input data and assign it to the top or bottom bytes of the output row
+		for (int attrIndex = 0; attrIndex < nametableCount * (META_WIDTH / 2); attrIndex++) {
+			
 			
 			uint8_t attrLeft = (uint8_t)atoi(token);
-			attrLeft = attrLeft << 2; // shift two bits left for top part of nibble
 			token = strtok(NULL, ","); // increment token
 			uint8_t attrRight = (uint8_t)atoi(token);
 			token = strtok(NULL, ","); // increment token
 			
-			uint8_t attrNibble = attrLeft | attrRight; // turn into nibble
+			// shift left to combine with right
+			uint8_t attrNibble = (attrLeft << 2) | attrRight; // turn into nibble
 
 			if (rowIndex % 2 == 0) { // bottom
 				attrByte[attrIndex] |= attrNibble;				
 
-			} else { // top
-				attrByte[attrIndex] |= (attrNibble << 4); // bit shift to top nibble and overwrite old
+			} else { // top, clobbers old row and shifts left to be dop nibble
+				attrByte[attrIndex] = (attrNibble << 4);
 			}
 		}
 
-		if (rowIndex % 2 == 0) { // bottom
-			
+		if (rowIndex % 2 == 0) { // once a bottom row is proccessed, add it to the data
+
+			#if debug
+			for(uint8_t i = 0; i < (nametableCount * 8); i++) {
+				fprintf(stdout, ", %02X", attrByte[i]);
+			}
+			fprintf(stdout, "\n");
+			#endif
+
 			// store in column-major order
 			for (uint8_t nt = 0; nt < nametableCount; nt++) {
 				for(uint8_t col = 0; col < 8 ; col++) {
-					attrData[nt][col * 7 + rowIndex] = attrByte[col + nt * 8 * 7];
+					attrData[nt][col * 7 + (rowIndex / 2)] = attrByte[col + nt * 8];
 				}
-			} 
+			}
+
 		}
 
 		rowIndex++;
 	}
-	fclose(attrFile);
 
-	
+	#if debug // print in column major order
+	printf("\n\n\n\n");
+	for (int i = 0; i < nametableCount; i++) {
+		for (int col = 0; col < 8; col++) {
+			for (int row = 0; row < 7; row++) {
+				printf(", %02X", attrData[i][col * 7 + row]);
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
+	#endif
+
+	fclose(attrFile);
 	
 	// print format and LZSS ==================================================================================================================
   FILE *out = fopen("level.s", "w");
@@ -266,11 +305,11 @@ int main(int argc, char *argv[]) {
 	for(uint8_t nt = 0; nt < nametableCount; nt++) {
 		// print tile data
 		fprintf(out, "\nbackground_%i:", nt);
-		lzss(tileData[nt], out);
+		lzss(tileData[nt], out, META_SIZE);
 	
 		// print attr data
 		fprintf(out, "\nattrib_%i:", nt);
-		lzss(attrData[nt], out);
+		lzss(attrData[nt], out, ATTR_SIZE);
 
 		//print spawn stream data
 		fprintf(out, "\nstream_%i:", nt);

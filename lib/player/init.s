@@ -9,9 +9,7 @@
 
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
-
-; offset in level data for initial player positions
-POSITION_OFFSET = $06
+.INCLUDE "lib/game/levelData.inc"
 
 playerTile      = $0201 ; player's sprite in OAM buffer
 playerAttribute = $0202 ; player's attribute byte in OAM buffer

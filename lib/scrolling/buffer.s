@@ -56,8 +56,8 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
 
   JSR locate_tile_data    ; populates the buffer pointer
   JSR fill_tile_data
-  ;JSR locate_attrib_data
-  ;JSR fill_attrib_data ; TEMP disabled
+  JSR locate_attrib_data
+  JSR fill_attrib_data ; TEMP disabled
   
     ; set draw flag so for next NMI
   LDA gameFlags
@@ -245,7 +245,6 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
   STA tmpBufferPointer+1
 
   RTS
-
 .ENDPROC
 
 ; store the uncompressed attrib data in the buffer

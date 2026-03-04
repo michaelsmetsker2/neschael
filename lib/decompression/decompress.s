@@ -13,6 +13,7 @@
 .EXPORT decompress_nametable
 
 .INCLUDE "lib/game/gameData.inc"
+.INCLUDE "lib/game/levelData.inc"
 
 	TILE_BUF_SIZE   = $D0  ; size of the tile buffer, used to increment to attr buffer
 
@@ -25,6 +26,43 @@
 	tmpBackgroundOffset = $08	; background index to decompress
 
 .PROC decompress_nametable
+
+		; make a temporary pointer to the level's background index
+	LDY #$00
+	LDA (levelPtr),Y
+	STA $02
+	INY
+	LDA (levelPtr),Y
+	STA $03
+
+	  ;	determine the level background to decompress
+	LDA screenPosX+1
+	LDX scrollAmount
+	BMI @check_end				; increment by one when scrolling right
+	CLC
+	ADC #$01
+@check_end:
+	; make sure we're not decompressing past the end of the level
+	LDY #LEVEL_SIZE_OFFSET
+	CMP (levelPtr),Y
+	BCC @offset ; background < level size
+	BEQ @offset ; background = level size
+	RTS         ; return early if background > level size
+
+@offset:
+	ASL A							      ; two bytes per address
+	STA tmpBackgroundOffset ; to reuse for attribute buffer
+	TAY
+
+
+
+
+		; increment tmpdata pointer to the background of the correct nametable
+	LDA ($02),Y
+	STA tmpDataPointer
+	INY
+	LDA ($02),Y
+	STA tmpDataPointer+1
 
 ; determine what buffer to use depending on scroll direction and primary nametable 
 	LDA nametable
@@ -50,49 +88,23 @@
 	STY tmpWritePtr+1
 	STY tmpBufferPtr+1
 
-		; make a temporary pointer to the level's background index
-	LDY #$00
-	LDA (levelPtr),Y
-	STA $02
-	INY
-	LDA (levelPtr),Y
-	STA $03
-
-	  ;	determine the level background do decompress
-	LDA screenPosX+1
-	LDX scrollAmount
-	BMI @offset				; increment by one when scrolling right
-	CLC
-	ADC #$01
-@offset:
-	ASL A							      ; two bytes per address
-	STA tmpBackgroundOffset ; to reuse for attribute buffer
-	TAY
-	
-		; increment tmpdata pointer to the background of the correct nametable
-	LDA ($02),Y
-	STA tmpDataPointer
-	INY
-	LDA ($02),Y
-	STA tmpDataPointer+1
-
 	JSR lzss_decompress
 
 @decompress_attribute: ; decompress attribute data ===============================================================
-	
+
 		; increment buffer pointers by 208 to attr buffer
 	LDA tmpBufferPtr
 	CLC
-	ADC TILE_BUF_SIZE
+	ADC #TILE_BUF_SIZE
 	STA tmpBufferPtr
 	STA tmpWritePtr
 	LDA tmpBufferPtr+1
 	ADC #$00
 	STA tmpBufferPtr+1
 	STA tmpWritePtr+1
-	
+
 		; make a temporary pointer to the level's attribute index
-	LDY #$02					; offset to the attribute pointer
+	LDY #ATTRIBUTE_INDEX_OFFSET ; offset to attribute index pointer
 	LDA (levelPtr),Y
 	STA $02
 	INY
@@ -107,7 +119,7 @@
 	LDA ($02),Y
 	STA tmpDataPointer+1
 
-	;JSR lzss_decompress ; FIXME broken
+	JSR lzss_decompress
 
 	RTS
 .ENDPROC

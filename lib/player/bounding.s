@@ -10,6 +10,7 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/player/collision/collision.inc"
+.INCLUDE "lib/game/levelData.inc"
 
 .IMPORT find_collision
 .IMPORT enact_collision_x
@@ -211,8 +212,6 @@
 
 ; see if the proposed scroll ammount hits the borders of the current level
 .PROC bound_scroll
-
-	LEVEL_SIZE_OFFSET = $08 ; offset for the level size from level pointer
 
 	BIT tmpDeltaX+1			; see what to bound based on direction
 	BMI @difference_zero
