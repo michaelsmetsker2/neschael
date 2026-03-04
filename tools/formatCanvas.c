@@ -212,14 +212,14 @@ int main(int argc, char *argv[]) {
 			uint8_t attrRight = (uint8_t)atoi(token);
 			token = strtok(NULL, ","); // increment token
 			
-			// shift left to combine with right
-			uint8_t attrNibble = (attrLeft << 2) | attrRight; // turn into nibble
+			// shift left to combine with left bit
+			uint8_t attrNibble = (attrRight << 2) | attrLeft; // turn into nibble
+			
+			if (rowIndex % 2 == 0) { // top
+				attrByte[attrIndex] |= (attrNibble << 4);				
 
-			if (rowIndex % 2 == 0) { // bottom
-				attrByte[attrIndex] |= attrNibble;				
-
-			} else { // top, clobbers old row and shifts left to be dop nibble
-				attrByte[attrIndex] = (attrNibble << 4);
+			} else { // bottom, clobbers old row and shifts left to be dop nibble
+				attrByte[attrIndex] = attrNibble;
 			}
 		}
 

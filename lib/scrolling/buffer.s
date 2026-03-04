@@ -234,6 +234,7 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
 @find_column:
   LDA tmpMetatileIndex
   AND #%00001111        ; get index of current metatile relative to background
+  LSR A
   TAY
   LDA mult_7, Y ; seven  bytes per col
     ;add offset

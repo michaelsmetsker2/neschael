@@ -13,7 +13,6 @@ test_level:
 	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $03 ; length of background, zero based
 
-
 background_index:
 	.WORD background_0, background_1, background_2, background_3
 attribute_index:
@@ -29,7 +28,7 @@ background_0:
 	.BYTE $00
 
 attrib_0:
-  .BYTE $FF, $00, $22, $00, $FE, $03, $33, $05, $24, $FE, $0F, $FF, $05, $2B, $07, $2A 
+  .BYTE $FF, $00, $22, $00, $FE, $C0, $CC, $05, $24, $FE, $F0, $FF, $05, $2B, $07, $2A 
 	.BYTE $00
 
 stream_0:
@@ -42,7 +41,7 @@ background_1:
   .BYTE $01, $03, $04, $B6, $08, $AE, $06, $62, $07, $BC, $00 
 
 attrib_1:
-  .BYTE $FE, $0F, $FF, $05, $01, $FF, $00, $29, $07, $FE, $0A, $AA, $05, $32, $00 
+  .BYTE $FE, $F0, $FF, $05, $01, $FF, $00, $29, $07, $FE, $A0, $AA, $05, $32, $00 
 
 stream_1:
 	; todo :)
@@ -53,7 +52,7 @@ background_2:
   .BYTE $09, $02, $12, $75, $07, $8E, $0B, $8E, $FF, $02, $26, $9A, $03, $0A, $00 
 
 attrib_2:
-  .BYTE $FE, $0A, $AA, $05, $01, $0E, $00, $FE, $08, $88, $05, $16, $FF, $00, $1B, $1C 
+  .BYTE $FE, $A0, $AA, $05, $01, $0E, $00, $FE, $20, $22, $05, $16, $FF, $00, $1B, $1C 
 	.BYTE $00
 
 stream_2:
@@ -66,7 +65,7 @@ background_3:
   .BYTE $04, $BF, $00 
 
 attrib_3:
-  .BYTE $FE, $05, $55, $05, $01, $2A, $00, $FF, $00, $06, $31, $00 
+  .BYTE $FE, $50, $55, $05, $01, $2A, $00, $FF, $00, $06, $31, $00 
 
 stream_3:
 	; todo :)
