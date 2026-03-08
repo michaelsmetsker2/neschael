@@ -223,7 +223,7 @@ _OAM_X    = 3
                                   ; This automatically starts the transfer
 .ENDMACRO
 
-; set the scroll as writes to VRAM will offest it
+; set the scroll as writes to VRAM will offset it
 .MACRO SetScroll
   LDA screenPosX
   STA _PPUSCROLL

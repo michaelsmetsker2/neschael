@@ -1,6 +1,6 @@
 ;
 ; neschael
-; lib/player/bounding.s
+; lib/player/collision/bounding.s
 ;
 ; handles bounding an collision for the player
 ;
@@ -19,8 +19,6 @@
 .EXPORT update_position_x
 .EXPORT update_position_y
 .EXPORT tmpDeltaX
-
-	; TODO make some of the constants subproccess scope instead of file scope
 
 	; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT        = $6A
@@ -104,10 +102,19 @@
 	STA tmpProposedPosFinal+1
 	
 	JSR check_collision_x
-
 @enact_collision:
 	JSR enact_collision_x
 
+	; FIXME this does not need to be calculated every frame, could have a flag set only when collision alters deltax
+	; recalculate proposed position incase deltaX changed due to colision
+	CLC
+	LDA positionX
+	ADC tmpDeltaX
+	STA tmpProposedPosFinal
+	LDA positionX+1
+	ADC tmpDeltaX+1
+	STA tmpProposedPosFinal+1
+	
 	JSR check_scroll	; see if we need to scroll the screen or not
 	
 	; add deltaX to position
@@ -146,7 +153,7 @@
 	; load collision point x
 	CLC
 	LDA screenPosX
-	ADC $16                   ; add the offest player position plus world position (for right side of the player)
+	ADC $16                   ; add the offset player position plus world position (for right side of the player)
 	STA tmpCollisionPointX
 	LDA screenPosX+1
 	ADC #$00				          ; add carry
@@ -174,43 +181,96 @@
 .ENDPROC
 
 ; see if the proposed deltaX would pass the scroll thresholds
-.PROC check_scroll
+.PROC check_scroll ; original - works
+.IF 0
 	LDA tmpProposedPosFinal+1
 	
 	BIT tmpDeltaX+1			; check threshold based on direction
 	BMI @left_threshold 
 @right_threshold:
-
 	SEC
 	SBC #SCROLL_THRESHOLD_RIGHT 
 	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
 
-	STA tmpProposedScroll
-	JSR bound_scroll
-
-	STA scrollAmount							 ; scroll the ammount the player overshot the threshold
 	JMP @end_threshold_check
 @left_threshold:
-
 	; ACC contains tmpProposedPosFinal+1
 	SEC
 	SBC #SCROLL_THRESHOLD_LEFT 
 	BCS @no_scroll                 ; proposed position >= left threshold, threshold not passed
 
+@end_threshold_check: ; subtract the ammount scrolled from deltaX
+
 	STA tmpProposedScroll 				; see if we actually can scroll
 	JSR bound_scroll
 
-@end_threshold_check: ; subtract the ammount scrolled from deltaX
 	LDA tmpDeltaX+1
 	SEC
 	SBC scrollAmount
 	STA tmpDeltaX+1
 
 @no_scroll:
+.ENDIF
+
+.IF 1
+	offset = $60 ; FIXME (scuffed and bad, collision when changing directions and teleporting at world boundaries)
+	MIDPOINT = $80
+	TARGET_OFFSET_LEFT = $E2
+	TARGET_OFFSET_RIGHT = $1E
+
+	CLC
+	LDA tmpProposedPosFinal+1
+	ADC offset
+	SEC
+	SBC #MIDPOINT
+	BEQ @no_scroll
+	PHP
+
+
+	BIT tmpDeltaX+1			; check threshold based on direction
+	BMI @left_threshold
+	
+@right_threshold:
+	PLP
+	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
+	STA tmpProposedScroll
+
+	LDA offset
+	CMP #TARGET_OFFSET_RIGHT
+	BEQ @end_threshold_check 
+
+	INC offset
+	INC tmpProposedScroll
+
+	JMP @end_threshold_check
+@left_threshold:
+	PLP
+	BCS @no_scroll                 ; proposed position >= left threshold, threshold not passed
+	STA tmpProposedScroll
+
+	LDA offset
+	CMP #TARGET_OFFSET_LEFT
+	BEQ @end_threshold_check 
+
+	DEC offset
+	DEC tmpProposedScroll
+
+@end_threshold_check: ; subtract the ammount scrolled from deltaX
+
+	JSR bound_scroll
+
+	LDA tmpDeltaX+1
+	SEC
+	SBC scrollAmount
+	STA tmpDeltaX+1
+
+@no_scroll:
+.ENDIF
+
 	RTS	
 .ENDPROC
 
-; see if the proposed scroll ammount hits the borders of the current level
+	; see if the proposed scroll ammount hits the borders of the current level
 .PROC bound_scroll
 
 	BIT tmpDeltaX+1			; see what to bound based on direction
@@ -310,7 +370,7 @@
 @check_collision_right:
 	CLC      
 	LDA tmpCollisionPointX
-	ADC #PLAYER_FEET_RIGHT_OFFSET 									; offest to right side
+	ADC #PLAYER_FEET_RIGHT_OFFSET 									; offset to right side
 	STA tmpCollisionPointX
 	LDA tmpCollisionPointX+1
 	ADC #$00

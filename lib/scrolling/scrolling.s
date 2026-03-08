@@ -1,9 +1,9 @@
 ;   
 ; nechael
-; lib/scrolling.s
+; lib/scrolling/scrolling.s
 ;
 ; subroutines related to SCROLLING_BUFF, when scrolling thresholds are reached, it will uncompress
-; and store level data while the PPU is writing. This takes leaves less logic for NMI
+; and store level data while the PPU is writing. This leaves less logic for NMI
 ;
 
 .SEGMENT "CODE"
