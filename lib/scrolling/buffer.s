@@ -34,7 +34,6 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
   .BYTE $00, $07, $0E, $15, $1C, $23, $2A, $31, $38, $3F, $46, $4D, $54, $5B, $62, $69
 
 .PROC fill_scroll_buffer
-; FIXME do i need this garb?
     ; dividing the scroll position by 16 gives the index of the current metatile
   LDA screenPosX
   STA tmpMetatileIndex

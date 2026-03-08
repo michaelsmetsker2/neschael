@@ -3,6 +3,8 @@
 ; lib/memory/memoryMap.s
 ;
 
+.EXPORT PLAYER_DATA
+
 .EXPORT scrollBuffAddr
 .EXPORT scrollBuffData
 .EXPORT scrollBuffAttr

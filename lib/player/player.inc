@@ -5,28 +5,30 @@
 ; player related memory constants, these are already allocated in the zeropage
 ;
 
-; FIXME set these to offsets of the reserved memory
+.IMPORTZP PLAYER_DATA
     ; velocity
-  targetVelocityX   = $20   ; Signed Fixed Point 8.8
-  velocityX         = $22   ; Signed Fixed Point 8.8
-  velocityY         = $24   ; Signed Fixed Point 8.8
+  targetVelocityX = PLAYER_DATA       ; Signed Fixed Point 8.8
+  velocityX       = PLAYER_DATA + 2   ; Signed Fixed Point 8.8
+  velocityY       = PLAYER_DATA + 4   ; Signed Fixed Point 8.8
 
     ; integer part can be used as the pixel positions of the sprite
-  positionX         = $26   ; Unsigned Fixed Point 8.8
-  positionY         = $28   ; Unsigned Fixed Point 8.8
+  positionX       = PLAYER_DATA + 6   ; Unsigned Fixed Point 8.8
+  positionY       = PLAYER_DATA + 8   ; Unsigned Fixed Point 8.8
 
-  motionState       = $2A   ; See .ENUM MotionState
+  motionState     = PLAYER_DATA + 10  ; See .ENUM MotionState
 
-  animationTimer    = $2B   ; determines the current frame of the walking animation
+  animationTimer  = PLAYER_DATA + 11  ; determines the current frame of the walking animation
 
-  storedVelocity    = $2C   ; Unsigned 8.8 ammount of boost stored
-  chargeCounter     = $2E   ; counter that determines how much boost is stored per tick
+  storedVelocity  = PLAYER_DATA + 12  ; Unsigned 8.8 ammount of boost stored
+  chargeCounter   = PLAYER_DATA + 14  ; counter that determines how much boost is stored per tick
 
-  playerFlags       = $2F   ; holds various player flags in various bit positions
-                            ; 0-4 unused
-                            ; 5   chargeState, if player is charging boost 0 for no
-                            ; 6   heading, 0 for right, 1 for left
-                            ; 7   slowJump flag if the player has been holding A since the start of the jump
+  playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
+                                        ; 0-4 unused
+                                        ; 5   chargeState, if player is charging boost 0 for no
+                                        ; 6   heading, 0 for right, 1 for left
+                                        ; 7   slowJump flag if the player has been holding A since the start of the jump
+
+  lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
   ; chargable flag
   CHARGE_STATE_MASK = %00100000
