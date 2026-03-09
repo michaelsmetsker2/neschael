@@ -5,8 +5,8 @@
     },
     "activeFile": "levels/testLvl.tmx",
     "expandedProjectPaths": [
-        ".",
         "metas",
+        ".",
         "levels"
     ],
     "fileStates": {
@@ -33,11 +33,11 @@
             "scaleInEditor": 32
         },
         "levels/testLvl.tmx": {
-            "scale": 5.5,
+            "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 146.18181818181816,
-                "y": 139.00000000000003
+                "x": 226.75,
+                "y": 47.375
             }
         },
         "levels/test_level.tmx": {

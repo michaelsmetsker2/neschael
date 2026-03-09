@@ -238,7 +238,6 @@ int main(int argc, char *argv[]) {
 					attrData[nt][col * 7 + (rowIndex / 2)] = attrByte[col + nt * 8];
 				}
 			}
-
 		}
 
 		rowIndex++;

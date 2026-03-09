@@ -19,6 +19,7 @@
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
 
+.IMPORT update_camera
 .IMPORT scroll_screen
 
 ; =================================================================================================
@@ -45,6 +46,7 @@ game_loop:
   JSR read_joypad_1
 
   JSR update_player_movement
+  JSR update_camera
   JSR update_player_sprite
 
   JSR scroll_screen

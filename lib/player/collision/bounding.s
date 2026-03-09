@@ -10,7 +10,6 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/player/collision/collision.inc"
-.INCLUDE "lib/game/levelData.inc"
 
 .IMPORT find_collision
 .IMPORT enact_collision_x
@@ -29,8 +28,6 @@
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
 
 	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
-	; unsafe memory constants (in scratch memory)
-	tmpProposedScroll   = $04 ; signed,       proposed scroll ammount in pixels before bounding
 
 ; =====================================================================
 ; bound X
@@ -39,8 +36,7 @@
 ; adds the velocity to the position
 .PROC update_position_x
 
-	MIDPOINT_THRESHOLD  				 = $02 ; TODO enhanced precision?
-	; MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
+	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
 																			; 8 px per frame is the size of a tile.
 
 	; copy velocity into deltaX
@@ -105,18 +101,6 @@
 @enact_collision:
 	JSR enact_collision_x
 
-	; FIXME this does not need to be calculated every frame, could have a flag set only when collision alters deltax
-	; recalculate proposed position incase deltaX changed due to colision
-	CLC
-	LDA positionX
-	ADC tmpDeltaX
-	STA tmpProposedPosFinal
-	LDA positionX+1
-	ADC tmpDeltaX+1
-	STA tmpProposedPosFinal+1
-	
-	JSR check_scroll	; see if we need to scroll the screen or not
-	
 	; add deltaX to position
 	CLC
 	LDA positionX
@@ -177,144 +161,6 @@
   BCS @done                ; branch if accumulator has the highest pri already
   LDA $1F
 @done:
-	RTS
-.ENDPROC
-
-; see if the proposed deltaX would pass the scroll thresholds
-.PROC check_scroll ; original - works
-.IF 0
-	LDA tmpProposedPosFinal+1
-	
-	BIT tmpDeltaX+1			; check threshold based on direction
-	BMI @left_threshold 
-@right_threshold:
-	SEC
-	SBC #SCROLL_THRESHOLD_RIGHT 
-	BCC @no_scroll                 ; proposed position < right threshold, threshold not passed
-
-	JMP @end_threshold_check
-@left_threshold:
-	; ACC contains tmpProposedPosFinal+1
-	SEC
-	SBC #SCROLL_THRESHOLD_LEFT 
-	BCS @no_scroll                 ; proposed position >= left threshold, threshold not passed
-
-@end_threshold_check: ; subtract the ammount scrolled from deltaX
-
-	STA tmpProposedScroll 				; see if we actually can scroll
-	JSR bound_scroll
-
-	LDA tmpDeltaX+1
-	SEC
-	SBC scrollAmount
-	STA tmpDeltaX+1
-
-@no_scroll:
-.ENDIF
-
-.IF 1 ; newer camera lookahead logic
-	; FIXME all this feels bad
-	MIDPOINT = $80
-	TARGET_OFFSET_LEFT = $E2
-	TARGET_OFFSET_RIGHT = $1E
-
-	; see if we nhave overshot the midpoint
-	CLC
-	LDA tmpProposedPosFinal+1
-	ADC lookaheadOffset
-	SEC
-	SBC #MIDPOINT
-	BEQ @no_scroll
-	PHP	; push results to the stack for later
-
-	BIT tmpDeltaX+1			; check overshoot and lookahead based on direction
-	BMI @left	
-@right:
-	PLP
-	BCC @no_scroll                  ; proposed position < midpoint, happens at level start, don't scroll
-	STA tmpProposedScroll
-
-	LDA lookaheadOffset
-	CMP #TARGET_OFFSET_RIGHT
-	BEQ @end_threshold_check 
-		; see if we are moving fast enough to warrent lookahead
-	LDA velocityX+1
-	BEQ @end_threshold_check
-
-	INC lookaheadOffset
-	INC tmpProposedScroll
-
-	JMP @end_threshold_check
-@left:
-	PLP
-	BCS @no_scroll                 ; proposed position >= midpoint, happens at level end, don't scroll
-	STA tmpProposedScroll
-
-	LDA lookaheadOffset
-	CMP #TARGET_OFFSET_LEFT
-	BEQ @end_threshold_check 
-		; see if we are moving fast enough to warrent lookahead
-	LDA velocityX+1
-	CMP #$FF
-	BEQ @end_threshold_check
-
-	DEC lookaheadOffset
-	DEC tmpProposedScroll
-
-@end_threshold_check: ; subtract the ammount scrolled from deltaX
-
-	JSR bound_scroll
-
-	LDA tmpDeltaX+1
-	SEC
-	SBC scrollAmount
-	STA tmpDeltaX+1
-
-@no_scroll:
-.ENDIF
-
-	RTS	
-.ENDPROC
-
-	; see if the proposed scroll ammount hits the borders of the current level
-.PROC bound_scroll
-	
-	LDA tmpProposedScroll
-	CLC
-
-	BIT tmpDeltaX+1			; see what to bound based on direction
-	BMI @difference_zero
-@difference_level_end: ; find the difference betweent the screenPos and end of the level
-	ADC screenPosX
-	STA $11							; low byte, ammount overshot
-	LDA screenPosX+1
-	ADC #$00
-	STA $12							; high byte, background index
-
-	; compare high byte to the level size
-	LDY #LEVEL_SIZE_OFFSET
-	LDA (levelPtr), Y
-	CMP $12
-	BNE @apply_scroll ; branch if defferent, (no bounding)
-
-	JMP @remove_overshoot
-
-@difference_zero:
-	ADC screenPosX
-	STA $11                 ; low byte, ammount we may have overshot by 
-	LDA screenPosX+1
-	ADC #$FF
-	BPL @apply_scroll       ; test sign of difference high byte, branch if no overshoot
-
-@remove_overshoot:
-	LDA tmpProposedScroll
-	SEC
-	SBC $11 					      ; subtract the overshoot from the proposed scroll
-	STA tmpProposedScroll
-
-@apply_scroll:
-	LDA tmpProposedScroll
-	STA scrollAmount
 	RTS
 .ENDPROC
 
