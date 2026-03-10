@@ -13,16 +13,19 @@
 .EXPORT update_camera
 
 	MIDPOINT = $80             ; pixel position of the middle of the screen
-	TARGET_OFFSET_LEFT = $E2   ; -30, max pixel offset for lookahead left
-	TARGET_OFFSET_RIGHT = $1E  ; 30
+	TARGET_OFFSET_LEFT        = $E2  ; -30, max pixel offset for lookahead left
+	TARGET_OFFSET_RIGHT       = $1E  ; 30
+		; pixel thresholds for the left and right of the stage, if passed the offset will be cleared
+			; these should always be bigger than target offsets
+	RESET_OFFSET_THRESH_LEFT  = $28  ; 40
+	RESET_OFFSET_THRESH_RIGHT = $D7  ; 255 - 40
 
 	; unsafe memory constants (in scratch memory)
 	tmpProposedScroll   = $00 ; signed,       proposed scroll ammount in pixels before bounding
-
+	tmpScrollOvershoot   = $01
 
 .PROC update_camera
-
-	; see if we have overshot the midpoint
+		; check if we have moved past the midpoint
 	CLC
 	LDA positionX+1
 	ADC lookaheadOffset
@@ -66,7 +69,6 @@
 	DEC tmpProposedScroll
 
 @end_threshold_check: ; subtract the ammount scrolled from deltaX
-
 	JSR bound_scroll
 
 @update_position:
@@ -79,74 +81,54 @@
 	RTS	
 .ENDPROC
 
-
 	; see if the proposed scroll ammount hits the borders of the current level
 .PROC bound_scroll
-.if 0
-  CLC
-  LDA tmpProposedScroll
-  ADC lookaheadOffset
-    ; should never overflow
-  ADC screenPosX
-  STA $01   ; low byte, amount into new nametable
-  LDA screenPosX+1
-  ADC #$00
-  STA $02   ; high byte, nametable index
-  
-  	; compare high byte to the level size
-	LDY #LEVEL_SIZE_OFFSET
-	LDA (levelPtr), Y
-	CMP $2
-	BNE @done ; branch if defferent, (no bounding)
-    ; we are overshot
-    ; remove ammount overshot from the lookahead
-
-
-	JMP @remove_overshoot
-
-  
-@done:
-  RTS
-  .ENDIF
-
-
-; FIXME 
+		; preload acc
 	LDA tmpProposedScroll
 	CLC
-
-	BIT velocityX+1			; see what to bound based on direction
+		; see what to bound based on direction
+	BIT velocityX+1			
 	BMI @difference_zero
 @difference_level_end: ; find the difference betweent the screenPos and end of the level
 	ADC screenPosX
-	STA $11							; low byte, ammount overshot
+	STA tmpScrollOvershoot							; low byte, ammount overshot
 	LDA screenPosX+1
 	ADC #$00
-	STA $12							; high byte, background index
+	STA tmpScrollOvershoot+1							; high byte, background index
 
-	; compare high byte to the level size
+		; compare high byte to the level size
 	LDY #LEVEL_SIZE_OFFSET
 	LDA (levelPtr), Y
-	CMP $12
-	BNE @apply_scroll ; branch if defferent, (no bounding)
+	CMP tmpScrollOvershoot+1
+	BNE @apply_scroll ; branch if different, (no bounding)
+		; if we are close to the very end of the level, reset the lookahead to prevent teleporting
+	LDA #RESET_OFFSET_THRESH_RIGHT
+	CMP positionX+1
+	BCS @remove_overshoot
+	LDA #$00
+	STA lookaheadOffset
 
 	JMP @remove_overshoot
 
 @difference_zero:
-  ;LDA tmpProposedScroll
-	;CLC
 	ADC screenPosX
-	STA $11                 ; low byte, ammount we may have overshot by 
+	STA tmpScrollOvershoot    ; low byte, ammount we may have overshot by 
 	LDA screenPosX+1
 	ADC #$FF
-	BPL @apply_scroll       ; test sign of difference high byte, branch if no overshoot
+	BPL @apply_scroll        ; test sign of difference high byte, branch if no overshoot
+			; if we are close to the very start of the level, reset the lookahead to prevet teleporting
+	LDA #RESET_OFFSET_THRESH_LEFT
+	CMP positionX+1
+	BCC @remove_overshoot
+	LDA #$00
+	STA lookaheadOffset
 
 @remove_overshoot:
-	LDA lookaheadOffset
+		; remove the overshoot from the proposed scroll
+	LDA	tmpProposedScroll 
 	SEC
-	SBC $11 					      ; subtract the overshoot from the proposed scroll
-	STA lookaheadOffset
-  LDA #$00
-  STA scrollAmount
+	SBC tmpScrollOvershoot
+	STA scrollAmount
   RTS
 
 @apply_scroll:
