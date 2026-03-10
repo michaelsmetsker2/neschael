@@ -13,16 +13,16 @@
 .EXPORT update_camera
 
 	MIDPOINT = $80             ; pixel position of the middle of the screen
-	TARGET_OFFSET_LEFT        = $E2  ; -30, max pixel offset for lookahead left
-	TARGET_OFFSET_RIGHT       = $1E  ; 30
+	TARGET_OFFSET_LEFT        = $D8  ; -40, max pixel offset for lookahead left
+	TARGET_OFFSET_RIGHT       = $28  ; 40
 		; pixel thresholds for the left and right of the stage, if passed the offset will be cleared
 			; these should always be bigger than target offsets
-	RESET_OFFSET_THRESH_LEFT  = $28  ; 40
-	RESET_OFFSET_THRESH_RIGHT = $D7  ; 255 - 40
+	RESET_OFFSET_THRESH_LEFT  = $32  ; 50
+	RESET_OFFSET_THRESH_RIGHT = $CD  ; 255 - 50
 
 	; unsafe memory constants (in scratch memory)
-	tmpProposedScroll   = $00 ; signed,       proposed scroll ammount in pixels before bounding
-	tmpScrollOvershoot   = $01
+	tmpProposedScroll   = $00  ; signed, proposed scroll ammount in pixels before bounding
+	tmpScrollOvershoot  = $01  ; 16 bit, ammount scroll overshoots the boundary
 
 .PROC update_camera
 		; check if we have moved past the midpoint
