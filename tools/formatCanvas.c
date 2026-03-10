@@ -1,8 +1,9 @@
 /*
 	simple script, used for formatting level data,
 	args:
-		tile csv relative filepath
-		attr csv relative filepath
+		<*_tiles.csv> relative filepath
+
+	no underscores in file path
 
 	tested on linux, built with:
 	gcc -Wall -o formatCanvas formatCanvas.c
@@ -128,17 +129,36 @@ void lzss(const uint8_t *input, FILE *out, uint8_t inputSize) {
 }
 
 int main(int argc, char *argv[]) {
-	if (argc != 3) {
+	if (argc != 2) {
 		fprintf(stdout, "see file header for usage\n");
 		return 0;
 	}
-
+	
 	// ammount of nametables in the file
 	uint8_t nametableCount = 0;
 	// max line size when reading file
 	char line[LINE_SIZE] = {0};
 	
-	// open tile file
+	// find other filenames based on the tile file name
+	char *underscore = strchr(argv[1], '_');
+	if (!underscore) {
+		fprintf(stdout, "invalid filename\n");
+		return 1;
+	}	
+	
+	int nameLen = underscore - argv[1];
+	
+	char attrFilename[256];
+	char spawnFilename[256];
+	 
+	strncpy(attrFilename, argv[1], nameLen);
+	attrFilename[nameLen] = '\0';
+	strcat(attrFilename, "_attribute.csv");
+	strncpy(spawnFilename, argv[1], nameLen);
+	spawnFilename[nameLen] = '\0';
+	strcat(spawnFilename, "_spawn.csv");
+
+	// =============================================== open tile file ============================================================
 	FILE *tileFile = fopen(argv[1], "r");
 	if (!tileFile) {
 		fprintf(stderr, "couldn't open/find tile file");
@@ -191,9 +211,12 @@ int main(int argc, char *argv[]) {
 	uint8_t (*attrData)[8 * 7];
 	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
 
+	FILE *attrFile = fopen(attrFilename, "r");
+	if (!attrFile) {
+		fprintf(stderr, "couldn't open/find attribute file\n");
+		return 1;
+	}	
 
-	FILE *attrFile = fopen(argv[2], "r");
-	
 	// line of output data, initialized to zero
 	uint8_t attrByte[LINE_SIZE / 2] = {0};
 
@@ -257,6 +280,54 @@ int main(int argc, char *argv[]) {
 	#endif
 
 	fclose(attrFile);
+
+	// parse spawn stream data ====================================================================================
+	FILE *spawnFile = fopen(spawnFilename, "r");
+	if (!spawnFile) {
+		fprintf(stderr, "couldn't open/find spawn file\n");
+		return 1;
+	}
+
+	// what metacolumns have an entity
+	uint8_t *spawnColumns = calloc(nametableCount * 2, sizeof(uint8_t));
+
+	while(fgets(line, sizeof(line), spawnFile)) {
+		
+		char *token = strtok(line, ",");
+
+		// loop through nametables
+		for (int nt = 0; nt < nametableCount; nt++) {
+
+			uint8_t *low  = &spawnColumns[nt * 2];
+			uint8_t *high = &spawnColumns[nt * 2 + 1];
+
+			// loop through 16 metacolumns
+			for (int colIndex = 0; colIndex < META_WIDTH; colIndex++) {
+				
+				uint8_t entityId = (uint8_t)atoi(token); 
+				if (entityId != 0xFF) {
+					
+					uint8_t colBit = 1;
+					
+					// bit shift one by colIndex mod 8
+					colBit = colBit << (colIndex % 8);
+
+					// or onto the column
+					if (colIndex < 8) {
+						*low |= colBit;
+					} else {
+						*high |= colBit;
+					}
+
+				}
+
+				token = strtok(NULL, ","); // increment token
+
+			}
+		}
+	}
+
+	fclose(spawnFile);	
 	
 	// print format and LZSS ==================================================================================================================
   FILE *out = fopen("level.s", "w");
@@ -312,8 +383,7 @@ int main(int argc, char *argv[]) {
 
 		//print spawn stream data
 		fprintf(out, "\nstream_%i:", nt);
-		fprintf(out, "\n\t; todo :)\n");
-		// TODO
+		fprintf(out, "\n\t.BYTE $%02X, $%02X\n", spawnColumns[nt * 2], spawnColumns[nt * 2 + 1]);
 	}
 	
 	return 0;

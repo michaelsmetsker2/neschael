@@ -3,13 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "levels/test_level/testLvl.tmx",
+    "activeFile": "levels/testlevel/testLvl.tmx",
     "expandedProjectPaths": [
-        ".",
-        "levels/testlevel",
-        "levels",
         "metas",
-        "levels/test_level"
+        "levels/test_level",
+        "levels/testlevel",
+        ".",
+        "levels"
     ],
     "fileStates": {
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx": {
@@ -69,10 +69,10 @@
         },
         "levels/testlevel/testLvl.tmx": {
             "scale": 2.1792480468749997,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
                 "x": 513.4798682530081,
-                "y": 177.35475342250905
+                "y": 141.10371714727435
             }
         },
         "metas.tsx": {
@@ -128,16 +128,16 @@
     "map.tileWidth": 16,
     "map.width": 16,
     "openFiles": [
-        "levels/test_level/testLvl.tmx"
+        "levels/testlevel/testLvl.tmx"
     ],
     "project": "neschael.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "levels/testlevel/testLvl.tmx",
         "levels/test_level/testLvl.tmx",
         "attributes.tsx",
         "metas.tsx",
         "numbers.tsx",
-        "levels/testlevel/testLvl.tmx",
         "levels/testLvl.tmx",
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx",
         "Z:/projects/nes/linux/neschael/data/tiles/metas.tsx",
