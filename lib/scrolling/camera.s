@@ -13,8 +13,8 @@
 .EXPORT update_camera
 
 	MIDPOINT = $80             ; pixel position of the middle of the screen
-	TARGET_OFFSET_LEFT        = $D8  ; -40, max pixel offset for lookahead left
-	TARGET_OFFSET_RIGHT       = $28  ; 40
+	TARGET_OFFSET_LEFT        = $DC  ; -35, max pixel offset for lookahead left
+	TARGET_OFFSET_RIGHT       = $23  ;  35
 		; pixel thresholds for the left and right of the stage, if passed the offset will be cleared
 			; these should always be bigger than target offsets
 	RESET_OFFSET_THRESH_LEFT  = $32  ; 50

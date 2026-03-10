@@ -25,10 +25,7 @@
 
   LoadPaletteData
 
-  .IF 0
-  
-    ; levelID is already 0 so no need to set it
-  .ENDIF
+  ; levelID is already 0 so no need to set it
 
   RTS
 .ENDPROC
@@ -67,12 +64,12 @@
   STA screenPosX+1
 
   JSR draw_first_screen
-
   JSR player_init
-
+  
   EnableVideoOutput
   RTS
 .ENDPROC
+
 .PROC read_joypad_1
     ; read button presses from joypad 1 and find what are new presses
   LDA btnDown
