@@ -13,13 +13,13 @@
 .IMPORT dbufTile2
 
 .IMPORT metatiles
-.IMPORT mult_13
+.IMPORT mult_12
 
 .EXPORT enact_collision_x
 .EXPORT enact_collision_y
 .EXPORT find_collision
 
-	OVERSCAN_OFFSET = $10 ; offset y position in draw buffer by 16 pixels to account for overscan
+	OVERSCAN_OFFSET = $20 ; offset y position in draw buffer by 32 pixels to account for overscan
 
 	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
 
@@ -186,7 +186,7 @@ collision_index_x:
 	TAY
 		;offset tilepointer to the correct column
 	CLC
-	LDA mult_13,Y	
+	LDA mult_12,Y	
 	ADC tmpTilePointer
 	STA tmpTilePointer
 	LDA tmpTilePointer+1

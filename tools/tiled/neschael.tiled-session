@@ -3,13 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "levels/testlevel/testLvl.tmx",
+    "activeFile": "levels/testlevel/testLvl2.tmx",
     "expandedProjectPaths": [
-        "metas",
-        "levels/test_level",
+        "levels",
         "levels/testlevel",
         ".",
-        "levels"
+        "metas",
+        "levels/test_level"
     ],
     "fileStates": {
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx": {
@@ -68,11 +68,19 @@
             }
         },
         "levels/testlevel/testLvl.tmx": {
-            "scale": 2.1792480468749997,
-            "selectedLayer": 2,
+            "scale": 4,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 513.4798682530081,
-                "y": 141.10371714727435
+                "x": 212.875,
+                "y": 79.875
+            }
+        },
+        "levels/testlevel/testLvl2.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 588.0909090909091,
+                "y": 94.63636363636364
             }
         },
         "metas.tsx": {
@@ -118,33 +126,34 @@
             }
         }
     },
-    "last.exportedFilePath": "Z:/projects/nes/linux/neschael/tools/tiled/levels/test_level",
+    "last.exportedFilePath": "Z:/projects/nes/linux/neschael/tools/tiled/levels/testlevel",
     "last.externalTilesetPath": "Z:/projects/nes/linux/neschael/tools/tiled",
     "last.imagePath": "Z:/projects/nes/linux/neschael/tools/tiled",
-    "map.height": 13,
+    "map.height": 12,
     "map.lastUsedExportFilter": "CSV files (*.csv)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 16,
+    "map.width": 64,
     "openFiles": [
+        "levels/testlevel/testLvl2.tmx",
         "levels/testlevel/testLvl.tmx"
     ],
     "project": "neschael.tiled-project",
     "property.type": "int",
     "recentFiles": [
         "levels/testlevel/testLvl.tmx",
-        "levels/test_level/testLvl.tmx",
+        "levels/testlevel/testLvl2.tmx",
         "attributes.tsx",
         "metas.tsx",
+        "levels/test_level/testLvl.tmx",
         "numbers.tsx",
         "levels/testLvl.tmx",
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx",
         "Z:/projects/nes/linux/neschael/data/tiles/metas.tsx",
         "levels/test_level.tmx",
         "metatiles.tsx",
-        "test_level.tmx",
-        "metas/test_block_1.tmx"
+        "test_level.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

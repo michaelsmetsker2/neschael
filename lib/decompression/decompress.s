@@ -15,7 +15,7 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/game/levelData.inc"
 
-	TILE_BUF_SIZE   = $D0  ; size of the tile buffer, used to increment to attr buffer
+	TILE_BUF_SIZE   = $C0  ; size of the tile buffer, used to increment to attr buffer
 
 	; memory constants
   tmpDataPointer      = $0   ; 16 bit pointer to input data
@@ -55,8 +55,6 @@
 	TAY
 
 
-
-
 		; increment tmpdata pointer to the background of the correct nametable
 	LDA ($02),Y
 	STA tmpDataPointer
@@ -92,7 +90,7 @@
 
 @decompress_attribute: ; decompress attribute data ===============================================================
 
-		; increment buffer pointers by 208 to attr buffer
+		; increment buffer pointers by size of tile buffer to attr buffer
 	LDA tmpBufferPtr
 	CLC
 	ADC #TILE_BUF_SIZE

@@ -17,13 +17,15 @@
     addrLowLeft   = scrollBuffAddr+1  ; offset left
     addrLowRight  = scrollBuffAddr+2
     colLeft       = scrollBuffData    ; uncompressed tile data for left column
-    colRight      = scrollBuffData+26
+    colRight      = scrollBuffData+24
     attribute     = scrollBuffAttr    ; attribute data shared by both columns, 4 tiles per attribute vertically
 .ENDSCOPE
 
-  COLUMN_LENGTH          = $1A  ; the amount of tiles per the column
-  META_COLUMN_LENGTH     = $0D
-  ATTRIBUTE_TABLE_OFFSET = $03C0  ; PPU offset from the beggining of the nametable to the attribute data
+  COLUMN_LENGTH          = $18    ; the amount of tiles per the column
+  META_COLUMN_LENGTH     = $0C
+  ATTR_LENGTH            = $06    ; ammount of nametable bytes per column
+  ATTRIBUTE_TABLE_OFFSET = $03C8  ; PPU offset from the beggining of the nametable to the attribute data
+                                    ; plus an additional 8 to skip the top row
 
 ; copy uncompressed nametable data to the PPU at the correct memory location
 .MACRO DrawOffscreenTiles    
@@ -86,14 +88,14 @@
   STA _PPUADDR ; low byte
   
   CLC
-  ADC #$08
+  ADC #$08     ; skip to next row
   STA $02
 
   LDA ScrollBuffer::attribute, y
   STA _PPUDATA
   INY
 
-  CPY #$07
+  CPY #ATTR_LENGTH
   BNE @loop
 .ENDMACRO
 

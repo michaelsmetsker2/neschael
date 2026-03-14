@@ -35,13 +35,13 @@
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF" ; used to align after OAM
   scrollBuffAddr:  .res 3   ; ppu addreses to draw to during NMI
-  scrollBuffData:  .res 52  ; tile data to be drawn
-  scrollBuffAttr:  .res 7   ; address data to be drawn
+  scrollBuffData:  .res 48  ; tile data to be drawn
+  scrollBuffAttr:  .res 6   ; address data to be drawn
 ;-------------------------------------------------------------------------------
 ; $033E-Undetermined ; TODO decompress buffers for tile and attribute data
-  dbufTile1:   .res 208
-  dbufAttr1:   .res 56
-  dbufTile2:   .res 208
-  dbufAttr2:   .res 56
+  dbufTile1:   .res 192
+  dbufAttr1:   .res 48
+  dbufTile2:   .res 192
+  dbufAttr2:   .res 48
 
 ; ???-$07FF:  General Purpose RAM

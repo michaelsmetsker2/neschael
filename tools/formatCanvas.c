@@ -18,10 +18,12 @@
 #define LINE_SIZE 163840 // set and forget, increas if not enough
 
 #define META_WIDTH  16
-#define META_HEIGHT 13
+#define META_HEIGHT 12
 #define META_SIZE (META_WIDTH * META_HEIGHT) // number of metatiles in the compressed canvas
 #define MAX_UNIQUE 256 
-#define ATTR_SIZE 56
+#define ATTR_WIDTH 8
+#define ATTR_HEIGHT 6
+#define ATTR_SIZE (ATTR_WIDTH * ATTR_HEIGHT)
 
 #define debug 0
 
@@ -208,7 +210,7 @@ int main(int argc, char *argv[]) {
 
 	// parse attribute data ====================================================================================
 
-	uint8_t (*attrData)[8 * 7];
+	uint8_t (*attrData)[ATTR_SIZE];
 	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
 
 	FILE *attrFile = fopen(attrFilename, "r");
@@ -238,18 +240,18 @@ int main(int argc, char *argv[]) {
 			// shift left to combine with left bit
 			uint8_t attrNibble = (attrRight << 2) | attrLeft; // turn into nibble
 			
-			if (rowIndex % 2 == 0) { // top
-				attrByte[attrIndex] |= (attrNibble << 4);				
-
-			} else { // bottom, clobbers old row and shifts left to be dop nibble
+			if (rowIndex % 2 == 0) { // top, clobbers old row
 				attrByte[attrIndex] = attrNibble;
+				
+			} else { // bottom
+				attrByte[attrIndex] |= (attrNibble << 4);
 			}
 		}
 
-		if (rowIndex % 2 == 0) { // once a bottom row is proccessed, add it to the data
+		if (rowIndex % 2 != 0) { // once a bottom row is proccessed, add it to the data
 
 			#if debug
-			for(uint8_t i = 0; i < (nametableCount * 8); i++) {
+			for(uint8_t i = 0; i < (nametableCount * ATTR_WIDTH); i++) {
 				fprintf(stdout, ", %02X", attrByte[i]);
 			}
 			fprintf(stdout, "\n");
@@ -257,8 +259,8 @@ int main(int argc, char *argv[]) {
 
 			// store in column-major order
 			for (uint8_t nt = 0; nt < nametableCount; nt++) {
-				for(uint8_t col = 0; col < 8 ; col++) {
-					attrData[nt][col * 7 + (rowIndex / 2)] = attrByte[col + nt * 8];
+				for(uint8_t col = 0; col < ATTR_WIDTH ; col++) {
+					attrData[nt][col * ATTR_HEIGHT + (rowIndex / 2)] = attrByte[col + nt * ATTR_WIDTH];
 				}
 			}
 		}
@@ -269,9 +271,9 @@ int main(int argc, char *argv[]) {
 	#if debug // print in column major order
 	printf("\n\n\n\n");
 	for (int i = 0; i < nametableCount; i++) {
-		for (int col = 0; col < 8; col++) {
-			for (int row = 0; row < 7; row++) {
-				printf(", %02X", attrData[i][col * 7 + row]);
+		for (int col = 0; col < ATTR_WIDTH; col++) {
+			for (int row = 0; row < ATTR_HEIGHT; row++) {
+				printf(", %02X", attrData[i][col * ATTR_HEIGHT + row]);
 			}
 			printf("\n");
 		}

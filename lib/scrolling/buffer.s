@@ -19,19 +19,19 @@
 .IMPORT dbufTile2
 .IMPORT dbufAttr2
 
-.EXPORT mult_13
+.EXPORT mult_12
 .EXPORT fill_scroll_buffer
 
-  COLUMN_Y_OFFSET        = $40 ; the offset of the low bytes, since we don't draw the top 16 scanlines   
+  COLUMN_Y_OFFSET        = $80 ; the offset of the low bytes, since we don't draw the top 32 scanlines   
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
   tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
   tmpTilePointer         = $15 ; low byte first, points to the metatile to decode
 
-mult_13: ; multiples of thirteen, used for offseting the tile buffer pointer
-  .BYTE $00, $0D, $1A, $27, $34, $41, $4E, $5B, $68, $75, $82, $8F, $9C, $A9, $B6, $C3
-mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
-  .BYTE $00, $07, $0E, $15, $1C, $23, $2A, $31, $38, $3F, $46, $4D, $54, $5B, $62, $69
+mult_12: ; multiples of twelve, used for offseting the tile buffer pointer
+  .BYTE $00, $0C, $18, $24, $30, $3C, $48, $54, $60, $6C, $78, $84, $90, $9C, $A8, $B4
+mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
+  .BYTE $00, $06, $0C, $12, $18, $1E, $24, $2A, $30, $36, $3C, $42, $48, $4E, $54, $5A
 
 .PROC fill_scroll_buffer
     ; dividing the scroll position by 16 gives the index of the current metatile
@@ -56,7 +56,7 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
   JSR locate_tile_data    ; populates the buffer pointer
   JSR fill_tile_data
   JSR locate_attrib_data
-  JSR fill_attrib_data ; TEMP disabled
+  JSR fill_attrib_data
   
     ; set draw flag so for next NMI
   LDA gameFlags
@@ -136,7 +136,7 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
   LDA tmpMetatileIndex
   AND #%00001111        ; get index of current metatile relative to background
   TAY
-  LDA mult_13, Y
+  LDA mult_12, Y
     ; add offset
   CLC
   ADC tmpBufferPointer
@@ -235,7 +235,7 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
   AND #%00001111        ; get index of current metatile relative to background
   LSR A
   TAY
-  LDA mult_7, Y ; seven  bytes per col
+  LDA mult_6, Y ; six  bytes per col
     ;add offset
   CLC
   ADC tmpBufferPointer
@@ -250,11 +250,11 @@ mult_7:  ; multiples of seven, used for offsetting attribute buffer pointer
 ; store the uncompressed attrib data in the buffer
 .PROC fill_attrib_data
   LDY #$00 ; loop index
-@loop:                    ; sets all 7 attribute bytes of the column
+@loop:                    ; sets all 6 attribute bytes of the column
   LDA (tmpBufferPointer), Y
   STA ScrollBuffer::attribute, Y    
   INY
-  CPY #$07
+  CPY #ATTR_LENGTH
   BCC @loop
 
   RTS
