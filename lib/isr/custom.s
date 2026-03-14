@@ -1,5 +1,5 @@
 ;
-; first_nes
+; neschael
 ; lib/isr/custom.s
 ;
 ; This Interrupt Service Routine is called when a BRK instruction is executed. This is a good

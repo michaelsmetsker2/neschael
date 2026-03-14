@@ -66,8 +66,34 @@
   JSR draw_first_screen
   JSR player_init
   
+
+  LDA #$1E
+  STA $0200
+  LDA #$01
+  STA $0201
+  STA $0202
+  STA $0203
+
+  LDA #%00001000
+  STA _PPUCTRL
+  LDX #$20
+  STX _PPUADDR
+  LDA #$40
+  STA _PPUADDR
+
+  LDY #$00
+@left_loop: ; loop through the whole column
+  LDA #$01
+  STA _PPUDATA
+  INY
+
+  CPY #$40
+  BNE @left_loop
+
+
   EnableVideoOutput
   RTS
+
 .ENDPROC
 
 .PROC read_joypad_1

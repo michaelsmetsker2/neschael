@@ -19,8 +19,9 @@
 	RISING_SPRITE     = $04
 	FALLING_SPRITE    = $05
 
+	PLAYER_OAM_ADDRESS = $0204
+
 .PROC update_player_sprite
-    ;JSR update_motion_state
     JSR update_animation_frame
     JSR update_heading
     JSR update_sprite_position
@@ -61,7 +62,7 @@
 	TAY
 	LDA test_frames, Y
 @write:
-	STA $0200 + _OAM_TILE 
+	STA PLAYER_OAM_ADDRESS + _OAM_TILE 
 	RTS
 test_frames:
 	.BYTE STANDING_SPRITE, LEFT_WALK_SPRITE, STANDING_SPRITE, RIGHT_WALK_SPRITE
@@ -73,18 +74,18 @@ test_frames:
     LDA playerFlags
     AND #%01000000
     STA $0B
-    LDA $0200 + _OAM_ATTR
+    LDA PLAYER_OAM_ADDRESS + _OAM_ATTR
     AND #%10111111
     ORA $0B
-    STA $0200 + _OAM_ATTR
+    STA PLAYER_OAM_ADDRESS + _OAM_ATTR
 .ENDPROC
 
 ; copies the sprite x and y variables to the players data
 .PROC update_sprite_position
     LDA positionX+1
-    STA $0200 + _OAM_X
+    STA PLAYER_OAM_ADDRESS + _OAM_X
     LDY positionY+1
     DEY                     ; NES displays sprites one pixel lower than they should, this counteracts that
-    STY $0200 + _OAM_Y
+    STY PLAYER_OAM_ADDRESS + _OAM_Y
     RTS
 .ENDPROC

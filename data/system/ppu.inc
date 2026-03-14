@@ -206,7 +206,6 @@ _OAM_X    = 3
 
 .MACRO EnableVideoOutput
   LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
-  ORA nametable    ; select correct nametable for bit 0
   STA _PPUCTRL
   
   LDA #%00011110   ; enable sprites, enable background, no clipping on left side
@@ -221,6 +220,13 @@ _OAM_X    = 3
   LDA     #$02
   STA     _OAMDMA                ; set the high byte (02) of the RAM address
                                   ; This automatically starts the transfer
+.ENDMACRO
+
+  ; resets the ppu scroll value for initialization and zero
+.MACRO ResetScroll
+  LDA #$00
+  STA _PPUSCROLL
+  STA _PPUSCROLL
 .ENDMACRO
 
 ; set the scroll as writes to VRAM will offset it
