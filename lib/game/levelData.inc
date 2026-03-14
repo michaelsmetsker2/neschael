@@ -5,9 +5,8 @@
 ; offsets and information about the level data format
 ;
 
-ATTRIBUTE_INDEX_OFFSET = $02
-LEVEL_SIZE_OFFSET = $08
-POSITION_OFFSET = $06 ; x and y player starting posisions
+LEVEL_SIZE_OFFSET = $06
+POSITION_OFFSET = $04 ; x and y player starting posisions
 
 ; TODO make this formally
 ; level data format

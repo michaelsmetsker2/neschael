@@ -9,14 +9,12 @@
 .EXPORT LEVELNAME
 
 LEVELNAME:
-	.WORD background_index, attribute_index, spawn_stream
+	.WORD background_index, spawn_stream
 	.BYTE $00, $00 ; high byte of player starting X and Y
 	.BYTE $03 ; length of background, zero based
 
 background_index:
 	.WORD background_0, background_1, background_2, background_3
-attribute_index:
-	.WORD attrib_0, attrib_1, attrib_2, attrib_3
 spawn_stream:
 	.WORD stream_0,stream_1,stream_2,stream_3
 
@@ -24,12 +22,9 @@ background_0:
   .BYTE $FF, $00, $06, $00, $FE, $02, $01, $03, $08, $07, $00, $FC, $00, $02, $00, $00 
   .BYTE $2A, $0B, $03, $38, $13, $38, $FD, $02, $03, $03, $05, $48, $05, $53, $07, $31 
   .BYTE $0F, $5F, $07, $58, $0B, $2D, $12, $80, $09, $0A, $05, $9B, $05, $9F, $07, $08 
-  .BYTE $07, $9F, $FF, $01, $00 
-
-attrib_0:
-  .BYTE $F6, $00, $F0, $FF, $0F, $00, $00, $00, $30, $33, $03, $03, $04, $05, $0C, $FC 
-  .BYTE $55, $55, $55, $05, $06, $10, $FE, $C0, $0C, $04, $18, $FE, $F0, $0F, $04, $1E 
-  .BYTE $FE, $30, $03, $06, $12, $00 
+  .BYTE $07, $9F, $FB, $01, $00, $F0, $FF, $0F, $03, $BC, $FE, $30, $33, $08, $7B, $FB 
+  .BYTE $00, $55, $55, $55, $05, $06, $D0, $FE, $C0, $0C, $04, $D8, $FE, $F0, $0F, $04 
+  .BYTE $DE, $FE, $30, $03, $06, $D2, $00 
 
 stream_0:
 	.BYTE $00, $00
@@ -37,23 +32,18 @@ stream_0:
 background_1:
   .BYTE $FC, $01, $00, $00, $00, $04, $00, $04, $01, $03, $04, $04, $0B, $09, $07, $06 
   .BYTE $11, $0C, $16, $FF, $01, $21, $23, $FF, $02, $03, $46, $08, $0C, $14, $50, $0C 
-  .BYTE $4C, $0B, $70, $05, $86, $0C, $80, $07, $20, $21, $93, $00 
-
-attrib_1:
-  .BYTE $FB, $11, $11, $11, $01, $00, $10, $04, $FD, $44, $44, $44, $03, $12, $FD, $55 
-  .BYTE $55, $55, $0F, $18, $03, $2C, $00 
+  .BYTE $4C, $0B, $70, $05, $86, $0C, $80, $07, $20, $21, $93, $FD, $11, $11, $11, $0B 
+  .BYTE $B4, $07, $CD, $FD, $44, $44, $44, $03, $D2, $FD, $55, $55, $55, $0F, $D8, $03 
+  .BYTE $EC, $00 
 
 stream_1:
 	.BYTE $28, $08
 
 background_2:
   .BYTE $FE, $01, $00, $09, $01, $FF, $01, $19, $00, $07, $18, $03, $23, $FE, $01, $00 
-  .BYTE $0A, $18, $1A, $2F, $0B, $19, $22, $54, $1A, $0B, $0B, $3F, $17, $9B, $FE, $00 
-  .BYTE $01, $00 
-
-attrib_2:
-  .BYTE $FF, $00, $06, $00, $FE, $50, $55, $0D, $03, $FE, $A0, $AA, $04, $0F, $08, $16 
-  .BYTE $F8, $C0, $CC, $00, $00, $20, $22, $F0, $FF, $04, $1E, $00 
+  .BYTE $0A, $18, $1A, $2F, $0B, $19, $22, $54, $1A, $0B, $0B, $3F, $17, $9B, $09, $76 
+  .BYTE $FE, $50, $55, $0D, $C3, $FE, $A0, $AA, $04, $CF, $08, $D6, $F8, $C0, $CC, $00 
+  .BYTE $00, $20, $22, $F0, $FF, $04, $DE, $00 
 
 stream_2:
 	.BYTE $08, $01
@@ -62,11 +52,8 @@ background_3:
   .BYTE $FF, $00, $06, $00, $FE, $01, $01, $03, $05, $08, $00, $07, $10, $FD, $00, $00 
   .BYTE $02, $09, $0E, $1E, $1B, $FF, $02, $04, $07, $19, $3E, $FE, $02, $02, $0B, $59 
   .BYTE $06, $54, $0F, $6A, $FE, $04, $04, $16, $7B, $08, $9C, $0C, $99, $03, $06, $0C 
-  .BYTE $B3, $00 
-
-attrib_3:
-  .BYTE $FD, $F0, $FF, $00, $0A, $02, $FD, $A0, $AA, $AA, $09, $0A, $FD, $20, $22, $22 
-  .BYTE $0B, $02, $03, $26, $FF, $FF, $05, $2A, $00 
+  .BYTE $B3, $FE, $F0, $FF, $0A, $A8, $FC, $00, $A0, $AA, $AA, $09, $CA, $FD, $20, $22 
+  .BYTE $22, $0B, $C2, $03, $E6, $FF, $FF, $05, $EA, $00 
 
 stream_3:
 	.BYTE $0C, $00

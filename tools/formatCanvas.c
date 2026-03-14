@@ -31,7 +31,7 @@
 struct {
 	size_t length;
 	size_t index;
-} longest[META_SIZE];
+} longest[META_SIZE + ATTR_SIZE];
 
 // returns number of consecutive equal bytes for lzss
 static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
@@ -343,7 +343,7 @@ int main(int argc, char *argv[]) {
   fprintf(out, ".EXPORT LEVELNAME\n\n");
   
   // lookup table
-  fprintf(out, "LEVELNAME:\n\t.WORD background_index, attribute_index, spawn_stream\n");
+  fprintf(out, "LEVELNAME:\n\t.WORD background_index, spawn_stream\n");
 	fprintf(out, "\t.BYTE $00, $00 ; high byte of player starting X and Y\n");
 	fprintf(out, "\t.BYTE $%02X ; length of background, zero based\n\n", nametableCount - 1);
 	
@@ -355,6 +355,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "background_%i", i);
   }
 	
+	/*
 	fprintf(out, "\nattribute_index:\n\t.WORD ");
 	for (int i = 0; i < nametableCount; i++) {
 		if (i) {
@@ -362,6 +363,7 @@ int main(int argc, char *argv[]) {
     }
     fprintf(out, "attrib_%i", i);
   }
+	*/
 	
 	fprintf(out, "\nspawn_stream:\n\t.WORD ");
 	for (int i = 0; i < nametableCount; i++) {
@@ -375,13 +377,23 @@ int main(int argc, char *argv[]) {
 	// print data =============================================
 
 	for(uint8_t nt = 0; nt < nametableCount; nt++) {
+
+		// array of combined attr and tile data
+		uint8_t backgroundData[META_SIZE + ATTR_SIZE] = {0};
+		memcpy(backgroundData, tileData[nt], META_SIZE);
+		memcpy(backgroundData + META_SIZE, attrData[nt], ATTR_SIZE);
+		fprintf(out, "\nbackground_%i:", nt);
+		lzss(backgroundData, out, META_SIZE + ATTR_SIZE);
+	
+		/*
 		// print tile data
 		fprintf(out, "\nbackground_%i:", nt);
 		lzss(tileData[nt], out, META_SIZE);
-	
+		
 		// print attr data
 		fprintf(out, "\nattrib_%i:", nt);
 		lzss(attrData[nt], out, ATTR_SIZE);
+		*/
 
 		//print spawn stream data
 		fprintf(out, "\nstream_%i:", nt);

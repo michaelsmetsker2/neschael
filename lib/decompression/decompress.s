@@ -19,11 +19,11 @@
 
 	; memory constants
   tmpDataPointer      = $0   ; 16 bit pointer to input data
-	tmpLength 			    = $02	; scratch memory
-	temp                = $03	; scratch memory
+	tmpLength 			    = $02	 ; scratch memory
+	temp                = $03	 ; scratch memory
 	tmpBufferPtr        = $04  ; 16 bit pointer to the dbuffer to fill
 	tmpWritePtr			    = $06  ; 16 bit pointer to dbuffer, incremented when writing
-	tmpBackgroundOffset = $08	; background index to decompress
+	tmpBackgroundOffset = $08	 ; background index to decompress
 
 .PROC decompress_nametable
 
@@ -53,8 +53,7 @@
 	ASL A							      ; two bytes per address
 	STA tmpBackgroundOffset ; to reuse for attribute buffer
 	TAY
-
-
+	
 		; increment tmpdata pointer to the background of the correct nametable
 	LDA ($02),Y
 	STA tmpDataPointer
@@ -85,37 +84,6 @@
 	STX tmpWritePtr
 	STY tmpWritePtr+1
 	STY tmpBufferPtr+1
-
-	JSR lzss_decompress
-
-@decompress_attribute: ; decompress attribute data ===============================================================
-
-		; increment buffer pointers by size of tile buffer to attr buffer
-	LDA tmpBufferPtr
-	CLC
-	ADC #TILE_BUF_SIZE
-	STA tmpBufferPtr
-	STA tmpWritePtr
-	LDA tmpBufferPtr+1
-	ADC #$00
-	STA tmpBufferPtr+1
-	STA tmpWritePtr+1
-
-		; make a temporary pointer to the level's attribute index
-	LDY #ATTRIBUTE_INDEX_OFFSET ; offset to attribute index pointer
-	LDA (levelPtr),Y
-	STA $02
-	INY
-	LDA (levelPtr),Y
-	STA $03
-
-	LDY tmpBackgroundOffset
-		; increment tmpdata pointer to the background of the correct nametable
-	LDA ($02),Y
-	STA tmpDataPointer
-	INY
-	LDA ($02),Y
-	STA tmpDataPointer+1
 
 	JSR lzss_decompress
 
