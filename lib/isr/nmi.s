@@ -21,7 +21,7 @@
   RTI
 @continue:
 
-  ;UpdateHud                ; redraws active elements of the hud
+  UpdateHud                ; redraws active elements of the hud
 
   BVC @skip_draw           ; if drawFlag is clear, skip drawing new tiles
 

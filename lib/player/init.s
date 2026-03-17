@@ -11,8 +11,8 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/game/levelData.inc"
 
-playerTile      = $0201 ; player's sprite in OAM buffer
-playerAttribute = $0202 ; player's attribute byte in OAM buffer
+playerTile      = $0205 ; player's sprite in OAM buffer
+playerAttribute = $0206 ; player's attribute byte in OAM buffer
 
   ; スパイダーマン
 .EXPORT player_init
