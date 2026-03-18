@@ -13,7 +13,7 @@
 .EXPORT decompress_nametable
 
 .INCLUDE "lib/game/gameData.inc"
-.INCLUDE "lib/game/levelData.inc"
+.INCLUDE "data/levels/levelData.inc"
 
 	TILE_BUF_SIZE   = $C0  ; size of the tile buffer, used to increment to attr buffer
 

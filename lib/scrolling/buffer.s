@@ -204,7 +204,7 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 .ENDPROC
 
 ; set the buffer pointer to the location of the attribute data column that we want to copy
-; TODO this is duplicate code, can save the buffer pointer from tile part
+; TODO this is duplicate code, can save the buffer pointer from tile part also should prolly use lookup table and inc to attr buf
 .PROC locate_attrib_data
 
     ; find the correct buffer to read from.

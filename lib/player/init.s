@@ -9,7 +9,7 @@
 
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
-.INCLUDE "lib/game/levelData.inc"
+.INCLUDE "data/levels/levelData.inc"
 
 playerTile      = $0205 ; player's sprite in OAM buffer
 playerAttribute = $0206 ; player's attribute byte in OAM buffer

@@ -81,7 +81,7 @@
   ADC #<ATTRIBUTE_TABLE_OFFSET  ; add the low byte of the attribute table
   STA $02                       ; holds low byte adress in temp memory
   
-  LDY #$00 ; loop index
+  LDY #$00     ; loop index
 @loop:
   STX _PPUADDR ; high byte
   LDA $02

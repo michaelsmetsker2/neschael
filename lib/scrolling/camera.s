@@ -8,7 +8,7 @@
 
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
-.INCLUDE "lib/game/levelData.inc"
+.INCLUDE "data/levels/levelData.inc"
 
 .EXPORT update_camera
 

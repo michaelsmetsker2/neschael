@@ -1,6 +1,6 @@
 ;
 ; neschael
-; lib/game/levelData.inc
+; data/levels/levelData.inc
 ;
 ; offsets and information about the level data format
 ;

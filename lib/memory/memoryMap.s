@@ -44,4 +44,8 @@
   dbufTile2:   .res 192
   dbufAttr2:   .res 48
 
+
+  ; TODO
+  entityPool:  .res 256
+
 ; ???-$07FF:  General Purpose RAM

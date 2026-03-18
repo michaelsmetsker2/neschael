@@ -49,17 +49,10 @@
   AND #%01000000
   BEQ @wait_sprite_0
 
-    ; delay some time so the scanline can finish drawing
-  LDX #$10
-@wait_scanline:
-  DEX
-  BNE @wait_scanline
-  
   SetScroll        ; sets the scroll to the correct position for the rest of the screen
   LDA #%10010000   ; resume drawing on the correct nametable
   ORA nametable
   STA _PPUCTRL
-
 
   UnsetRenderFlag
   RTI              ; Return from interrupt 

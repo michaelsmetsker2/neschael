@@ -5,7 +5,12 @@
 ; lookup table of entities
 ;
 
+.IMPORT test_entity
+
 .EXPORT entity_index
 
-entity_index:
-  .WORD entity_index ; FIXME
+entity_index_low:
+  .BYTE #>test_entity
+
+entity_index_high:
+  .BYTE #<test_entity
