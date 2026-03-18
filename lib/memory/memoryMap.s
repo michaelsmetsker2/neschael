@@ -5,6 +5,9 @@
 
 .EXPORT PLAYER_DATA
 
+.EXPORT reservedShadowOam
+.EXPORT shadowOam
+
 .EXPORT scrollBuffAddr
 .EXPORT scrollBuffData
 .EXPORT scrollBuffAttr
@@ -13,6 +16,8 @@
 .EXPORT dbufAttr1
 .EXPORT dbufTile2
 .EXPORT dbufAttr2
+
+.EXPORT entityPool
 
 ;-------------------------------------------------------------------------------
 ; System Memory Map
@@ -26,11 +31,14 @@
   PLAYER_DATA:  .res 32
 
 ; $40-$FF:       Game data, see lib/player/game.inc
-  GAME_DATA:    .res 128
+  GAME_DATA:    .res 192
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
+.SEGMENT "SHADOW_OAM"
+  reservedShadowOam: .res 16
+  shadowOam:         .res 240
 ;-------------------------------------------------------------------------------
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF" ; used to align after OAM
@@ -44,8 +52,8 @@
   dbufTile2:   .res 192
   dbufAttr2:   .res 48
 
+; ???-$06FF:  General Purpose RAM
 
-  ; TODO
+  ; $0700 - Undetermined ; TODO
+.SEGMENT "ENTITY_POOL"
   entityPool:  .res 256
-
-; ???-$07FF:  General Purpose RAM

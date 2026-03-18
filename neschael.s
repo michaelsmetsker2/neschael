@@ -18,8 +18,10 @@
 
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
-
 .IMPORT update_camera
+
+.IMPORT update_entities
+
 .IMPORT scroll_screen
 
 ; =================================================================================================
@@ -48,6 +50,8 @@ game_loop:
   JSR update_player_movement
   JSR update_camera
   JSR update_player_sprite
+
+  JSR update_entities
 
   JSR scroll_screen
 
