@@ -5,7 +5,6 @@
 
 .EXPORT PLAYER_DATA
 
-.EXPORT reservedShadowOam
 .EXPORT shadowOam
 
 .EXPORT scrollBuffAddr
@@ -37,8 +36,7 @@
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
 .SEGMENT "SHADOW_OAM"
-  reservedShadowOam: .res 16
-  shadowOam:         .res 240
+  shadowOam:         .res 256
 ;-------------------------------------------------------------------------------
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF" ; used to align after OAM
