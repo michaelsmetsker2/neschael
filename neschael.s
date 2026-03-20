@@ -52,7 +52,6 @@ game_loop:
   JSR update_player_sprite
 
   JSR update_entities
-
   JSR scroll_screen
 
   ; conditionally load a new level based on the levelFlag

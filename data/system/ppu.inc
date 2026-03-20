@@ -198,6 +198,9 @@ _OAM_ATTR = 2
 ; - Byte 3 (X Position)
 _OAM_X    = 3
 
+; - Size of an OAM sprite entry for iteration
+_OAM_SIZE = 4
+
 .MACRO DisableVideoOutput
   LDA #%00000000
   STA _PPUCTRL    ; disable NMI

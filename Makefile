@@ -15,7 +15,8 @@ BIN_DIR = bin
 # source files
 SRC = neschael.s \
       $(shell find lib -name '*.s') \
-    	$(shell find data/levels -maxdepth 1 -name '*.s')
+    	$(shell find data/levels -maxdepth 1 -name '*.s') \
+    	$(shell find data/entities -maxdepth 1 -name '*.s')
 
 # objects
 OBJECTS = $(SRC:%.s=$(BIN_DIR)/%.o)

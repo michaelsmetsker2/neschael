@@ -6,25 +6,48 @@
 ;
 
 .INCLUDE "lib/game/entities/entityData.inc"
+.INCLUDE "data/system/ppu.inc"
 
-.IMPORT entityPool
-.IMPORT shadowOam
+.IMPORT   entityPool
+.IMPORTZP SCRATCH
+.IMPORT   shadowOam
+
+.IMPORT entity_index_low
+.IMPORT entity_index_high
 
 .EXPORT update_entities
 
-  tmpEntityPointer     = $00 ; 16 bit, points to the first byte of the current entities ram
+  tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
 
+  ; seta all entities to inactive upon level load
 .PROC entities_init
-  ; this should just set them all to disabled right?
-  ; TODO
+
+
   RTS
+  ; FIXME unfinished bad broken  
+  LDA #$00
+  LDX #$00
+
+
+  CLC
+@loop:
+  STA entityPool, X
+
+  ADC #ENTITY_LENGTH
+
+
 .ENDPROC
 
+  ; loops through all entity slts and runs the update function on active entities
 .PROC update_entities
     ; if the update pointer reaches this address, all entities have been looped through 
-  poolEndAddress = entityPool + ENTITY_LENGTH * ENTITY_POOL_SIZE
+
+  tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
+  tmpFuncPointer         = SCRATCH + 3 ; 16 bit, points to the update function of curretn entity
 
     ; clear non reserved OAM memory
+  
+@clear_oam:
   LDX #$10 ; start at 16, skip reserved OAM ; TODO make a constant
   CLC
   LDY #$FE
@@ -32,41 +55,57 @@
   TYA
   STA shadowOam, X
   TXA
-  ADC #$04
+  ADC #_OAM_SIZE
   TAX
   BCC :-
-
-  RTS  
+  
+    ; set the high byte of the pointer as it doesn't change
+  LDA #<entityPool
+  STA tmpEntityMemoryPointer+1
 
     ; loop through entity pool
   LDX #$00
 @entity_loop:
 
-    ; skip if entity is inactive
+    ; test bit 7 for an active entity
   LDA entityPool, X
-  BPL @increment
-
-  LDY #$00
-  LDA (tmpEntityPointer), Y
-  BMI @increment_entity
-
-  LDA #>(@increment_entity - 1)
-  ;PHA
-  LDA #<(@increment_entity - 1)
-  ;PHA
-;  JMP (tmpFuncPointer) ; this memory block is page aligned so this should never cause issue
-
-    ; increment pointer to the next entity
-@increment_entity:
+  BPL @next_entity  ; bit 7 = 0, skip
+@active_entity:
+    ; update low byte of memory pointer to the current entity's block
   CLC
   TXA
-  ADC #ENTITY_LENGTH
-  STA tmpEntityPointer
-    ; bbreak if end of the pool
-    ; FIXME once the pool size is finalized change this to a BCS
-  CMP #ENTITY_POOL_SIZE
-  BNE @update_loop
+  ADC #<entityPool
+  STA tmpEntityMemoryPointer
 
+    ; find funcion
+  TXA
+  AND #%01111111
+  TAY
+  LDA entity_index_low, Y
+  STA tmpFuncPointer
+  LDA entity_index_high, Y
+  STA tmpFuncPointer+1
+
+    ; store x
+  STX tmpEntityOffset
+
+    ; run function and set return point
+  LDA #>(@ret - 1)
+  PHA
+  LDA #<(@ret - 1)
+  PHA
+  JMP (tmpFuncPointer) ; BUG this will misbehave on page boundaries
+
+@ret:
+    ; restore index
+  LDX tmpEntityOffset
+@next_entity: ; FIXME once the size of the pool is finalized, bcs can be used instead of CMP
+    ; increment index and loop
+  TXA
+  ADC #ENTITY_LENGTH
+  TAX
+  CMP #POOL_LENGTH
+  BCC @entity_loop    
 @done:
   RTS
 .ENDPROC

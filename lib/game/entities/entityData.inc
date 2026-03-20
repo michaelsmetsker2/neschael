@@ -9,3 +9,6 @@
   ENTITY_POOL_SIZE = $0F 
     ; how many bytes of ram per entity
   ENTITY_LENGTH    = $07
+    ; length of the pool in its entirety
+  POOL_LENGTH = ENTITY_LENGTH * ENTITY_POOL_SIZE
+  .OUT .SPRINTF("Entity pool length = %04X", POOL_LENGTH)

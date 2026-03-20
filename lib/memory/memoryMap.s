@@ -7,6 +7,8 @@
 
 .EXPORT shadowOam
 
+.EXPORT SCRATCH
+
 .EXPORT scrollBuffAddr
 .EXPORT scrollBuffData
 .EXPORT scrollBuffAttr

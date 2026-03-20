@@ -9,17 +9,17 @@
 .EXPORT test_entity
 
 test_entity:
-  .BYTE #$00 ; how sprites to allocate in oam for this
-  .WORD init_func, update_func, remove_func
+  .WORD update_func, init_func, remove_func
+  .BYTE $00 ; how sprites to allocate in oam for this
 
   ; these functions need to be passed the memory location of their ram or index of a certain pool
-.PROC init_func
-
+.PROC update_func
+  
   RTS
 .ENDPROC
 
-.PROC update_func
-  
+.PROC init_func
+
   RTS
 .ENDPROC
 
