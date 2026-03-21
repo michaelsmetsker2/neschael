@@ -11,4 +11,4 @@
   ENTITY_LENGTH    = $07
     ; length of the pool in its entirety
   POOL_LENGTH = ENTITY_LENGTH * ENTITY_POOL_SIZE
-  .OUT .SPRINTF("Entity pool length = %04X", POOL_LENGTH)
+  ;.OUT .SPRINTF("Entity pool length = %04X", POOL_LENGTH)

@@ -10,7 +10,7 @@
 
 test_entity:
   .WORD update_func, init_func, remove_func
-  .BYTE $00 ; how sprites to allocate in oam for this
+  .BYTE $04 ; how sprites to allocate in oam for this
 
   ; these functions need to be passed the memory location of their ram or index of a certain pool
 .PROC update_func

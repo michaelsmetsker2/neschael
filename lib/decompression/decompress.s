@@ -85,9 +85,8 @@
 	STY tmpWritePtr+1
 	STY tmpBufferPtr+1
 
-	JSR lzss_decompress
+	JMP lzss_decompress	
 
-	RTS
 .ENDPROC
 
 .MACRO IncrementWritePtr

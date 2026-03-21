@@ -49,8 +49,7 @@
     ; TODO set up palletes for current level?
     ; TODO set music for current level and clear audio streams
 
-    ; decompress starting nambetables
-
+@decompress_starting_nametables:
   ; decompress second nametable normally
   JSR decompress_nametable
   ; change primary nametable and scroll pos to decompress first nametable

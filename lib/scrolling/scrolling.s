@@ -73,6 +73,8 @@
   BEQ @reset_scroll_amount     ; if we're on the same metatile, don't draw
 
   JSR fill_scroll_buffer
+  JSR spawn_entities
+
 @reset_scroll_amount:
   LDA #$00
   STA scrollAmount
@@ -115,5 +117,11 @@
     ; fill the buffer once more so the first col of nametable 1 is filled
   JSR fill_scroll_buffer
 
+  RTS
+.ENDPROC
+
+  ; determines if the metatile to be loaded has entities attatched to it, and spawns them
+.PROC spawn_entities
+  ; idk if i even know where the data is going to be stored
   RTS
 .ENDPROC

@@ -23,10 +23,12 @@
 .EXPORT fill_scroll_buffer
 
   COLUMN_Y_OFFSET        = $80 ; the offset of the low bytes, since we don't draw the top 32 scanlines   
+  ATTR_BUFF_OFFSET       = $C0 ; 192, length of the tile draw buffer, used to find the attribute buffer which follows it
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
-  tmpBufferPointer       = $13 ; low byte first, points to data to be read to the buffer
-  tmpTilePointer         = $15 ; low byte first, points to the metatile to decode
+  tmpBufferPointer       = $13 ; 16 bit, points to data to be read to the buffer
+  tmpColumnPointer      = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
+  tmpTilePointer         = $17 ; 16 bit, points to the metatile to decode
 
 mult_12: ; multiples of twelve, used for offseting the tile buffer pointer
   .BYTE $00, $0C, $18, $24, $30, $3C, $48, $54, $60, $6C, $78, $84, $90, $9C, $A8, $B4
@@ -50,13 +52,10 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   LSR tmpMetatileIndex
 
     ; scroll / 8 = tile position
-  JSR fill_buff_addr_low
-  JSR fill_buff_addr_high
+  JSR fill_buff_addr
 
-  JSR locate_tile_data    ; populates the buffer pointer
-  JSR fill_tile_data
+  JSR locate_tile_data    ; populates the buffer pointer, then tail calls to fill the scroll buffer
   JSR locate_attrib_data
-  JSR fill_attrib_data
   
     ; set draw flag so for next NMI
   LDA gameFlags
@@ -64,9 +63,9 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   STA gameFlags
 .ENDPROC
 
-; fills the high address byte in the scroll buffer
-.PROC fill_buff_addr_high
-
+; fills the high and low address byte in the scroll buffer
+.PROC fill_buff_addr
+@high_address:
   LDA scrollAmount
   BPL @flip_table  ; draw to opposite nametable when scrolling right
 @use_current:
@@ -83,10 +82,8 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   CLC 
   ADC #$20         ; add high byte of ase nametable adress ($2000)
   STA ScrollBuffer::addrHigh
-.ENDPROC
 
-; fill the low address of the top of each column in ppu memory
-.PROC fill_buff_addr_low
+@low_address:
   LDA screenPosX ; pixel pos relative to background
   LSR A
   LSR A
@@ -107,6 +104,12 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 .ENDPROC
 
 ; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
+
+dbuff_addr_low:
+  .BYTE <dbufTile1, <dbufTile2
+dbuff_addr_high:
+  .BYTE >dbufTile1, >dbufTile2
+
 .PROC locate_tile_data
 
     ; find the correct buffer to read from.
@@ -119,17 +122,11 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 
 @find_buf:
   TAY ; set registers
-  BNE @nt_1
-@nt_0:
-  LDX #<dbufTile1
-  LDY #>dbufTile1
-  JMP @set_buf
-@nt_1:
-  LDX #<dbufTile2
-  LDY #>dbufTile2
-@set_buf:
-  STX tmpBufferPointer
-  STY tmpBufferPointer+1
+
+  LDA dbuff_addr_low,Y
+  STA tmpBufferPointer
+  LDA dbuff_addr_high,Y
+  STA tmpBufferPointer+1
 
     ; find offset of current metatile column
 @find_column:
@@ -140,12 +137,12 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
     ; add offset
   CLC
   ADC tmpBufferPointer
-  STA tmpBufferPointer
+  STA tmpColumnPointer
   LDA tmpBufferPointer+1
   ADC #$00
-  STA tmpBufferPointer+1
+  STA tmpColumnPointer+1
 
-  RTS
+  JMP fill_tile_data
 .ENDPROC
 
 .PROC fill_tile_data
@@ -154,7 +151,7 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   STY $0F
 @loop:
     ; set the location of tmpTilePointer to the correct metatile
-  LDA (tmpBufferPointer), Y
+  LDA (tmpColumnPointer), Y
   ASL A                       ; multiply by two to get lookup table offset
   TAX
   LDA metatiles, X
@@ -204,30 +201,16 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 .ENDPROC
 
 ; set the buffer pointer to the location of the attribute data column that we want to copy
-; TODO this is duplicate code, can save the buffer pointer from tile part also should prolly use lookup table and inc to attr buf
 .PROC locate_attrib_data
 
-    ; find the correct buffer to read from.
-  LDA nametable
-  LDX scrollAmount
-  BMI @find_buf
-@right:
-    ; when scrolling right, read from opposite buffer, flip
-  EOR #$00000001
-
-@find_buf:
-  TAY ; set registers
-  BNE @nt_1
-@nt_0:
-  LDX #<dbufAttr1
-  LDY #>dbufAttr1
-  JMP @set_buf
-@nt_1:
-  LDX #<dbufAttr2
-  LDY #>dbufAttr2
-@set_buf:
-  STX tmpBufferPointer
-  STY tmpBufferPointer+1
+  ; increment the buffer pointer to the start of the correct attribute data
+  CLC
+  LDA tmpBufferPointer
+  ADC #ATTR_BUFF_OFFSET
+  STA tmpBufferPointer
+  LDA tmpBufferPointer+1
+  ADC #$00
+  STA tmpBufferPointer+1
 
     ; find offset of current attr column
 @find_column:
@@ -239,19 +222,19 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
     ;add offset
   CLC
   ADC tmpBufferPointer
-  STA tmpBufferPointer
+  STA tmpColumnPointer
   LDA tmpBufferPointer+1
   ADC #$00
-  STA tmpBufferPointer+1
+  STA tmpColumnPointer+1
 
-  RTS
+  JMP fill_attrib_data
 .ENDPROC
 
 ; store the uncompressed attrib data in the buffer
 .PROC fill_attrib_data
   LDY #$00 ; loop index
 @loop:                    ; sets all 6 attribute bytes of the column
-  LDA (tmpBufferPointer), Y
+  LDA (tmpColumnPointer), Y
   STA ScrollBuffer::attribute, Y    
   INY
   CPY #ATTR_LENGTH

@@ -105,7 +105,35 @@
   ADC #ENTITY_LENGTH
   TAX
   CMP #POOL_LENGTH
-  BCC @entity_loop    
+  BCC @entity_loop
+@done:
+  RTS
+.ENDPROC
+
+  ; this will need to be passed the entity ID and the parameters
+.PROC create_entity
+
+    ; loop through the pool to find an inactive slot
+  LDX #$00
+@pool_loop:
+    ; test bit 7 for a free slot
+  LDA entityPool, X
+  BMI @slot_found  ; bit 7 = 0, empty, slot inactive
+
+  TXA
+  ADC #ENTITY_LENGTH
+  TAX
+  CMP #POOL_LENGTH
+  BCC @pool_loop   ; FIXME see fixme above
+
+  RTS ; no free slots, break
+
+@slot_found:
+
+
+  ; see if there is enough room for all of the sprites
+  ; add it to the list and run the entities init function
+
 @done:
   RTS
 .ENDPROC

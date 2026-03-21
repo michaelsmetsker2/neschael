@@ -9,6 +9,8 @@
 
 .EXPORT SCRATCH
 
+.EXPORT GAME_DATA
+
 .EXPORT scrollBuffAddr
 .EXPORT scrollBuffData
 .EXPORT scrollBuffAttr

@@ -13,7 +13,6 @@ test_level:
 	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $03 ; length of background, zero based
 
-
 background_index:
 	.WORD background_0, background_1, background_2, background_3
 spawn_stream:
