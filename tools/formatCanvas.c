@@ -130,6 +130,80 @@ void lzss(const uint8_t *input, FILE *out, uint8_t inputSize) {
 	return;
 }
 
+/**
+ * reads the attribute data file and compresses it into nes ppu data 
+ * @param outputData - extracted and compressed attribute data array
+ * @param nametableCount - ammount of nametables in the current level
+ * @param filename - filename of the file to parse
+ * 
+ * @return 0 on success
+ */
+int parseAttr(uint8_t (*outputData)[ATTR_SIZE], const uint8_t nametableCount, const char *filename) {
+	// character array to hold raw data from the file
+	char line[LINE_SIZE] = {0};
+
+	FILE *attrFile = fopen(filename, "r");
+	if (!attrFile) {
+		return 1;
+	}	
+
+	// line of output data, initialized to zero
+	uint8_t attrByte[LINE_SIZE / 2] = {0};
+
+	uint8_t rowIndex = 0;
+	while(fgets(line, sizeof(line), attrFile)) {
+		
+		// tokenize attr data
+		char *token = strtok(line, ",");
+		
+		// proccess a row of input data and assign it to the top or bottom bytes of the output row
+		for (int attrIndex = 0; attrIndex < nametableCount * (META_WIDTH / 2); attrIndex++) {
+			
+			uint8_t attrLeft = (uint8_t)atoi(token);
+			token = strtok(NULL, ","); // increment token
+			uint8_t attrRight = (uint8_t)atoi(token);
+			token = strtok(NULL, ","); // increment token
+			
+			// shift left to combine with left bit
+			uint8_t attrNibble = (attrRight << 2) | attrLeft; // turn into nibble
+			
+			if (rowIndex % 2 == 0) { // top, clobbers old row
+				attrByte[attrIndex] = attrNibble;
+				
+			} else { // bottom
+				attrByte[attrIndex] |= (attrNibble << 4);
+			}
+		}
+
+		if (rowIndex % 2 != 0) { // once a bottom row is proccessed, add it to the data
+
+			// store in column-major order
+			for (uint8_t nt = 0; nt < nametableCount; nt++) {
+				for(uint8_t col = 0; col < ATTR_WIDTH ; col++) {
+					outputData[nt][col * ATTR_HEIGHT + (rowIndex / 2)] = attrByte[col + nt * ATTR_WIDTH];
+				}
+			}
+		}
+		rowIndex++;
+	}
+
+	#if debug // print in column major order
+	printf("\n\n\n\n");
+	for (int i = 0; i < nametableCount; i++) {
+		for (int col = 0; col < ATTR_WIDTH; col++) {
+			for (int row = 0; row < ATTR_HEIGHT; row++) {
+				printf(", %02X", attrData[i][col * ATTR_HEIGHT + row]);
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
+	#endif
+
+	fclose(attrFile);
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		fprintf(stdout, "see file header for usage\n");
@@ -208,80 +282,18 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(tileFile);
 
-	// parse attribute data ====================================================================================
+
+
+	// read level attribute data
 
 	uint8_t (*attrData)[ATTR_SIZE];
 	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
-
-	FILE *attrFile = fopen(attrFilename, "r");
-	if (!attrFile) {
-		fprintf(stderr, "couldn't open/find attribute file\n");
+	
+	if (parseAttr(attrData, nametableCount, attrFilename) != 0) {
+		fprintf(stderr, "error parsing attribute data or opening file");
 		return 1;
-	}	
-
-	// line of output data, initialized to zero
-	uint8_t attrByte[LINE_SIZE / 2] = {0};
-
-	rowIndex = 0;
-	while(fgets(line, sizeof(line), attrFile)) {
-		
-		// tokenize attr data
-		char *token = strtok(line, ",");
-		
-		// proccess a row of input data and assign it to the top or bottom bytes of the output row
-		for (int attrIndex = 0; attrIndex < nametableCount * (META_WIDTH / 2); attrIndex++) {
-			
-			
-			uint8_t attrLeft = (uint8_t)atoi(token);
-			token = strtok(NULL, ","); // increment token
-			uint8_t attrRight = (uint8_t)atoi(token);
-			token = strtok(NULL, ","); // increment token
-			
-			// shift left to combine with left bit
-			uint8_t attrNibble = (attrRight << 2) | attrLeft; // turn into nibble
-			
-			if (rowIndex % 2 == 0) { // top, clobbers old row
-				attrByte[attrIndex] = attrNibble;
-				
-			} else { // bottom
-				attrByte[attrIndex] |= (attrNibble << 4);
-			}
-		}
-
-		if (rowIndex % 2 != 0) { // once a bottom row is proccessed, add it to the data
-
-			#if debug
-			for(uint8_t i = 0; i < (nametableCount * ATTR_WIDTH); i++) {
-				fprintf(stdout, ", %02X", attrByte[i]);
-			}
-			fprintf(stdout, "\n");
-			#endif
-
-			// store in column-major order
-			for (uint8_t nt = 0; nt < nametableCount; nt++) {
-				for(uint8_t col = 0; col < ATTR_WIDTH ; col++) {
-					attrData[nt][col * ATTR_HEIGHT + (rowIndex / 2)] = attrByte[col + nt * ATTR_WIDTH];
-				}
-			}
-		}
-
-		rowIndex++;
 	}
 
-	#if debug // print in column major order
-	printf("\n\n\n\n");
-	for (int i = 0; i < nametableCount; i++) {
-		for (int col = 0; col < ATTR_WIDTH; col++) {
-			for (int row = 0; row < ATTR_HEIGHT; row++) {
-				printf(", %02X", attrData[i][col * ATTR_HEIGHT + row]);
-			}
-			printf("\n");
-		}
-		printf("\n");
-	}
-	#endif
-
-	fclose(attrFile);
 
 	// parse spawn stream data ====================================================================================
 	FILE *spawnFile = fopen(spawnFilename, "r");
@@ -320,11 +332,9 @@ int main(int argc, char *argv[]) {
 					} else {
 						*high |= colBit;
 					}
-
 				}
 
 				token = strtok(NULL, ","); // increment token
-
 			}
 		}
 	}
@@ -355,16 +365,6 @@ int main(int argc, char *argv[]) {
     fprintf(out, "background_%i", i);
   }
 	
-	/*
-	fprintf(out, "\nattribute_index:\n\t.WORD ");
-	for (int i = 0; i < nametableCount; i++) {
-		if (i) {
-			fprintf(out, ", ");
-    }
-    fprintf(out, "attrib_%i", i);
-  }
-	*/
-	
 	fprintf(out, "\nspawn_stream:\n\t.WORD ");
 	for (int i = 0; i < nametableCount; i++) {
 		if (i) {
@@ -385,16 +385,6 @@ int main(int argc, char *argv[]) {
 		fprintf(out, "\nbackground_%i:", nt);
 		lzss(backgroundData, out, META_SIZE + ATTR_SIZE);
 	
-		/*
-		// print tile data
-		fprintf(out, "\nbackground_%i:", nt);
-		lzss(tileData[nt], out, META_SIZE);
-		
-		// print attr data
-		fprintf(out, "\nattrib_%i:", nt);
-		lzss(attrData[nt], out, ATTR_SIZE);
-		*/
-
 		//print spawn stream data
 		fprintf(out, "\nstream_%i:", nt);
 		fprintf(out, "\n\t.BYTE $%02X, $%02X\n", spawnColumns[nt * 2], spawnColumns[nt * 2 + 1]);

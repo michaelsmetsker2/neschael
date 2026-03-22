@@ -51,8 +51,10 @@
 ; $033E-Undetermined ; TODO decompress buffers for tile and attribute data
   dbufTile1:   .res 192
   dbufAttr1:   .res 48
+  dbufEnt1:    .res 2
   dbufTile2:   .res 192
   dbufAttr2:   .res 48
+  dbufEnt2:    .res 2
 
 ; ???-$06FF:  General Purpose RAM
 

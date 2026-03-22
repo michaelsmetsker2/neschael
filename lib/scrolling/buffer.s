@@ -27,7 +27,7 @@
 
   tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
   tmpBufferPointer       = $13 ; 16 bit, points to data to be read to the buffer
-  tmpColumnPointer      = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
+  tmpColumnPointer       = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
   tmpTilePointer         = $17 ; 16 bit, points to the metatile to decode
 
 mult_12: ; multiples of twelve, used for offseting the tile buffer pointer

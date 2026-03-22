@@ -130,7 +130,6 @@
 
 @slot_found:
 
-
   ; see if there is enough room for all of the sprites
   ; add it to the list and run the entities init function
 
