@@ -33,6 +33,39 @@ struct {
 	size_t index;
 } longest[META_SIZE + ATTR_SIZE];
 
+typedef struct EntityNode {
+	uint8_t column;
+	uint8_t entityId;
+	uint8_t yPos;
+	struct EntityNode* next;
+} EntityNode;
+
+// linked list implementation for entities
+typedef struct {
+		EntityNode* head;
+} EntityList;
+
+void insertEntityOrdered(EntityList* list, uint8_t col, uint8_t id, uint8_t yPos) {
+	EntityNode* newNode = malloc(sizeof(EntityNode));
+	newNode->column = col;
+	newNode->entityId = id;
+	newNode->yPos = yPos;
+
+	if (!list->head || id < list->head->entityId) {
+		newNode->next = list->head;
+		list->head = newNode;
+		return;
+	}
+
+	EntityNode* current = list->head;
+	while (current->next && current->next->entityId < id) {
+		current = current->next;
+	}
+
+	newNode->next = current->next;
+	current->next = newNode;
+}
+
 // returns number of consecutive equal bytes for lzss
 static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
 	for (size_t i = 0; i < len; i++) {
@@ -46,9 +79,9 @@ static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
 /**
  * lzss compresses data
  * 
- * @param input     - pointer to array of uint8 data
- * @param out       - output stream to print the data to 
- * @param inputSize - size of the input array
+ * @param input     pointer to array of uint8 data
+ * @param out       output stream to print the data to 
+ * @param inputSize size of the input array
  */
 void lzss(const uint8_t *input, FILE *out, uint8_t inputSize) {
 
@@ -131,10 +164,68 @@ void lzss(const uint8_t *input, FILE *out, uint8_t inputSize) {
 }
 
 /**
+ * finds the ammount of nametables in the level then parses and compresses level data into metatiles
+ * @param outputData      will be filled with tile data compressed to metatiles
+ * @param nametableCount  will be updated with the ammount of nametables in teh level
+ * @param filename        name of the tile data file
+ * 
+ * @return 0 on succuss
+ */
+int parseTiles(uint8_t (**outputData)[META_SIZE], uint8_t *nametableCount, const char *filename) {
+
+	FILE *tileFile = fopen(filename, "r");
+	if (!tileFile) {
+		return 1;
+	}
+	
+	// max line size when reading file
+	char line[LINE_SIZE] = {0};
+
+	fgets(line, sizeof(line), tileFile);
+	char *tileken = strtok(line, ",");
+	int tokenCount = 0;
+	while (tileken) {
+		tokenCount++;
+		tileken = strtok(NULL, ",");   // advance
+	}
+	
+	if (tokenCount % 16 != 0) {
+		fprintf(stderr, "file width doesn't allign with nametables, must be divisible by 16");
+		return 1;
+	}
+	
+	*nametableCount = tokenCount / 16;
+	rewind(tileFile);
+
+	*outputData = malloc(*nametableCount * sizeof(**outputData)); // maloc nametables
+
+	// read tile data
+	uint8_t rowIndex = 0;
+	while (fgets(line, sizeof(line), tileFile)) { // increment though lines
+
+		char *tileken = strtok(line, ",");
+
+		for (uint8_t nt = 0; nt < *nametableCount; nt++) { // loop through all nametables in the row			
+			for (uint8_t tileIndex = 0; tileIndex < META_WIDTH; tileIndex++) { // loop through each piece of data
+				int tile = atoi(tileken);
+
+				(*outputData)[nt][META_HEIGHT * tileIndex + rowIndex] = tile; // store in column major order
+
+				tileken = strtok(NULL, ",");   // advance token
+			}
+		}	
+		
+		rowIndex++;
+	}
+	fclose(tileFile);
+	return 0;
+}
+
+/**
  * reads the attribute data file and compresses it into nes ppu data 
- * @param outputData - extracted and compressed attribute data array
- * @param nametableCount - ammount of nametables in the current level
- * @param filename - filename of the file to parse
+ * @param outputData     extracted and compressed attribute data array
+ * @param nametableCount ammount of nametables in the current level
+ * @param filename       filename of the file to parse
  * 
  * @return 0 on success
  */
@@ -204,109 +295,29 @@ int parseAttr(uint8_t (*outputData)[ATTR_SIZE], const uint8_t nametableCount, co
 	return 0;
 }
 
-int main(int argc, char *argv[]) {
-	if (argc != 2) {
-		fprintf(stdout, "see file header for usage\n");
-		return 0;
-	}
-	
-	// ammount of nametables in the file
-	uint8_t nametableCount = 0;
-	// max line size when reading file
-	char line[LINE_SIZE] = {0};
-	
-	// find other filenames based on the tile file name
-	char *underscore = strchr(argv[1], '_');
-	if (!underscore) {
-		fprintf(stdout, "invalid filename\n");
-		return 1;
-	}	
-	
-	int nameLen = underscore - argv[1];
-	
-	char attrFilename[256];
-	char spawnFilename[256];
-	 
-	strncpy(attrFilename, argv[1], nameLen);
-	attrFilename[nameLen] = '\0';
-	strcat(attrFilename, "_attribute.csv");
-	strncpy(spawnFilename, argv[1], nameLen);
-	spawnFilename[nameLen] = '\0';
-	strcat(spawnFilename, "_spawn.csv");
+/**
+ * parses entity data and populates both spawn columns and spawn streams
+ * @param spawnStream array of ordered lists containing entity data
+ * @param spawnColumns 2 bytes per nametable with each bit representing if a metacol holds and entity
+ * @param nametableCount ammount of nametables in the level
+ * @param filename name of the entity layer file
+ * 
+ * @return 0 on success
+ */
+int parseEntities(EntityList *spawnStream, uint8_t *spawnColumns, const uint8_t nametableCount, const char *filename) {
 
-	// =============================================== open tile file ============================================================
-	FILE *tileFile = fopen(argv[1], "r");
-	if (!tileFile) {
-		fprintf(stderr, "couldn't open/find tile file");
-		return 1;
-	}
-	
-	{ // find the ammount of nametables
-		fgets(line, sizeof(line), tileFile);
-		char *tileken = strtok(line, ",");
-		int tokenCount = 0;
-		while (tileken) {
-			tokenCount++;
-			tileken = strtok(NULL, ",");   // advance
-		}
-
-		if (tokenCount % 16 != 0) {
-			fprintf(stderr, "file width doesn't allign with nametables, must be divisible by 16");
-			return 1;
-		}
-
-		nametableCount = tokenCount / 16;
-		rewind(tileFile);
-	}
-	
-	// read tile data ================================================================================================
-	uint8_t (*tileData)[META_SIZE];
-	tileData = malloc(nametableCount * sizeof(*tileData)); // maloc nametables
-	
-	uint8_t rowIndex = 0;
-	while (fgets(line, sizeof(line), tileFile)) { // increment though lines
-
-		char *tileken = strtok(line, ",");
-
-		for (uint8_t nt = 0; nt < nametableCount; nt++) { // loop through all nametables in the row			
-			for (uint8_t tileIndex = 0; tileIndex < META_WIDTH; tileIndex++) { // loop through each piece of data
-				int tile = atoi(tileken);
-
-				tileData[nt][META_HEIGHT * tileIndex + rowIndex] = tile; // store in column major order
-
-				tileken = strtok(NULL, ",");   // advance token
-			}
-		}	
-		
-		rowIndex++;
-	}
-	fclose(tileFile);
-
-
-
-	// read level attribute data
-
-	uint8_t (*attrData)[ATTR_SIZE];
-	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
-	
-	if (parseAttr(attrData, nametableCount, attrFilename) != 0) {
-		fprintf(stderr, "error parsing attribute data or opening file");
-		return 1;
-	}
-
-
-	// parse spawn stream data ====================================================================================
-	FILE *spawnFile = fopen(spawnFilename, "r");
+	// open file
+	FILE *spawnFile = fopen(filename, "r");
 	if (!spawnFile) {
-		fprintf(stderr, "couldn't open/find spawn file\n");
 		return 1;
 	}
 
-	// what metacolumns have an entity
-	uint8_t *spawnColumns = calloc(nametableCount * 2, sizeof(uint8_t));
+	// character array to hold raw data from the file
+	char line[LINE_SIZE] = {0};
 
+	// loop through the files lines
+	uint8_t lineCount = 0;
 	while(fgets(line, sizeof(line), spawnFile)) {
-		
 		char *token = strtok(line, ",");
 
 		// loop through nametables
@@ -315,18 +326,20 @@ int main(int argc, char *argv[]) {
 			uint8_t *low  = &spawnColumns[nt * 2];
 			uint8_t *high = &spawnColumns[nt * 2 + 1];
 
-			// loop through 16 metacolumns
 			for (int colIndex = 0; colIndex < META_WIDTH; colIndex++) {
 				
+				// check if an entity is present
 				uint8_t entityId = (uint8_t)atoi(token); 
 				if (entityId != 0xFF) {
 					
-					uint8_t colBit = 1;
+					// add entity into the spawnstream
+					insertEntityOrdered(&spawnStream[nt], colIndex, entityId, lineCount);
 					
 					// bit shift one by colIndex mod 8
+					uint8_t colBit = 1;
 					colBit = colBit << (colIndex % 8);
 
-					// or onto the column
+					// bitwise or onto the column
 					if (colIndex < 8) {
 						*low |= colBit;
 					} else {
@@ -337,11 +350,68 @@ int main(int argc, char *argv[]) {
 				token = strtok(NULL, ","); // increment token
 			}
 		}
+		lineCount++;
 	}
 
 	fclose(spawnFile);	
+	return 0;
+
+}
+
+int main(int argc, char *argv[]) {
+	if (argc != 2) {
+		fprintf(stdout, "./formatCanvas <tiles.csv>\n");
+		return 0;
+	}
 	
-	// print format and LZSS ==================================================================================================================
+	// find other filenames based on the tile file name
+	char *underscore = strchr(argv[1], '_');
+	if (!underscore) {
+		fprintf(stdout, "invalid filename\n");
+		return 1;
+	}	
+	
+	int nameLen = underscore - argv[1];
+	char attrFilename[75]; //arbitrary size
+	char spawnFilename[75];
+	
+	strncpy(attrFilename, argv[1], nameLen);
+	attrFilename[nameLen] = '\0';
+	strcat(attrFilename, "_attribute.csv");
+	strncpy(spawnFilename, argv[1], nameLen);
+	spawnFilename[nameLen] = '\0';
+	strcat(spawnFilename, "_spawn.csv");
+	
+	// ammount of nametables in the file
+	uint8_t nametableCount = 0;
+	uint8_t (*tileData)[META_SIZE] = NULL;
+	if (parseTiles(&tileData, &nametableCount, argv[1]) != 0) {
+		fprintf(stderr, "error opening or parsing tile file");
+		return 1;
+	}
+
+	// read level attribute data
+	uint8_t (*attrData)[ATTR_SIZE];
+	attrData = malloc(nametableCount * sizeof(*attrData)); // maloc nametables
+	if (parseAttr(attrData, nametableCount, attrFilename) != 0) {
+		fprintf(stderr, "error parsing attribute data or opening file");
+		return 1;
+	}
+
+	// create and initialize the spawnStream
+	EntityList spawnStreams[nametableCount];
+	for (int i = 0; i < nametableCount; i++) {
+		spawnStreams[i].head = NULL;
+	}
+	uint8_t *spawnColumns = calloc(nametableCount * 2, sizeof(uint8_t));
+	
+	// read level entity data
+	if (parseEntities(spawnStreams, spawnColumns, nametableCount, spawnFilename) != 0) {
+		fprintf(stderr, "error parsing or opening spawn layer");
+		return 1;
+	}
+	
+	// print format and LZSS
   FILE *out = fopen("level.s", "w");
   if (!out) {
 		fprintf(stderr, "counldn't open output file");
@@ -374,20 +444,27 @@ int main(int argc, char *argv[]) {
 	}
 
 	fprintf(out, "\n");
-	// print data =============================================
+	// print data
 
 	for(uint8_t nt = 0; nt < nametableCount; nt++) {
 
+		fprintf(out, "\nbackground_%i:", nt);
 		// array of combined attr and tile data
-		uint8_t backgroundData[META_SIZE + ATTR_SIZE] = {0};
+		uint8_t backgroundData[META_SIZE + ATTR_SIZE + 2] = {0};
 		memcpy(backgroundData, tileData[nt], META_SIZE);
 		memcpy(backgroundData + META_SIZE, attrData[nt], ATTR_SIZE);
-		fprintf(out, "\nbackground_%i:", nt);
-		lzss(backgroundData, out, META_SIZE + ATTR_SIZE);
+		memcpy(backgroundData + META_SIZE + ATTR_SIZE, &spawnColumns[nt * 2], 2);
+		lzss(backgroundData, out, META_SIZE + ATTR_SIZE + 2);
 	
 		//print spawn stream data
-		fprintf(out, "\nstream_%i:", nt);
-		fprintf(out, "\n\t.BYTE $%02X, $%02X\n", spawnColumns[nt * 2], spawnColumns[nt * 2 + 1]);
+		fprintf(out, "\nstream_%i:\n", nt);
+
+		EntityNode *cur = spawnStreams[nt].head;
+
+		while(cur) {
+			fprintf(out, "\t.BYTE $%02X, $%02X, $%02X, \n", cur->column, cur->yPos, cur->entityId);
+			cur = cur->next;			
+		}
 	}
 	
 	return 0;

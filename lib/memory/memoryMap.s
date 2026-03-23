@@ -58,6 +58,6 @@
 
 ; ???-$06FF:  General Purpose RAM
 
-  ; $0700 - Undetermined ; TODO
+  ; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory
 .SEGMENT "ENTITY_POOL"
   entityPool:  .res 256

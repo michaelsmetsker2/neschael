@@ -6,10 +6,10 @@
     "activeFile": "levels/testlevel/testLvl2.tmx",
     "expandedProjectPaths": [
         "metas",
-        "levels",
         "levels/test_level",
         ".",
-        "levels/testlevel"
+        "levels/testlevel",
+        "levels"
     ],
     "fileStates": {
         "Z:/projects/nes/linux/neschael/data/tiles/levels/testLvl.tmx": {
@@ -76,11 +76,11 @@
             }
         },
         "levels/testlevel/testLvl2.tmx": {
-            "scale": 5.5,
-            "selectedLayer": 0,
+            "scale": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 148.2727272727273,
-                "y": 189.18181818181816
+                "x": 546.75,
+                "y": 136.75
             }
         },
         "metas.tsx": {
