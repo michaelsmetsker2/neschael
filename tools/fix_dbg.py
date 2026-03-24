@@ -3,6 +3,8 @@
 # tools/fix_dbg.py
 #
 # adds 16 to the offsets of code and vectors to make the dbg line up in mesen
+# this is a byproduct of having three bin files, but (hopefully) this will make it eaasier to have a build option
+# that omits the header
 # 
 
 import sys, re

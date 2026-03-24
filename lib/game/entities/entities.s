@@ -42,16 +42,18 @@
 .PROC update_entities
     ; if the update pointer reaches this address, all entities have been looped through 
 
+  UNRESERVED_OAM_OFFSET  = $10 ; offset to skip the reserverd entries in OAM (16, first 4)
+
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
   tmpFuncPointer         = SCRATCH + 3 ; 16 bit, points to the update function of current entity
 
     ; clear non reserved OAM memory
   
-@clear_oam:
-  LDX #$10 ; start at 16, skip reserved OAM ; TODO make a constant
+@clear_oam: ; TODO find a way to only clear the filled stuff
+  LDX #UNRESERVED_OAM_OFFSET ; start at unreserved
   LDA #$FE
 :
-  .REPEAT 2 ; unrolled loop for 92 saved cycles
+  .REPEAT 2 ; unrolled loop for 92 saved cycles/frame
   STA shadowOam, X
   INX
   INX
@@ -102,6 +104,7 @@
   LDX tmpEntityOffset
 @next_entity: ; FIXME once the size of the pool is finalized, bcs can be used instead of CMP
     ; increment index and loop
+  CLC
   TXA
   ADC #ENTITY_LENGTH
   TAX

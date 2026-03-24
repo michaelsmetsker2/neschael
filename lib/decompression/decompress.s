@@ -12,6 +12,9 @@
 
 .EXPORT decompress_nametable
 
+.EXPORT dbuff_addr_high
+.EXPORT dbuff_addr_low
+
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/levels/levelData.inc"
 
@@ -24,6 +27,11 @@
 	tmpBufferPtr        = $04  ; 16 bit pointer to the dbuffer to fill
 	tmpWritePtr			    = $06  ; 16 bit pointer to dbuffer, incremented when writing
 	tmpBackgroundOffset = $08	 ; background index to decompress
+
+dbuff_addr_low:
+  .BYTE <dbufTile1, <dbufTile2
+dbuff_addr_high:
+  .BYTE >dbufTile1, >dbufTile2
 
 .PROC decompress_nametable
 
@@ -42,7 +50,7 @@
 	CLC
 	ADC #$01
 @check_end:
-	; make sure we're not decompressing past the end of the level
+		; make sure we're not decompressing past the end of the level
 	LDY #LEVEL_SIZE_OFFSET
 	CMP (levelPtr),Y
 	BCC @offset ; background < level size
@@ -51,7 +59,7 @@
 
 @offset:
 	ASL A							      ; two bytes per address
-	STA tmpBackgroundOffset ; to reuse for attribute buffer
+	STA tmpBackgroundOffset ; to reuse for the spawn stream
 	TAY
 	
 		; increment tmpdata pointer to the background of the correct nametable
@@ -61,29 +69,26 @@
 	LDA ($02),Y
 	STA tmpDataPointer+1
 
-; determine what buffer to use depending on scroll direction and primary nametable 
+		; determine what buffer to use depending on scroll direction and primary nametable 
 	LDA nametable
 	LDX scrollAmount
 	BMI @find_buf
 	EOR #$01
 @find_buf:
 
-		; set both pointers to the correct tile buffer
-	CMP #$00
-	BNE @nametable_1
-@nametable_0:
-	LDX #<dbufTile1
-	LDY #>dbufTile1
+	TAY
+	LDA dbuff_addr_low,Y
+	STA tmpBufferPtr
+	STA tmpWritePtr
 
-	JMP @set_buffer
-@nametable_1:
-	LDX #<dbufTile2
-	LDY #>dbufTile2
-@set_buffer:
-	STX tmpBufferPtr
-	STX tmpWritePtr
-	STY tmpWritePtr+1
-	STY tmpBufferPtr+1
+  LDA dbuff_addr_high,Y
+	STA tmpWritePtr+1
+	STA tmpBufferPtr+1
+
+		; copy addresses of the spawn streams to the values in zeropage
+	; create a pointer to the level spawn stream
+
+
 
 	JMP lzss_decompress	
 

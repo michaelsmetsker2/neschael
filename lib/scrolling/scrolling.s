@@ -130,10 +130,11 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
 
   ENTITY_COL_OFFSET      = $30
 
-  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background inheretid from fill_scroll_buffer
+  tmpDrawnNt             = $11 ; 0 - 1, whether we are drawing to left or right nametableS inhereted from fill_scroll_buffer
+  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background inhereted from fill_scroll_buffer
   tmpBufferPointer       = $13 ; 16 bit, points the current dbuffer, inherited from fill_scroll_buffer
 
-  tmpScrollCollPtr       = $10
+  tmpScrollCollPtr       = $05
 
   ; increment the buffer pointer to the scroll column position
   CLC
@@ -161,9 +162,8 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
   AND (tmpScrollCollPtr), Y
   BEQ @done ; no entities, return
 
+  ; TODO now loop through the correct stream and spawn the entities with matching columns
 
-  INC $60
-
-@done:  
+@done:
   RTS
 .ENDPROC

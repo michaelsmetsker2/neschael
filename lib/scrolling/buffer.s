@@ -13,11 +13,9 @@
 
 .INCLUDE "data/tiles/metatiles.s"
 
-; buffers of uncompressed level data
-.IMPORT dbufTile1
-.IMPORT dbufAttr1
-.IMPORT dbufTile2
-.IMPORT dbufAttr2
+  ; from decompress.s
+.IMPORT dbuff_addr_high
+.IMPORT dbuff_addr_low
 
 .IMPORT check_entities
 
@@ -27,6 +25,7 @@
   COLUMN_Y_OFFSET        = $80 ; the offset of the low bytes, since we don't draw the top 32 scanlines   
   ATTR_BUFF_OFFSET       = $C0 ; 192, length of the tile draw buffer, used to find the attribute buffer which follows it
 
+  tmpDrawnNt             = $11 ; 0 - 1, whether we are drawing to left or right nametable
   tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background
   tmpBufferPointer       = $13 ; 16 bit, points to data to be read to the buffer
   tmpColumnPointer       = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
@@ -39,13 +38,6 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 
   ; fill scroll buffer will tail call a check for entities for garunteed uncorrupted pointers
 .PROC fill_scroll_buffer
-    ; dividing the scroll position by 16 gives the index of the current metatile
-  LDA screenPosX
-  LSR A
-  LSR A
-  LSR A
-  LSR A
-  STA tmpMetatileIndex
 
   JSR fill_buff_addr
 
@@ -63,17 +55,15 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 ; fills the high and low address byte in the scroll buffer
 .PROC fill_buff_addr
 @high_address:
-  LDA scrollAmount
-  BPL @flip_table  ; draw to opposite nametable when scrolling right
-@use_current:
-  LDA nametable    ; use the current when scrolling left
-  JMP @final
-
+  LDA nametable
+  LDY scrollAmount
+  BMI @final  ; draw to opposite nametable when scrolling right
 @flip_table:
-  LDA nametable    ; load the current nametable and flip the bit
   EOR #$01
 
 @final:            ; convert nametable to an address
+  STA tmpDrawnNt
+  
   ASL A
   ASL A            ; shift up to $00 or $04
   CLC 
@@ -100,25 +90,9 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   RTS
 .ENDPROC
 
-; update the tmpBufferPointer to point to the location of the column we will draw to the buffer 
-
-dbuff_addr_low:
-  .BYTE <dbufTile1, <dbufTile2
-dbuff_addr_high:
-  .BYTE >dbufTile1, >dbufTile2
-
+; update the tmpColumnPointer to point to the location of the column we will draw to the buffer 
 .PROC locate_tile_data
-
-    ; find the correct buffer to read from.
-  LDA nametable
-  LDX scrollAmount
-  BMI @find_buf
-@right:
-    ; when scrolling right, read from opposite buffer, flip
-  EOR #$00000001
-
-@find_buf:
-  TAY ; set registers
+  LDY tmpDrawnNt
 
   LDA dbuff_addr_low,Y
   STA tmpBufferPointer
@@ -127,7 +101,15 @@ dbuff_addr_high:
 
     ; find offset of current metatile column
 @find_column:
-  LDY tmpMetatileIndex
+  ; divide the scroll position by 16 to get index of the current metatile
+  LDA screenPosX
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  STA tmpMetatileIndex
+  TAY
+
   LDA mult_12, Y
     ; add offset
   CLC

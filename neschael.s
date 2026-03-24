@@ -42,8 +42,10 @@ load_level: ; loads the level in levelId
  
   ; the main game loop, runs after each NMI
 game_loop:
-  ; BUG this is not constant due to conditional buffer drawing
-  JSR play_sound_frame ; first thing after NMI so consistant timing
+
+  ; first thing after NMI so timing is consistant
+    ; it is always consistant even when conditionally drawing due to sprite zero hit waiting
+  JSR play_sound_frame 
   
   JSR read_joypad_1
 

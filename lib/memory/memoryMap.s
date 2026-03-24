@@ -33,14 +33,21 @@
 ; $20-3F:       Player data, states and animation, see lib/player/init.s      
   PLAYER_DATA:  .res 32
 
-; $40-$FF:       Game data, see lib/player/game.inc
-  GAME_DATA:    .res 192
+; $40-5F:       Audio data and streams ; TODO
+  AUDIO_DATA:    .res 32
+
+; $60-$FB:       Game data, see lib/player/game.inc
+  GAME_DATA:    .res 156
+
+; $FC-$FF:       Pointers to the entity spawn streams that corrolate to the nametables in the draw buffers.
+;                These are stored seperately as pointers must be in zeropage. See lib/decompression/decompress.s
+  ENT_STREAMS:    .res 4
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack
 ;-------------------------------------------------------------------------------
 ; $0200-$02FF:  OAM Sprite Memory
 .SEGMENT "SHADOW_OAM"
-  shadowOam:         .res 256
+  shadowOam:     .res 256
 ;-------------------------------------------------------------------------------
 ; $0300-$033D:  Horizontal scroll buffer, see lib/scrolling/scrolling.inc
 .SEGMENT "SCROLL_BUFF" ; used to align after OAM
@@ -48,7 +55,7 @@
   scrollBuffData:  .res 48  ; tile data to be drawn
   scrollBuffAttr:  .res 6   ; address data to be drawn
 ;-------------------------------------------------------------------------------
-; $033E-Undetermined ; TODO decompress buffers for tile and attribute data
+; $033E-$051C: decompressed draw buffers for tile, attribute, and entity data See. lib/decompression/decompress.s
   dbufTile1:   .res 192
   dbufAttr1:   .res 48
   dbufEnt1:    .res 2
@@ -56,8 +63,8 @@
   dbufAttr2:   .res 48
   dbufEnt2:    .res 2
 
-; ???-$06FF:  General Purpose RAM
+; $051D-$06FF:  General Purpose RAM
 
-  ; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory
+; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory
 .SEGMENT "ENTITY_POOL"
   entityPool:  .res 256
