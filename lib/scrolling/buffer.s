@@ -19,13 +19,15 @@
 .IMPORT dbufTile2
 .IMPORT dbufAttr2
 
+.IMPORT check_entities
+
 .EXPORT mult_12
 .EXPORT fill_scroll_buffer
 
   COLUMN_Y_OFFSET        = $80 ; the offset of the low bytes, since we don't draw the top 32 scanlines   
   ATTR_BUFF_OFFSET       = $C0 ; 192, length of the tile draw buffer, used to find the attribute buffer which follows it
 
-  tmpMetatileIndex       = $1B ; 16 bit, index of the metatile to draw
+  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background
   tmpBufferPointer       = $13 ; 16 bit, points to data to be read to the buffer
   tmpColumnPointer       = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
   tmpTilePointer         = $17 ; 16 bit, points to the metatile to decode
@@ -35,23 +37,16 @@ mult_12: ; multiples of twelve, used for offseting the tile buffer pointer
 mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   .BYTE $00, $06, $0C, $12, $18, $1E, $24, $2A, $30, $36, $3C, $42, $48, $4E, $54, $5A
 
+  ; fill scroll buffer will tail call a check for entities for garunteed uncorrupted pointers
 .PROC fill_scroll_buffer
     ; dividing the scroll position by 16 gives the index of the current metatile
   LDA screenPosX
+  LSR A
+  LSR A
+  LSR A
+  LSR A
   STA tmpMetatileIndex
-  LDA screenPosX+1
-  STA tmpMetatileIndex+1
 
-  ROR tmpMetatileIndex+1
-  LSR tmpMetatileIndex
-  ROR tmpMetatileIndex+1
-  LSR tmpMetatileIndex
-  ROR tmpMetatileIndex+1
-  LSR tmpMetatileIndex
-  ROR tmpMetatileIndex+1
-  LSR tmpMetatileIndex
-
-    ; scroll / 8 = tile position
   JSR fill_buff_addr
 
   JSR locate_tile_data    ; populates the buffer pointer, then tail calls to fill the scroll buffer
@@ -61,6 +56,8 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
   LDA gameFlags
   ORA #%01000000
   STA gameFlags
+  
+  JMP check_entities
 .ENDPROC
 
 ; fills the high and low address byte in the scroll buffer
@@ -130,9 +127,7 @@ dbuff_addr_high:
 
     ; find offset of current metatile column
 @find_column:
-  LDA tmpMetatileIndex
-  AND #%00001111        ; get index of current metatile relative to background
-  TAY
+  LDY tmpMetatileIndex
   LDA mult_12, Y
     ; add offset
   CLC
@@ -215,7 +210,6 @@ dbuff_addr_high:
     ; find offset of current attr column
 @find_column:
   LDA tmpMetatileIndex
-  AND #%00001111        ; get index of current metatile relative to background
   LSR A
   TAY
   LDA mult_6, Y ; six  bytes per col

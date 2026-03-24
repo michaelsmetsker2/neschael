@@ -18,6 +18,7 @@
 
 .EXPORT scroll_screen
 .EXPORT draw_first_screen
+.EXPORT check_entities
 
 ; === unsafe memory constants ===
 
@@ -73,7 +74,6 @@
   BEQ @reset_scroll_amount     ; if we're on the same metatile, don't draw
 
   JSR fill_scroll_buffer
-  JSR spawn_entities
 
 @reset_scroll_amount:
   LDA #$00
@@ -120,8 +120,27 @@
   RTS
 .ENDPROC
 
-  ; determines if the metatile to be loaded has entities attatched to it, and spawns them
-.PROC spawn_entities
-  ; idk if i even know where the data is going to be stored
+  ; WARNING should only be a tail call from fill_scroll_buffer as it inherits multiuple variables 
+.PROC check_entities
+
+  ENTITY_COL_OFFSET      = $F0
+
+  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background inheretid from fill_scroll_buffer
+  tmpBufferPointer       = $13 ; 16 bit, points the current dbuffer, inherited from fill_scroll_buffer
+
+  tmpScrollCollPtr       = $10
+
+  RTS
+  ; increment the buffer pointer to the scroll column position
+  CLC
+  LDA tmpBufferPointer
+  ADC #ENTITY_COL_OFFSET
+  STA tmpScrollCollPtr
+  LDA tmpBufferPointer+1
+  ADC #$00
+  STA tmpScrollCollPtr+1 
+  ; offset to the scroll collum thing
+  ; add 240
+  
   RTS
 .ENDPROC

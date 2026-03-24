@@ -77,7 +77,7 @@ static size_t cmp(uint8_t const *const a, uint8_t const *const b, size_t len) {
 }
 
 /**
- * lzss compresses data
+ * lzss compresses data and prints
  * 
  * @param input     pointer to array of uint8 data
  * @param out       output stream to print the data to 
@@ -382,7 +382,7 @@ int main(int argc, char *argv[]) {
 	spawnFilename[nameLen] = '\0';
 	strcat(spawnFilename, "_spawn.csv");
 	
-	// ammount of nametables in the file
+	// find ammount of nametables in the file and parse tile data
 	uint8_t nametableCount = 0;
 	uint8_t (*tileData)[META_SIZE] = NULL;
 	if (parseTiles(&tileData, &nametableCount, argv[1]) != 0) {
@@ -449,21 +449,30 @@ int main(int argc, char *argv[]) {
 	for(uint8_t nt = 0; nt < nametableCount; nt++) {
 
 		fprintf(out, "\nbackground_%i:", nt);
-		// array of combined attr and tile data
+		// array of combined attr, tile and spawncolumn data
 		uint8_t backgroundData[META_SIZE + ATTR_SIZE + 2] = {0};
 		memcpy(backgroundData, tileData[nt], META_SIZE);
 		memcpy(backgroundData + META_SIZE, attrData[nt], ATTR_SIZE);
 		memcpy(backgroundData + META_SIZE + ATTR_SIZE, &spawnColumns[nt * 2], 2);
+		// compress and print
 		lzss(backgroundData, out, META_SIZE + ATTR_SIZE + 2);
 	
 		//print spawn stream data
 		fprintf(out, "\nstream_%i:\n", nt);
 
 		EntityNode *cur = spawnStreams[nt].head;
+		if(cur) { // don't need to preint ind of stream byte if there are no entities in the nametable
+			while(cur) {
 
-		while(cur) {
-			fprintf(out, "\t.BYTE $%02X, $%02X, $%02X, \n", cur->column, cur->yPos, cur->entityId);
-			cur = cur->next;			
+				// combine both x and y positions into one byte
+				uint8_t posByte = cur->column;
+				posByte |= (cur->yPos << 4);
+
+				fprintf(out, "\t.BYTE $%02X, $%02X, $00 \n", posByte, cur->entityId);
+				cur = cur->next;			
+			}
+			// end of stream
+			fprintf(out, "\t.BYTE $00\n"); 
 		}
 	}
 	
