@@ -6,6 +6,10 @@
 *.out
 bin/*
 
+# TODO remove these from repo
+# tools/formatCanvas
+# tools/generateMetatiles
+
 # local file system stuff
 make.bat
 make.sh
