@@ -223,9 +223,9 @@
 	LDA tmpCollisionPointX
 	ADC #PLAYER_FEET_RIGHT_OFFSET 									; offset to right side
 	STA tmpCollisionPointX
-	LDA tmpCollisionPointX+1
-	ADC #$00
-	STA tmpCollisionPointX+1 ; add carry
+	BCC :+	
+	INC tmpCollisionPointX+1
+:
 
 	JSR find_collision       ; load accumulator with data again
   CMP $1F                  ; see which check has the higher prioriy collision

@@ -203,9 +203,9 @@ dbuff_addr_high:
   LDA tmpBufferPointer
   ADC #ATTR_BUFF_OFFSET
   STA tmpBufferPointer
-  LDA tmpBufferPointer+1
-  ADC #$00
-  STA tmpBufferPointer+1
+  BCC :+
+  INC tmpBufferPointer+1
+:
 
     ; find offset of current attr column
 @find_column:

@@ -32,7 +32,7 @@
   CLC
 @loop:
   STA entityPool, X
-
+  CLC
   ADC #ENTITY_LENGTH
 
 
@@ -43,24 +43,25 @@
     ; if the update pointer reaches this address, all entities have been looped through 
 
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
-  tmpFuncPointer         = SCRATCH + 3 ; 16 bit, points to the update function of curretn entity
+  tmpFuncPointer         = SCRATCH + 3 ; 16 bit, points to the update function of current entity
 
     ; clear non reserved OAM memory
   
 @clear_oam:
   LDX #$10 ; start at 16, skip reserved OAM ; TODO make a constant
-  CLC
-  LDY #$FE
+  LDA #$FE
 :
-  TYA
+  .REPEAT 2 ; unrolled loop for 92 saved cycles
   STA shadowOam, X
-  TXA
-  ADC #_OAM_SIZE
-  TAX
-  BCC :-
+  INX
+  INX
+  INX
+  INX
+  .ENDREPEAT
+  BNE :-
   
     ; set the high byte of the pointer as it doesn't change
-  LDA #<entityPool
+  LDA #>entityPool
   STA tmpEntityMemoryPointer+1
 
     ; loop through entity pool
@@ -72,14 +73,14 @@
   BPL @next_entity  ; bit 7 = 0, skip
 @active_entity:
     ; update low byte of memory pointer to the current entity's block
-  CLC
   TXA
+  CLC
   ADC #<entityPool
   STA tmpEntityMemoryPointer
 
     ; find funcion
   TXA
-  AND #%01111111
+  AND #%01111111 ; mask activity bit to get entity id
   TAY
   LDA entity_index_low, Y
   STA tmpFuncPointer
@@ -94,7 +95,7 @@
   PHA
   LDA #<(@ret - 1)
   PHA
-  JMP (tmpFuncPointer) ; BUG this will misbehave on page boundaries
+  JMP (tmpFuncPointer) ; BUG this will misbehave on page boundaries (can always do rts trick)
 
 @ret:
     ; restore index
@@ -121,6 +122,7 @@
   BMI @slot_found  ; bit 7 = 0, empty, slot inactive
 
   TXA
+  CLC
   ADC #ENTITY_LENGTH
   TAX
   CMP #POOL_LENGTH

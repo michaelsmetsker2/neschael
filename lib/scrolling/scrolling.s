@@ -120,17 +120,21 @@
   RTS
 .ENDPROC
 
+
+  ; TODO see if i need a lookuptable of bitmasks anywhere else in the program
+mask_table: ; table of bit masks for finding the corosponding spawn column bit
+  .BYTE %00000001, %00000010, %00000100, %00001000, %00010000, %00100000, %01000000, %10000000
+  
   ; WARNING should only be a tail call from fill_scroll_buffer as it inherits multiuple variables 
 .PROC check_entities
 
-  ENTITY_COL_OFFSET      = $F0
+  ENTITY_COL_OFFSET      = $30
 
   tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background inheretid from fill_scroll_buffer
   tmpBufferPointer       = $13 ; 16 bit, points the current dbuffer, inherited from fill_scroll_buffer
 
   tmpScrollCollPtr       = $10
 
-  RTS
   ; increment the buffer pointer to the scroll column position
   CLC
   LDA tmpBufferPointer
@@ -139,8 +143,27 @@
   LDA tmpBufferPointer+1
   ADC #$00
   STA tmpScrollCollPtr+1 
-  ; offset to the scroll collum thing
-  ; add 240
   
+    ; check if column is in high or low byte
+  LDA tmpMetatileIndex
+  AND #%00001000
+  BEQ @find_col_bit
+    ; increment to the higher byte if the index >= 8
+  INC tmpScrollCollPtr ; BUG not page safe, verify if this matters when memory layout is more permanent
+@find_col_bit:
+
+  LDA tmpMetatileIndex
+  AND #%00000111
+  TAX
+  LDA mask_table, X
+    ; check if the column bit is set
+  LDY #$00
+  AND (tmpScrollCollPtr), Y
+  BEQ @done ; no entities, return
+
+
+  INC $60
+
+@done:  
   RTS
 .ENDPROC

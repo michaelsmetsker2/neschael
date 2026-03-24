@@ -189,9 +189,9 @@ collision_index_x:
 	LDA mult_12,Y	
 	ADC tmpTilePointer
 	STA tmpTilePointer
-	LDA tmpTilePointer+1
-	ADC #$00
-	STA tmpTilePointer+1
+	BCC :+
+	INC tmpTilePointer+1
+:
 
 @find_meta_tile: ; offset the pointer to the correct metatile in the column
 	LDA tmpCollisionPointY
