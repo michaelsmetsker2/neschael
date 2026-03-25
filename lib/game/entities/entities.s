@@ -16,6 +16,7 @@
 .IMPORT entity_index_high
 
 .EXPORT update_entities
+.EXPORT create_entity
 
   tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
 
@@ -116,6 +117,7 @@
 
   ; this will need to be passed the entity ID and the parameters
 .PROC create_entity
+  RTS ; FIXME
 
     ; loop through the pool to find an inactive slot
   LDX #$00

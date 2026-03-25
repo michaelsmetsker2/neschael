@@ -16,6 +16,8 @@
 .IMPORT fill_scroll_buffer
 .IMPORT decompress_nametable
 
+.IMPORT create_entity
+
 .EXPORT scroll_screen
 .EXPORT draw_first_screen
 .EXPORT check_entities
@@ -120,7 +122,6 @@
   RTS
 .ENDPROC
 
-
   ; TODO see if i need a lookuptable of bitmasks anywhere else in the program
 mask_table: ; table of bit masks for finding the corosponding spawn column bit
   .BYTE %00000001, %00000010, %00000100, %00001000, %00010000, %00100000, %01000000, %10000000
@@ -129,28 +130,32 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
 .PROC check_entities
 
   ENTITY_COL_OFFSET      = $30
+  ENTITY_SIZE            = $03
 
   tmpDrawnNt             = $11 ; 0 - 1, whether we are drawing to left or right nametableS inhereted from fill_scroll_buffer
-  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background inhereted from fill_scroll_buffer
+  tmpMetatileIndex       = $01 ; index of the metacolumn to draw relative to the background inhereted from fill_scroll_buffer
   tmpBufferPointer       = $13 ; 16 bit, points the current dbuffer, inherited from fill_scroll_buffer
 
-  tmpScrollCollPtr       = $05
+  tmpScrollColPtr        = $02 ; pointer to the correct entity column bytes in the buffer
+  tmpSpawnStreamPtr      = $04 ; 16 bit, pointer to the entity in the spawn stream that is currently being evaluated.
+
 
   ; increment the buffer pointer to the scroll column position
   CLC
   LDA tmpBufferPointer
   ADC #ENTITY_COL_OFFSET
-  STA tmpScrollCollPtr
+  STA tmpScrollColPtr
   LDA tmpBufferPointer+1
   ADC #$00
-  STA tmpScrollCollPtr+1 
+  STA tmpScrollColPtr+1 
   
     ; check if column is in high or low byte
+  LDY #$00
   LDA tmpMetatileIndex
-  AND #%00001000
+  AND #%00001000  
   BEQ @find_col_bit
     ; increment to the higher byte if the index >= 8
-  INC tmpScrollCollPtr ; BUG not page safe, verify if this matters when memory layout is more permanent
+  INY
 @find_col_bit:
 
   LDA tmpMetatileIndex
@@ -158,11 +163,46 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
   TAX
   LDA mask_table, X
     ; check if the column bit is set
-  LDY #$00
-  AND (tmpScrollCollPtr), Y
+  AND (tmpScrollColPtr), Y
   BEQ @done ; no entities, return
 
-  ; TODO now loop through the correct stream and spawn the entities with matching columns
+@parse_stream:
+  INC tmpScrollColPtr
+  INC tmpScrollColPtr ; BUG this is not page safe
+    ; copy address into zeropage to use as a pointer
+  LDY #$00
+  LDA (tmpScrollColPtr), Y
+  STA tmpSpawnStreamPtr
+  INY
+  LDA (tmpScrollColPtr), Y
+  STA tmpSpawnStreamPtr+1
+
+  LDY #$00
+  ; FIXME this is unoptimized, maybe make it end if the next thing is less than match?
+@entity_loop: ; see if any elements in the stream match the current column
+  
+  LDA (tmpSpawnStreamPtr), Y
+  BEQ @done                   ; end of stream
+  
+  AND #%00001111              ; mask so we just get the column 
+  CMP tmpMetatileIndex
+  BNE @next_entity
+
+    ; entity matched
+  ; TODO pass entity data to a create entity function and check if it is valid.
+  JSR create_entity
+
+
+@next_entity:
+   ; increment the pointer to the next entity
+  CLC
+  LDA tmpSpawnStreamPtr
+  ADC #ENTITY_SIZE
+  STA tmpSpawnStreamPtr
+  BCC :+
+  INC tmpSpawnStreamPtr+1
+:
+  JMP @entity_loop
 
 @done:
   RTS

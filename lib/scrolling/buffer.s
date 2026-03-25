@@ -25,8 +25,8 @@
   COLUMN_Y_OFFSET        = $80 ; the offset of the low bytes, since we don't draw the top 32 scanlines   
   ATTR_BUFF_OFFSET       = $C0 ; 192, length of the tile draw buffer, used to find the attribute buffer which follows it
 
+  tmpMetatileIndex       = $01 ; index of the metacolumn to draw relative to the background
   tmpDrawnNt             = $11 ; 0 - 1, whether we are drawing to left or right nametable
-  tmpMetatileIndex       = $12 ; index of the metacolumn to draw relative to the background
   tmpBufferPointer       = $13 ; 16 bit, points to data to be read to the buffer
   tmpColumnPointer       = $15 ; 16 bit, pointes to the metacolumn to be read from in dbuffer
   tmpTilePointer         = $17 ; 16 bit, points to the metatile to decode

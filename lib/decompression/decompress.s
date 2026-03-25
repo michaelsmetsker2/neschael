@@ -6,14 +6,18 @@
 ;
 
 .IMPORT dbufTile1
-.IMPORT dbufAttr1
 .IMPORT dbufTile2
-.IMPORT dbufAttr2
+
+.IMPORT entStream1
+.IMPORT entStream2
 
 .EXPORT decompress_nametable
 
-.EXPORT dbuff_addr_high
 .EXPORT dbuff_addr_low
+.EXPORT dbuff_addr_high
+
+.EXPORT stream_addr_low
+.EXPORT stream_addr_high
 
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/levels/levelData.inc"
@@ -27,11 +31,17 @@
 	tmpBufferPtr        = $04  ; 16 bit pointer to the dbuffer to fill
 	tmpWritePtr			    = $06  ; 16 bit pointer to dbuffer, incremented when writing
 	tmpBackgroundOffset = $08	 ; background index to decompress
+	tmpStreamPtr			  = $09  ; 16 bit pointer to the location to store the spawn stream
 
 dbuff_addr_low:
   .BYTE <dbufTile1, <dbufTile2
 dbuff_addr_high:
   .BYTE >dbufTile1, >dbufTile2
+
+stream_addr_low:
+	.BYTE <entStream1, <entStream2
+stream_addr_high:
+	.BYTE >entStream1, >entStream2
 
 .PROC decompress_nametable
 
@@ -85,10 +95,31 @@ dbuff_addr_high:
 	STA tmpWritePtr+1
 	STA tmpBufferPtr+1
 
-		; copy addresses of the spawn streams to the values in zeropage
-	; create a pointer to the level spawn stream
+	; stores the address of the spawn stream in the corolating stream pointer in zeropage
+@setup_streams:
+		; make the offset from the start of the first spawnstream pointer
+	TYA	; Y still contains the target buffer
+	LDA stream_addr_low,Y
+	STA tmpStreamPtr
+	LDA stream_addr_high,Y
+	STA tmpStreamPtr+1
 
-
+		; make a temporary pointer to the level's spawn stream index
+	LDY #$02
+	LDA (levelPtr),Y
+	STA $02
+	INY
+	LDA (levelPtr),Y
+	STA $03
+		; increment the pointer by the background offset to point to the correct address, and store it at tmpStreamPtr
+	LDX #$00
+	LDY tmpBackgroundOffset
+	LDA ($02),Y
+	STA (tmpStreamPtr,X)
+	INY
+	LDA ($02),Y
+	LDY #$01
+	STA (tmpStreamPtr),Y
 
 	JMP lzss_decompress	
 
