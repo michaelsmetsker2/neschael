@@ -5,7 +5,7 @@
 
 	no underscores in file path
 
-	tested on linux, built with:
+	tested on WSL, built with:
 	gcc -Wall -o formatCanvas formatCanvas.c
 */
 
@@ -45,6 +45,7 @@ typedef struct {
 		EntityNode* head;
 } EntityList;
 
+// FIXME this may be broken
 void insertEntityOrdered(EntityList* list, uint8_t col, uint8_t id, uint8_t yPos) {
 	EntityNode* newNode = malloc(sizeof(EntityNode));
 	newNode->column = col;
@@ -464,11 +465,11 @@ int main(int argc, char *argv[]) {
 		if(cur) { // don't need to preint ind of stream byte if there are no entities in the nametable
 			while(cur) {
 
-				// combine both x and y positions into one byte
+				// combine both x and y positions into one bytex
 				uint8_t posByte = cur->column;
 				posByte |= (cur->yPos << 4);
 
-				fprintf(out, "\t.BYTE $%02X, $%02X, $00 \n", posByte, cur->entityId);
+				fprintf(out, "\t.BYTE $%02X, $%02X, $00 ; X: %02u, Y: %02u\n", posByte, cur->entityId, cur->column, cur->yPos);
 				cur = cur->next;			
 			}
 			// end of stream

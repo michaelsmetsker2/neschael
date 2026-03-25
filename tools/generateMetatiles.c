@@ -1,7 +1,7 @@
 /*
 	simple script, generates the metatiles file based on the collision from tiled and map from nexxt,
   build with 
-  gcc -o generateMetatiles generateMetatiles.c
+  gcc -o -Wall generateMetatiles generateMetatiles.c
 */
 
 #include <stdio.h>
