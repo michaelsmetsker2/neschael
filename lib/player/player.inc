@@ -12,7 +12,7 @@
   velocityY       = PLAYER_DATA + 4   ; Signed Fixed Point 8.8
 
     ; integer part can be used as the pixel positions of the sprite
-  positionX       = PLAYER_DATA + 6   ; Unsigned Fixed Point 8.8 screen position +- lookahead offset
+  positionX       = PLAYER_DATA + 6   ; Unsigned Fixed Point 8.8 screen position +/- lookahead offset
   positionY       = PLAYER_DATA + 8   ; Unsigned Fixed Point 8.8
 
   motionState     = PLAYER_DATA + 10  ; See .ENUM MotionState

@@ -16,6 +16,7 @@
 .IMPORT level_index
 .IMPORT draw_first_screen
 .IMPORT player_init
+.IMPORT entities_init
 .IMPORT hud_init
 
 .EXPORT game_init
@@ -26,8 +27,6 @@
 
   LoadPaletteData
 
-  ; levelID is already 0 so no need to set it
-
   RTS
 .ENDPROC
 
@@ -37,7 +36,8 @@
   DisableVideoOutput 
 
   ClearOamMemory ; remove all current sprites
-
+  JSR entities_init
+  
   ; set the level pointer to the id of levelID
   LDA levelId
   ASL A         ; *2 as 2 bytes for each address

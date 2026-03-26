@@ -38,10 +38,10 @@
   PLAYER_DATA:  .res 32
 
 ; $40-5F:       Audio data and streams ; TODO
-  AUDIO_DATA:    .res 32
+  AUDIO_DATA:   .res 32
 
-; $60-$FF:       Game data, see lib/player/game.inc
-  GAME_DATA:    .res 156
+; $60-$FF:      Game data, see lib/player/game.inc
+  GAME_DATA:    .res 160
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack

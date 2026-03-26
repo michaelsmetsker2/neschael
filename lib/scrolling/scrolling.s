@@ -139,7 +139,6 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
   tmpScrollColPtr        = $02 ; pointer to the correct entity column bytes in the buffer
   tmpSpawnStreamPtr      = $04 ; 16 bit, pointer to the entity in the spawn stream that is currently being evaluated.
 
-
   ; increment the buffer pointer to the scroll column position
   CLC
   LDA tmpBufferPointer
@@ -165,7 +164,6 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
     ; check if the column bit is set
   AND (tmpScrollColPtr), Y
   BEQ @done ; no entities, return
-
 @parse_stream:
   INC tmpScrollColPtr
   INC tmpScrollColPtr ; BUG this is not page safe
@@ -189,9 +187,8 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
   BNE @next_entity
 
     ; entity matched
-  ; TODO pass entity data to a create entity function and check if it is valid.
   JSR create_entity
-
+  LDY #$00 ; reset y register for looping
 
 @next_entity:
    ; increment the pointer to the next entity

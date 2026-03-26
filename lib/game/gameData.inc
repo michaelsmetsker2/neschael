@@ -26,6 +26,9 @@ scrollAmount   = GAME_DATA + 6  ; signed, the ammount to scroll the screen by th
 
 levelId        = GAME_DATA + 7  ; level to load, corolates to index of the level_index lookup table
 levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the current level
+
+spriteCount    = GAME_DATA + 10 ; ammount of unreserved sprites used by entities, determines whether to spawn more
+
 ; TODO gameState ; for main menu, game, credits?
 
 ; update the render flag so the game logic will wait on NMI
