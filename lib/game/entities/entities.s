@@ -9,8 +9,8 @@
 .INCLUDE "lib/game/gamedata.inc"
 .INCLUDE "data/system/ppu.inc"
 
-.IMPORT   entityPool
 .IMPORTZP SCRATCH
+.IMPORT   entityPool
 .IMPORT   shadowOam
 
 .IMPORT entity_index_low
@@ -164,7 +164,7 @@
     ; create pointer to the entity type
   LDA entity_index_low, Y
   STA tmpEntityTypePointer
-  LDA entity_index_high
+  LDA entity_index_high, Y
   STA tmpEntityTypePointer+1
 
 @check_sprites:
@@ -173,7 +173,7 @@
   LDA (tmpEntityTypePointer), Y
   CLC
   ADC spriteCount
-  CMP SPRITE_CAP
+  CMP #SPRITE_CAP+1
     ; TODO if needed i can make an optional not spawn fallback subproccess 
   BCS @done       ; sprite cap exceeded, return early
   
@@ -186,7 +186,7 @@
   STA tmpInitFuncPtr
   INY
   LDA (tmpEntityTypePointer), Y
-  STA tmpInitFuncPtr
+  STA tmpInitFuncPtr+1
 
     ; push return address and run init function
   LDA #>(@ret - 1)
@@ -197,7 +197,7 @@
 @ret:
   ; fixme this cah be  hardcoded label if i dont need to spawn one entity from another
 
-
+  RTS
 
 @done:
   RTS

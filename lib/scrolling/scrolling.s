@@ -126,6 +126,7 @@
 mask_table: ; table of bit masks for finding the corosponding spawn column bit
   .BYTE %00000001, %00000010, %00000100, %00001000, %00010000, %00100000, %01000000, %10000000
   
+  ; see if the column scrolling to contains entities to be spawned
   ; WARNING should only be a tail call from fill_scroll_buffer as it inherits multiuple variables 
 .PROC check_entities
 
@@ -139,7 +140,7 @@ mask_table: ; table of bit masks for finding the corosponding spawn column bit
   tmpScrollColPtr        = $02 ; pointer to the correct entity column bytes in the buffer
   tmpSpawnStreamPtr      = $04 ; 16 bit, pointer to the entity in the spawn stream that is currently being evaluated.
 
-  ; increment the buffer pointer to the scroll column position
+    ; increment the buffer pointer to the scroll column position
   CLC
   LDA tmpBufferPointer
   ADC #ENTITY_COL_OFFSET

@@ -11,7 +11,7 @@
 .EXPORT entity_index_high
 
 entity_index_low:
-  .BYTE >test_entity
+  .BYTE <test_entity
 
 entity_index_high:
-  .BYTE <test_entity
+  .BYTE >test_entity
