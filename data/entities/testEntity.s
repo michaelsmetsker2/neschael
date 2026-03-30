@@ -19,7 +19,11 @@ test_entity:
 .ENDPROC
 
 .PROC init_func
-  ;INC $E0 ; FIXME
+  INC $E0 ; FIXME
+
+
+
+  
   RTS
 .ENDPROC
 

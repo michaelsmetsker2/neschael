@@ -160,7 +160,10 @@
   STA tmpSlotPtr
 
     ; id of the entity
-  LDY entityPool+1, X               ; faster not to use pointer
+  LDY #$01
+  LDA (roEntityData), y
+  TAY
+  
     ; create pointer to the entity type
   LDA entity_index_low, Y
   STA tmpEntityTypePointer
@@ -196,8 +199,6 @@
   JMP (tmpInitFuncPtr) ; BUG this can misbehave on page boundaries
 @ret:
   ; fixme this cah be  hardcoded label if i dont need to spawn one entity from another
-
-  RTS
 
 @done:
   RTS
