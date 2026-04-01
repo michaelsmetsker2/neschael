@@ -5,7 +5,6 @@
 ; temp test entity definition and implementation for building the entity system
 ;
 
-
 .EXPORT test_entity
 
 test_entity:
@@ -14,16 +13,20 @@ test_entity:
 
   ; these functions need to be passed the memory location of their ram or index of a certain pool
 .PROC update_func
-  
+  INC $E1 ; FIXME
+  NOP
+  NOP
+  NOP
+  NOP
+  NOP
+  NOP
+  NOP
   RTS
 .ENDPROC
 
 .PROC init_func
   INC $E0 ; FIXME
 
-
-
-  
   RTS
 .ENDPROC
 

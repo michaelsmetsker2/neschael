@@ -6,17 +6,17 @@
 ; contains level data
 ;
 
-.EXPORT LEVELNAME
+.EXPORT test_level_2
 
-LEVELNAME:
+test_level_2:
 	.WORD background_index, spawn_stream
-	.BYTE $00, $00 ; high byte of player starting X and Y
-	.BYTE $03 ; length of background, zero based
+	.BYTE $30, $8F ; high byte of player starting X and Y
+	.BYTE $07 ; length of background, zero based
 
 background_index:
-	.WORD background_0, background_1, background_2, background_3
+	.WORD background_0, background_1, background_2, background_3, background_4, background_5, background_6, background_7
 spawn_stream:
-	.WORD stream_0,stream_1,stream_2,stream_3
+	.WORD stream_0,stream_1,stream_2,stream_3,stream_4,stream_5,stream_6,stream_7
 
 background_0:
   .BYTE $FF, $00, $06, $00, $FF, $01, $04, $07, $07, $00, $05, $06, $08, $0C, $04, $13 
@@ -55,11 +55,48 @@ stream_2:
 background_3:
   .BYTE $FF, $00, $06, $00, $FE, $01, $01, $03, $05, $08, $00, $07, $10, $FD, $00, $00 
   .BYTE $02, $09, $0E, $1E, $1B, $FF, $02, $04, $07, $19, $3E, $FD, $02, $03, $03, $0A 
-  .BYTE $5A, $06, $54, $0F, $6A, $FE, $04, $04, $16, $7B, $08, $9C, $0C, $99, $03, $06 
-  .BYTE $0C, $B3, $FE, $F0, $FF, $0A, $A8, $FC, $00, $A0, $AA, $AA, $09, $CA, $FD, $20 
+  .BYTE $5A, $06, $54, $0F, $6A, $FE, $04, $04, $16, $7B, $08, $9C, $0C, $99, $05, $06 
+  .BYTE $0A, $AA, $FE, $F0, $FF, $0A, $B4, $FC, $00, $A0, $AA, $AA, $09, $CA, $FD, $20 
   .BYTE $22, $22, $0B, $C2, $03, $E6, $FF, $FF, $05, $EA, $FE, $0C, $00, $00 
 
 stream_3:
 	.BYTE $32, $00, $00 ; X: 02, Y: 03
 	.BYTE $93, $00, $00 ; X: 03, Y: 09
+	.BYTE $00
+
+background_4:
+  .BYTE $FF, $00, $09, $00, $FE, $01, $01, $21, $00, $FF, $01, $23, $22, $17, $15, $FF 
+  .BYTE $02, $25, $5D, $FF, $00, $39, $83, $28, $C7, $FE, $08, $00, $00 
+
+stream_4:
+	.BYTE $43, $00, $00 ; X: 03, Y: 04
+	.BYTE $00
+
+background_5:
+  .BYTE $F9, $00, $00, $01, $03, $03, $00, $00, $03, $03, $FE, $02, $01, $03, $00, $FF 
+  .BYTE $00, $04, $0F, $FE, $02, $01, $17, $0A, $05, $24, $1E, $26, $03, $4F, $0B, $47 
+  .BYTE $04, $22, $08, $61, $05, $5E, $07, $5F, $11, $5E, $09, $19, $10, $78, $07, $4D 
+  .BYTE $23, $83, $26, $C9, $FE, $01, $00, $00 
+
+stream_5:
+	.BYTE $60, $00, $00 ; X: 00, Y: 06
+	.BYTE $00
+
+background_6:
+  .BYTE $FF, $00, $09, $00, $FE, $02, $01, $04, $06, $05, $0B, $07, $09, $07, $1B, $11 
+  .BYTE $17, $07, $2F, $0A, $23, $07, $39, $FE, $01, $01, $03, $47, $09, $39, $0C, $4E 
+  .BYTE $16, $36, $0F, $70, $04, $4C, $09, $83, $0B, $20, $18, $97, $06, $59, $2F, $C0 
+  .BYTE $FE, $01, $00, $00 
+
+stream_6:
+	.BYTE $10, $00, $00 ; X: 00, Y: 01
+	.BYTE $00
+
+background_7:
+  .BYTE $FF, $00, $0A, $00, $FF, $01, $15, $00, $FF, $03, $09, $16, $FE, $03, $03, $09 
+  .BYTE $21, $03, $2B, $FF, $01, $09, $2E, $04, $15, $43, $3B, $1B, $06, $0F, $99, $0C 
+  .BYTE $B3, $0B, $A8, $25, $CA, $FE, $08, $00, $00 
+
+stream_7:
+	.BYTE $53, $00, $00 ; X: 03, Y: 05
 	.BYTE $00

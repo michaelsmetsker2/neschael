@@ -80,29 +80,42 @@
   LDA entityPool, X
   BPL @next_entity  ; bit 7 = 0, skip
 @active_entity:
+  TAY ; store entity ID + status for later
+
     ; update low byte of memory pointer to the current entity's block
   TXA
   CLC
   ADC #<entityPool
   STA tmpEntityMemoryPointer
 
-    ; find funcion
-  TXA
+    ; store x as update function may corrupt it
+  STX tmpEntityOffset
+
+    ; Set pointer to the correct entity ID
+  TYA            ; retreive ID + status form Y register
   AND #%01111111 ; mask activity bit to get entity id
   TAY
+
   LDA entity_index_low, Y
   STA tmpFuncPointer
   LDA entity_index_high, Y
   STA tmpFuncPointer+1
+    ; set the pointer now to the update function of the entity
+  LDY #$00
+  LDA (tmpFuncPointer), Y
+  TAX
+  INY
+  LDA (tmpFuncPointer), Y
 
-    ; store x
-  STX tmpEntityOffset
+  STX tmpFuncPointer
+  STA tmpFuncPointer+1
 
-    ; run function and set return point
+@run_update_func:
   LDA #>(@ret - 1)
   PHA
   LDA #<(@ret - 1)
   PHA
+
   JMP (tmpFuncPointer) ; BUG this will misbehave on page boundaries (can always do rts trick)
 
 @ret:
@@ -126,10 +139,11 @@
   roMetatileIndex       = $01 ; read only, index of the metacolumn index of the entity relative to the background, inhereted from check_entities
   roEntityData          = $04 ; ready only, 16 bit, pointer to the start of the entities rom params, inhereted from check_entities
 
-  tmpSlotPtr            = $06 ; 16 bit, points to the ; TODO
+  tmpSlotPtr            = $06 ; 16 bit, points to the memory chunk in the entity pool alocated for the entity
   tmpEntityTypePointer  = $08 ; 16 bit, points to the entity types definition in rom
   tmpInitFuncPtr        = $0A ; 16 bit, points to the init function if the entity to jump to
-
+  
+  tmpStorage            = $0C ; used for holding scratch variables for later
 
 @find_free_slot:
     ; set the high byte of the pointer as it doesn't change
@@ -163,6 +177,7 @@
   LDY #$01
   LDA (roEntityData), y
   TAY
+  STA tmpStorage ; copy to x register to save for later
   
     ; create pointer to the entity type
   LDA entity_index_low, Y
@@ -183,6 +198,12 @@
     ; update the count
   STA spriteCount
 
+    ; add the entity ID to the pool and set state to active
+  LDA #%10000000
+  ORA tmpStorage
+  LDY #$00
+  STA (tmpSlotPtr), Y
+
     ; create tmpInitFuncPtr
   LDY #INIT_FUNC_OFFSET
   LDA (tmpEntityTypePointer), Y
@@ -198,7 +219,7 @@
   PHA
   JMP (tmpInitFuncPtr) ; BUG this can misbehave on page boundaries
 @ret:
-  ; fixme this cah be  hardcoded label if i dont need to spawn one entity from another
+  ; fixme this can be  hardcoded label if i dont need to spawn one entity from another
 
 @done:
   RTS
