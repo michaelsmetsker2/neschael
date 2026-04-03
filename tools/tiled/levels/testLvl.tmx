@@ -3,9 +3,9 @@
  <editorsettings>
   <export target="export.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" source="../../metas.tsx"/>
- <tileset firstgid="257" source="../../attributes.tsx"/>
- <tileset firstgid="261" source="../../numbers.tsx"/>
+ <tileset firstgid="1" source="../metas.tsx"/>
+ <tileset firstgid="257" source="../attributes.tsx"/>
+ <tileset firstgid="261" source="../numbers.tsx"/>
  <layer id="1" name="tiles" width="64" height="13">
   <data encoding="csv">
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

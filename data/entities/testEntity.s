@@ -8,7 +8,7 @@
 .EXPORT test_entity
 
 test_entity:
-  .WORD update_func, init_func, remove_func
+  .WORD update_func-1, init_func-1, remove_func-1
   .BYTE $04 ; how sprites to allocate in oam for this
 
   ; these functions need to be passed the memory location of their ram or index of a certain pool

@@ -3,8 +3,8 @@
  <editorsettings>
   <export target="export.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" source="../../metas.tsx"/>
- <tileset firstgid="257" source="../../attributes.tsx"/>
+ <tileset firstgid="1" source="../metas.tsx"/>
+ <tileset firstgid="257" source="../attributes.tsx"/>
  <layer id="1" name="tiles" width="64" height="12">
   <data encoding="csv">
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,

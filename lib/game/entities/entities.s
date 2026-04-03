@@ -46,16 +46,13 @@
 
   tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
 
-    ; if the update pointer reaches this address, all entities have been looped through 
-
   UNRESERVED_OAM_OFFSET  = $10 ; offset to skip the reserverd entries in OAM (16, first 4)
 
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
-  tmpFuncPointer         = SCRATCH + 3 ; 16 bit, points to the update function of current entity
+  tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
 
-    ; clear non reserved OAM memory
-  
 @clear_oam: ; TODO find a way to only clear the filled stuff
+    ; clear non reserved OAM memory
   LDX #UNRESERVED_OAM_OFFSET ; start at unreserved
   LDA #$FE
 :
@@ -97,26 +94,25 @@
   TAY
 
   LDA entity_index_low, Y
-  STA tmpFuncPointer
+  STA tmpEntityPointer
   LDA entity_index_high, Y
-  STA tmpFuncPointer+1
-    ; set the pointer now to the update function of the entity
-  LDY #$00
-  LDA (tmpFuncPointer), Y
-  TAX
-  INY
-  LDA (tmpFuncPointer), Y
+  STA tmpEntityPointer+1
 
-  STX tmpFuncPointer
-  STA tmpFuncPointer+1
-
-@run_update_func:
+@push_return_addr:
   LDA #>(@ret - 1)
   PHA
   LDA #<(@ret - 1)
   PHA
 
-  JMP (tmpFuncPointer) ; BUG this will misbehave on page boundaries (can always do rts trick)
+@push_update_Func
+  LDY #$01
+  LDA (tmpEntityPointer), Y
+  PHA
+  DEY
+  LDA (tmpEntityPointer), Y
+  PHA
+  
+  RTS
 
 @ret:
     ; restore index
@@ -141,9 +137,8 @@
 
   tmpSlotPtr            = $06 ; 16 bit, points to the memory chunk in the entity pool alocated for the entity
   tmpEntityTypePointer  = $08 ; 16 bit, points to the entity types definition in rom
-  tmpInitFuncPtr        = $0A ; 16 bit, points to the init function if the entity to jump to
-  
-  tmpStorage            = $0C ; used for holding scratch variables for later
+
+  tmpStorage            = $0A ; used for holding scratch variables for later
 
 @find_free_slot:
     ; set the high byte of the pointer as it doesn't change
@@ -162,7 +157,7 @@
   ADC #ENTITY_LENGTH
   TAX
   CMP #POOL_LENGTH
-  BCC @pool_loop   ; FIXME see fixme above
+  BCC @pool_loop   ; FIXME  once the size of the pool is finalized, bcs can be used instead of CMP and align to the end of memory
 
   RTS ; no free slots, return early
 
@@ -204,22 +199,13 @@
   LDY #$00
   STA (tmpSlotPtr), Y
 
-    ; create tmpInitFuncPtr
-  LDY #INIT_FUNC_OFFSET
+    ; push the address-1 of the init function
+  LDY #INIT_FUNC_OFFSET+1
   LDA (tmpEntityTypePointer), Y
-  STA tmpInitFuncPtr
-  INY
+  PHA
+  DEY
   LDA (tmpEntityTypePointer), Y
-  STA tmpInitFuncPtr+1
-
-    ; push return address and run init function
-  LDA #>(@ret - 1)
   PHA
-  LDA #<(@ret - 1)
-  PHA
-  JMP (tmpInitFuncPtr) ; BUG this can misbehave on page boundaries
-@ret:
-  ; fixme this can be  hardcoded label if i dont need to spawn one entity from another
 
 @done:
   RTS
