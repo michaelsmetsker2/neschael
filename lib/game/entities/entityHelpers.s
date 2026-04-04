@@ -12,8 +12,6 @@
 
 .PROC populate_slot
 
-  PARAM_OFFSET = $04 ; offset for the param byte in the entity slot
-
     ; add the entity ID to the pool and set state to active
   LDA #%10000000
   ORA InitParams::entityId
@@ -30,7 +28,7 @@
     ; add to screen scroll to get world position store in slot
   CLC
   ADC screenPosX
-  LDY #$01
+  LDY #Slot::X_POS_OFFSET
   STA (InitParams::slotPtr), Y ; store low byte
   LDA screenPosX+1
   BCC :+
@@ -50,7 +48,7 @@
 @populate_params: ; copy the param byte to the slot
   DEY ; decrement Y from 3 to 2, the offset of params in level data
   LDA (InitParams::entityData), Y
-  LDY #PARAM_OFFSET
+  LDY #Slot::PARAM_OFFSET
   STA (InitParams::slotPtr), Y
 
   RTS

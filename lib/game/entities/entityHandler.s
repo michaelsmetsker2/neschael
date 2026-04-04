@@ -74,7 +74,7 @@
 @active_entity:
   TAY ; store entity ID + status for later
 
-    ; update low byte of memory pointer to the current entity's block
+    ; update low byte of memory pointer to the current entity's slot
   TXA
   CLC
   ADC #<entityPool

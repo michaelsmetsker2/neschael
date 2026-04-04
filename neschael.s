@@ -53,8 +53,8 @@ game_loop:
   JSR update_camera
   JSR update_player_sprite
 
-  JSR update_entities
   JSR scroll_screen
+  JSR update_entities
 
   ; conditionally load a new level based on the levelFlag
   LDA gameFlags
