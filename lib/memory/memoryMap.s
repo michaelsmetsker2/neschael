@@ -66,7 +66,7 @@
   dbufAttr2:   .res 48
   dbufEnt2:    .res 2 
   entStream2:  .res 2
-
+;-------------------------------------------------------------------------------
 ; $051D-$06FF:  General Purpose RAM
 
 ; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory

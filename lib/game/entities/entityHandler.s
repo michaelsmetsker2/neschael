@@ -1,6 +1,6 @@
 ;
 ; neschael
-; lib/game/entities/entities.s
+; lib/game/entities/entityHandler.s
 ;
 ; main subroutines for handling the entity system
 ;
@@ -21,23 +21,18 @@
 .EXPORT create_entity
 
 
-  ; seta all entities to inactive upon level load
+  ; loop through entity pool and set all to inactive
 .PROC entities_init
- 
-  LDA #$00
-  STA spriteCount
-
-  RTS
-  ; FIXME unfinished bad broken  
-  LDA #$00
   LDX #$00
-
-  CLC
 @loop:
-  STA entityPool, X
+  LDA #$00
+  STA entityPool, X        ; clear status byte
+  TXA
   CLC
   ADC #ENTITY_LENGTH
-
+  TAX
+  CMP #POOL_LENGTH
+  BCC @loop
   RTS
 .ENDPROC
 
@@ -104,7 +99,7 @@
   LDA #<(@ret - 1)
   PHA
 
-@push_update_Func
+@push_update_Func:
   LDY #$01
   LDA (tmpEntityPointer), Y
   PHA
@@ -112,7 +107,7 @@
   LDA (tmpEntityPointer), Y
   PHA
   
-  RTS
+  RTS  ; rts to update function
 
 @ret:
     ; restore index
@@ -138,7 +133,7 @@
   tmpSlotPtr            = $06 ; 16 bit, points to the memory chunk in the entity pool alocated for the entity
   tmpEntityTypePointer  = $08 ; 16 bit, points to the entity types definition in rom
 
-  tmpStorage            = $0A ; used for holding scratch variables for later
+  entityId              = $0A ; ID of the entity
 
 @find_free_slot:
     ; set the high byte of the pointer as it doesn't change
@@ -172,7 +167,7 @@
   LDY #$01
   LDA (roEntityData), y
   TAY
-  STA tmpStorage ; copy to x register to save for later
+  STA entityId ; copy to x register to save for later
   
     ; create pointer to the entity type
   LDA entity_index_low, Y
@@ -187,19 +182,12 @@
   CLC
   ADC spriteCount
   CMP #SPRITE_CAP+1
-    ; TODO if needed i can make an optional not spawn fallback subproccess 
+    ; TODO if needed I can make an optional not spawn fallback subproccess 
   BCS @done       ; sprite cap exceeded, return early
-  
     ; update the count
   STA spriteCount
 
-    ; add the entity ID to the pool and set state to active
-  LDA #%10000000
-  ORA tmpStorage
-  LDY #$00
-  STA (tmpSlotPtr), Y
-
-    ; push the address-1 of the init function
+@run_init_function: ; push the address-1 of the entities' init function
   LDY #INIT_FUNC_OFFSET+1
   LDA (tmpEntityTypePointer), Y
   PHA

@@ -7,6 +7,8 @@
 
 .EXPORT test_entity
 
+.IMPORT populate_slot
+
 test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
   .BYTE $04 ; how sprites to allocate in oam for this
@@ -14,6 +16,9 @@ test_entity:
   ; these functions need to be passed the memory location of their ram or index of a certain pool
 .PROC update_func
   INC $E1 ; FIXME
+
+  ;spawn a test sprite
+
   NOP
   NOP
   NOP
@@ -25,13 +30,14 @@ test_entity:
 .ENDPROC
 
 .PROC init_func
-  INC $E0 ; FIXME
+
+  JSR populate_slot
 
   RTS
 .ENDPROC
 
 .PROC remove_func
-
+  ; decrement the sprite count
   RTS
 .ENDPROC
 
