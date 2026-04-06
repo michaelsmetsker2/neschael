@@ -19,22 +19,34 @@ test_entity:
   ; these functions need to be passed the memory location of their ram or index of a certain pool
 .PROC update_func
 
-  ; spawn a test sprite in the first sprite slot
-  LDY #Slot::Y_POS_OFFSET
-  LDA (UpdateParams::slotPtr), Y
-  STA $0210
-
-  LDA $0205
-  STA $0211
-  LDA $0206
-  STA $0212
-
+  ; find the x position of the test sprite
   SEC
   LDY #Slot::X_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
   SBC screenPosX
-  STA $0213
+  TAX
 
+  ; write test sprite data to oam
+  LDY #Slot::Y_POS_OFFSET
+  LDA (UpdateParams::slotPtr), Y
+
+  LDY UpdateParams::oamOffset
+  STA unreservedOam, Y
+  INY
+
+  LDA $0205
+  STA unreservedOam, Y
+  INY
+
+  LDA $0206
+  STA unreservedOam, Y
+  INY
+
+  TXA
+  STA unreservedOam, Y
+  INY
+  STY UpdateParams::oamOffset
+  
   RTS
 .ENDPROC
 

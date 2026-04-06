@@ -28,6 +28,7 @@
     ; add to screen scroll to get world position store in slot
   CLC
   ADC screenPosX
+  AND #%11110000
   LDY #Slot::X_POS_OFFSET
   STA (InitParams::slotPtr), Y ; store low byte
   LDA screenPosX+1

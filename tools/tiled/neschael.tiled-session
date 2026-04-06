@@ -5,11 +5,11 @@
     },
     "activeFile": "levels/testLv3.tmx",
     "expandedProjectPaths": [
-        "levels",
         "levels/test_level",
+        "levels",
+        ".",
         "metas",
-        "levels/testlevel",
-        "."
+        "levels/testlevel"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -54,11 +54,11 @@
             "scaleInDock": 1
         },
         "levels/testLv3.tmx": {
-            "scale": 1,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 859.5,
-                "y": 34.5
+                "x": 461.25,
+                "y": 82.75
             }
         },
         "levels/testLvl.tmx": {

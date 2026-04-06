@@ -46,6 +46,8 @@
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
   tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
 
+  oamOffset              = SCRATCH + 5 ; FIXME 16 bit, 
+
 @clear_oam: ; TODO find a way to only clear the filled stuff
     ; clear non reserved OAM memory
   LDX #UNRESERVED_OAM_OFFSET ; start at unreserved
@@ -64,8 +66,10 @@
   LDA #>entityPool
   STA tmpEntityMemoryPointer+1
 
-    ; loop through entity pool
   LDX #$00
+  STX oamOffset ; clear oamOffset
+
+    ; loop through entity pool
 @entity_loop:
 
     ; test bit 7 for an active entity

@@ -25,7 +25,10 @@
 #define ATTR_HEIGHT 6
 #define ATTR_SIZE (ATTR_WIDTH * ATTR_HEIGHT)
 
+#define ENTITY_OVERSCAN_OFFSET 2
+
 #define debug 0
+
 
 // array of match structs
 struct {
@@ -50,7 +53,7 @@ void insertEntityOrdered(EntityList* list, uint8_t col, uint8_t id, uint8_t yPos
 	EntityNode* newNode = malloc(sizeof(EntityNode));
 	newNode->column = col;
 	newNode->entityId = id;
-	newNode->yPos = yPos;
+	newNode->yPos = yPos + ENTITY_OVERSCAN_OFFSET;
 
 	if (!list->head || id < list->head->entityId) {
 		newNode->next = list->head;

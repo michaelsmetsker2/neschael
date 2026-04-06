@@ -6,11 +6,11 @@
 ; contains level data
 ;
 
-.EXPORT test_level_2
+.EXPORT LEVELNAME
 
-test_level_2:
+LEVELNAME:
 	.WORD background_index, spawn_stream
-	.BYTE $30, $8F ; high byte of player starting X and Y
+	.BYTE $00, $00 ; high byte of player starting X and Y
 	.BYTE $07 ; length of background, zero based
 
 background_index:
