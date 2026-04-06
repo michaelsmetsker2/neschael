@@ -19,23 +19,23 @@
   STA (InitParams::slotPtr), Y
 
 @populate_x_position:
-    ; muliply metatile by 16 to get pixel offset 
+    ; muliply metatile by 16 to get pixel position low byte 
   LDA InitParams::metatileIndex
-  LSR A
-  LSR A
-  LSR A
-  LSR A
-    ; add to screen scroll to get world position store in slot
-  CLC
-  ADC screenPosX
-  AND #%11110000
+  ASL A
+  ASL A
+  ASL A
+  ASL A
   LDY #Slot::X_POS_OFFSET
   STA (InitParams::slotPtr), Y ; store low byte
-  LDA screenPosX+1
-  BCC :+
-  ADC #$00                     ; conditionally add carry
-  :
+  
+    ; high byte is screen scroll, add one if scrolling right
   INY
+  LDX screenPosX+1
+  BIT scrollAmount
+  BMI :+
+  INX
+  :
+  TXA
   STA (InitParams::slotPtr), Y ; store high byte
 
 @populate_y_position:
@@ -43,7 +43,6 @@
   LDA (InitParams::entityData, X)
   AND #%11110000 ; mask just the Y position
   INY
-  ; TODO add offset for hud and overscan
   STA (InitParams::slotPtr), Y ; store the position
 
 @populate_params: ; copy the param byte to the slot

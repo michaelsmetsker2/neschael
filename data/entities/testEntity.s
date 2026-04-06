@@ -26,6 +26,11 @@ test_entity:
   SBC screenPosX
   TAX
 
+  INY
+  LDA (UpdateParams::slotPtr), Y
+  SBC screenPosX+1
+  BNE @done  
+
   ; write test sprite data to oam
   LDY #Slot::Y_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
@@ -47,6 +52,7 @@ test_entity:
   INY
   STY UpdateParams::oamOffset
   
+  @done:
   RTS
 .ENDPROC
 
