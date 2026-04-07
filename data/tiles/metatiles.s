@@ -7,10 +7,13 @@
 ; order: t1 t2 b1 b2
 ;
 
-.EXPORT metatiles
+.EXPORT metatile_index_low
+.EXPORT metatile_index_high
 
-metatiles:
-	.WORD tile_0, tile_1, tile_2, tile_3, tile_4
+metatile_index_low:
+	.BYTE <tile_0, <tile_1, <tile_2, <tile_3, <tile_4
+metatile_index_high:
+	.BYTE >tile_0, >tile_1, >tile_2, >tile_3, >tile_4
 
 tile_0:
 	.BYTE $00, $00, $00, $00 

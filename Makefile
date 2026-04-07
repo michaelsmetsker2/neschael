@@ -15,8 +15,7 @@ BIN_DIR = bin
 # source files
 SRC = neschael.s \
       $(shell find lib -name '*.s') \
-    	$(shell find data/levels -maxdepth 1 -name '*.s') \
-    	$(shell find data/entities -maxdepth 1 -name '*.s')
+    	$(shell find data -name '*.s')
 
 # objects
 OBJECTS = $(SRC:%.s=$(BIN_DIR)/%.o)
@@ -42,7 +41,8 @@ link: $(BIN_DIR)/neschael.link
 $(BIN_DIR)/neschael.link: $(OBJECTS)
 	@mkdir -p $(dir $@)
 	$(LINKER) -o $@ $(LINKFLAGS) $(OBJECTS)
-	python3 tools/fix_dbg.py bin/neschael.dbg
+# runs script to fix dbg file
+	python3 tools/fix_dbg.py bin/neschael.dbg 
 
 # This target entry concatenates the .bin ROM files into a .nes iNES emulator-compatible ROM file
 build: bin/hdr.bin bin/prg.bin bin/chr.bin

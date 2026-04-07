@@ -30,7 +30,6 @@ levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the curren
 spriteCount    = GAME_DATA + 10 ; ammount of unreserved sprites used by entities, determines whether to spawn more
 
 
-
 ; TODO gameState ; for main menu, game, credits?
 
 ; update the render flag so the game logic will wait on NMI

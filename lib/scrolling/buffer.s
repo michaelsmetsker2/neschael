@@ -11,7 +11,8 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/scrolling/scrolling.inc"
 
-.INCLUDE "data/tiles/metatiles.s"
+.IMPORT metatile_index_low
+.IMPORT metatile_index_high
 
   ; from decompress.s
 .IMPORT dbuff_addr_high
@@ -129,12 +130,10 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 @loop:
     ; set the location of tmpTilePointer to the correct metatile
   LDA (tmpColumnPointer), Y
-  ASL A                       ; multiply by two to get lookup table offset
   TAX
-  LDA metatiles, X
+  LDA metatile_index_low, X
   STA tmpTilePointer
-  INX
-  LDA metatiles, X
+  LDA metatile_index_high, X
   STA tmpTilePointer+1
 
     ; temporarily store the metatile's tile data in scratch memory 

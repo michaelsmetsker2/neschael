@@ -47,7 +47,7 @@
   slotPtr             = $00          ; 16 bit, points to the first byte of the slot owned by the current entity
   oamOffset           = $05          ; FIXME
 
-  SAFE_SCRATCH        = $06
+  SAFE_SCRATCH        = $06          ; start of scratch memory address unreserved from functions calling this one
 
 .ENDSCOPE
 

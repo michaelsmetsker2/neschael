@@ -37,9 +37,9 @@ background_1:
   .BYTE $03, $EC, $FE, $28, $08, $00 
 
 stream_1:
-	.BYTE $4B, $00, $00 ; X: 11, Y: 04
 	.BYTE $93, $00, $00 ; X: 03, Y: 09
 	.BYTE $85, $00, $00 ; X: 05, Y: 08
+	.BYTE $4B, $00, $00 ; X: 11, Y: 04
 	.BYTE $00
 
 background_2:

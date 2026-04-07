@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <ctype.h>	
 
-#define LINE_SIZE 163840 // set and forget, increas if not enough
+#define LINE_SIZE 163840 // set and forget, increase if not enough
 
 #define META_WIDTH  16
 #define META_HEIGHT 12
@@ -48,21 +48,21 @@ typedef struct {
 		EntityNode* head;
 } EntityList;
 
-// FIXME this may be broken
+// linked list implementation for entities, sorted by X position
 void insertEntityOrdered(EntityList* list, uint8_t col, uint8_t id, uint8_t yPos) {
 	EntityNode* newNode = malloc(sizeof(EntityNode));
 	newNode->column = col;
 	newNode->entityId = id;
 	newNode->yPos = yPos + ENTITY_OVERSCAN_OFFSET;
 
-	if (!list->head || id < list->head->entityId) {
+	if (!list->head || col < list->head->column) {
 		newNode->next = list->head;
 		list->head = newNode;
 		return;
 	}
 
 	EntityNode* current = list->head;
-	while (current->next && current->next->entityId < id) {
+	while (current->next && current->next->column < col) {
 		current = current->next;
 	}
 

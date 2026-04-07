@@ -12,7 +12,8 @@
 .IMPORT dbufTile1
 .IMPORT dbufTile2
 
-.IMPORT metatiles
+.IMPORT metatile_index_low
+.IMPORT metatile_index_high
 .IMPORT mult_12
 
 .EXPORT enact_collision_x
@@ -208,12 +209,10 @@ collision_index_x:
 	LDA (tmpTilePointer), Y ; get the value of the metatile
 
 	; update the pointer to the correct metatiles data
-	ASL  					; *2 for byte offset
 	TAY
-	LDA metatiles, Y
+	LDA metatile_index_low, Y
 	STA tmpTilePointer
-	INY
-	LDA metatiles, Y
+	LDA metatile_index_high, Y
 	STA tmpTilePointer+1
 
 @find_collision:

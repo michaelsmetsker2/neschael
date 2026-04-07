@@ -60,11 +60,11 @@
 	LSR A
 	AND #%00000011
 	TAY
-	LDA test_frames, Y
+	LDA walk_frames, Y
 @write:
 	STA PLAYER_OAM_ADDRESS + _OAM_TILE 
 	RTS
-test_frames:
+walk_frames:
 	.BYTE STANDING_SPRITE, LEFT_WALK_SPRITE, STANDING_SPRITE, RIGHT_WALK_SPRITE
 .ENDPROC
 
