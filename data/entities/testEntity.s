@@ -38,25 +38,39 @@ test_entity:
   CMP #$F1   ; Spawn point when scrolling left
   BCS @draw  ; still sent to draw as following columns may be on screen
 
-  ; check flag to see if its been drawn before
-  ;
+  ; see if the position is on a potential spawnPoint
+  TXA ; reset cpu status
+  BEQ @check_fresh ; right of screen spawn position
+  CMP #$F0              ; left of screen spawn position 
+  BEQ @check_fresh
+  ; check fresh flag to see if its been drawn before
 
+  JMP @remove
 
+@check_fresh:
+  LDY #Slot::PARAM_2_OFFSET
+  LDA (UpdateParams::slotPtr), Y
+  AND #%10000000    ; mask the drawnFlag
+  BEQ @done         ; entity has just been spawned
 
-  ; delete it
+@remove:
+  ; subtract the sprite ammount from the count
+  SEC
+  LDA spriteCount
+  SBC #SPRITE_COUNT
+  STA spriteCount
+  ; set the entity slot to inactive
+  LDA #$00
+  TAY
+  STA (UpdateParams::slotPtr), Y
+  RTS
 
 @draw:
-
-  SEC
-  LDY #Slot::X_POS_OFFSET
-  LDA (UpdateParams::slotPtr), Y
-  SBC screenPosX
-  TAX
-
-  INY
-  LDA (UpdateParams::slotPtr), Y
-  SBC screenPosX+1
-  BNE @done ; dont draw if the x position is not on screen
+  ; set the fresh flag
+  LDY #Slot::PARAM_2_OFFSET
+  LDA #%10000000
+  ORA (UpdateParams::slotPtr), Y
+  STA (UpdateParams::slotPtr), Y
 
   ; draw the test sprite
   LDY #Slot::Y_POS_OFFSET
@@ -74,7 +88,7 @@ test_entity:
   STA unreservedOam, Y
   INY
 
-  TXA
+  TXA ; retreive hor pixel position from X register
   STA unreservedOam, Y
   INY
   STY UpdateParams::oamOffset

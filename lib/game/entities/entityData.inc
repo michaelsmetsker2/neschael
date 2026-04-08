@@ -13,13 +13,14 @@
   ; Byte 3   params
 
 ; Entity Slot Map
-; Byte 1:
+; Byte 0:
   ; bit 7 - 0 if inactive 1 if active
   ; bits 1-6 1-128 id in entityIndex of the entities definition
-; Byte 2-3 X position in world space
-; Byte 4 - Y position in pixels
-; Byte 5 params
-; Byte 6+ scratch
+; Byte 1-2 X position in world space
+; Byte 3 - Y position in pixels
+; Byte 4 params
+; Byte 5
+  ; bit 7 fresh flag, 1 if this entity has been drawn, prevents culling at spawn.
 
 .IMPORT shadowOam
 
@@ -37,9 +38,10 @@
   unreservedOam      = shadowOam+16 ; addres to the start of unreserved oam
 
 .SCOPE Slot
-  X_POS_OFFSET = $01
-  Y_POS_OFFSET = $03
-  PARAM_OFFSET = $04 ; offset for the param byte in the entity slot
+  X_POS_OFFSET   = $01
+  Y_POS_OFFSET   = $03
+  PARAM_OFFSET   = $04 ; offset for the param byte in the entity slot
+  PARAM_2_OFFSET = $05
 
 .ENDSCOPE
 

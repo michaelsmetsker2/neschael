@@ -51,5 +51,10 @@
   LDY #Slot::PARAM_OFFSET
   STA (InitParams::slotPtr), Y
 
+  INY ; clear the extra params byte
+  LDA #$00
+  STA (InitParams::slotPtr), Y
+
+
   RTS
 .ENDPROC
