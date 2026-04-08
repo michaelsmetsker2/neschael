@@ -35,7 +35,9 @@
   INIT_FUNC_OFFSET   = $02           ; offset to the initialization function from an entities definition
   NUM_SPRITES_OFFSET = $06           ; offset to the sprite ammount
 
-  unreservedOam      = shadowOam+16 ; addres to the start of unreserved oam
+  unreservedOam      = shadowOam+16  ; addres to the start of unreserved oam
+
+  ENTITY_SPAWN_LEFT  = $F0           ; low byte of the x position when it rolls over to the left of the screen
 
 .SCOPE Slot
   X_POS_OFFSET   = $01
@@ -52,7 +54,6 @@
   SAFE_SCRATCH        = $06          ; start of scratch memory address unreserved from functions calling this one
 
 .ENDSCOPE
-
 
 .SCOPE InitParams
   metatileIndex       = $01  ; read only, index of the metacolumn index of the entity relative to the background
