@@ -12,14 +12,41 @@
 
 .IMPORT populate_slot
 
+SPRITE_COUNT = $04 ; how sprites to allocate in oam for this
+
 test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
-  .BYTE $04 ; how sprites to allocate in oam for this
+  .BYTE SPRITE_COUNT
 
   ; these functions need to be passed the memory location of their ram or index of a certain pool
 .PROC update_func
 
-  ; find the x position of the test sprite
+  ; check if the sprite is within culling bounds
+  SEC
+  LDY #Slot::X_POS_OFFSET
+  LDA (UpdateParams::slotPtr), Y
+  SBC screenPosX
+  TAX ; sprite origin pixel position X relative to screen
+
+  INY
+  LDA (UpdateParams::slotPtr), Y
+  SBC screenPosX+1
+  BEQ @draw ; drawable if on the same screen as the player
+
+  ; if not on the same screen it must fall within the threshhold not to be removed 
+  TXA
+  CMP #$F1   ; Spawn point when scrolling left
+  BCS @draw  ; still sent to draw as following columns may be on screen
+
+  ; check flag to see if its been drawn before
+  ;
+
+
+
+  ; delete it
+
+@draw:
+
   SEC
   LDY #Slot::X_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
@@ -29,9 +56,9 @@ test_entity:
   INY
   LDA (UpdateParams::slotPtr), Y
   SBC screenPosX+1
-  BNE @done  
+  BNE @done ; dont draw if the x position is not on screen
 
-  ; write test sprite data to oam
+  ; draw the test sprite
   LDY #Slot::Y_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
 
@@ -59,12 +86,12 @@ test_entity:
 .PROC init_func
 
   JSR populate_slot
-
   RTS
 .ENDPROC
 
 .PROC remove_func
-  ; decrement the sprite count
+
+  ; TODO defunct? maybe this should only be removed from the update function and 
   RTS
 .ENDPROC
 
