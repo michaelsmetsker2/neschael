@@ -72,6 +72,7 @@
   RTS
 .ENDPROC
 
+  ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
 
   NUMBERTILE_INDEX = $DC

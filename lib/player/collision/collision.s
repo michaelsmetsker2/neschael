@@ -26,10 +26,11 @@
 
 ; lookup table of collision reactions for both x and y interactions
 .SCOPE CollisionsX
-  empty: ;=============================================================================================
+  .PROC empty
     RTS
+	.ENDPROC
 		
-  solid: ;=============================================================================================
+  .PROC solid
 		; find proposed world position
 		CLC
 		LDA tmpProposedPosFinal+1
@@ -73,18 +74,21 @@
 		STA velocityX
 		STA velocityX+1
     RTS
+	.ENDPROC
 
-  hazard: ;============================================================================================
-    RTS
+  .PROC hazard
+	    RTS
+	.ENDPROC
 .ENDSCOPE
 
 .SCOPE CollisionsY
-  empty: ;=============================================================================================
+  .PROC empty
 		LDA #MotionState::Airborne
 		STA motionState
 		RTS
+	.ENDPROC
 		
-  solid: ;=============================================================================================
+  .PROC solid
 		; only do anything if airborne (land or bonk)
 		LDA motionState
 		CMP #MotionState::Airborne
@@ -120,9 +124,11 @@
 		STA tmpProposedPosFinal+1
 	@return:
 		RTS
+	.ENDPROC
 
-  hazard: ;=============================================================================================
+	.PROC hazard
     RTS
+	.ENDPROC
 .ENDSCOPE
 
 collision_index_y:
@@ -138,7 +144,7 @@ collision_index_x:
 	; uses rts trick to jump to the correct collision subproccess
 	; BUG these will crash when jumping to uninitialized metatiles, could add a check to ensure this doesnt happen
 .PROC enact_collision_x
-	ASL
+	ASL ; FIXME mult by two is uneeded if we swap to high and low structured lookup tables 
 	TAX
 	
 	LDA collision_index_x+1, x
@@ -166,7 +172,7 @@ collision_index_x:
 	AND #%00000001
 	BNE @nt_1
 @nt_0:
-	LDY #<dbufTile1
+	LDY #<dbufTile1 ; TODO this can be optimized (i beleive will need to count cycles) by using a small lookup table of both addresses
 	LDX #>dbufTile1
 	JMP @set_buf
 @nt_1:

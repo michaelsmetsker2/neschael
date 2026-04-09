@@ -66,7 +66,7 @@
 	LDA tmpDeltaX          ; low byte
 	ROR A
 	STA $0C
-	; set the proposed position to the midpoint
+		; set the proposed position to the midpoint
 	CLC
 	LDA positionX
 	ADC $0C

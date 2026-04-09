@@ -13,7 +13,9 @@
 
 .IMPORT decompress_nametable
 
-.IMPORT level_index
+.IMPORT level_index_low
+.IMPORT level_index_high
+
 .IMPORT draw_first_screen
 .IMPORT player_init
 .IMPORT entities_init
@@ -25,7 +27,9 @@
 
 .PROC game_init
 
-  LoadPaletteData
+  ; maybe here i set the fixed palletes and only set dynamic ones on level load 
+
+ ; TODO still empty.
 
   RTS
 .ENDPROC
@@ -40,13 +44,14 @@
   
   ; set the level pointer to the id of levelID
   LDA levelId
-  ASL A         ; *2 as 2 bytes for each address
-  LDA level_index,Y
+  LDA level_index_low,Y
   STA levelPtr
-  LDA level_index+1,Y
+  LDA level_index_high,Y
   STA levelPtr+1
 
     ; TODO set up palletes for current level?
+ LoadPaletteData
+
     ; TODO set music for current level and clear audio streams
 
 @decompress_starting_nametables:

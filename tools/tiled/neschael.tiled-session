@@ -54,11 +54,11 @@
             "scaleInDock": 1
         },
         "levels/testLv3.tmx": {
-            "scale": 3,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 360.5,
-                "y": 155.83333333333331
+                "x": 1069.5,
+                "y": 16.5
             }
         },
         "levels/testLvl.tmx": {
@@ -185,8 +185,8 @@
     "recentFiles": [
         "levels/testLv3.tmx",
         "levels/testLvl2.tmx",
-        "attributes.tsx",
         "levels/testLvl.tmx",
+        "attributes.tsx",
         "levels/testlevel/testLvl2.tmx",
         "levels/testlevel/testLvl.tmx",
         "levels/testlevel/testLv3.tmx",

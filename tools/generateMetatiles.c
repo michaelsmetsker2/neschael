@@ -2,7 +2,8 @@
 	script to generates the metatiles file based on the collision from tiled and map from nexxt,
   build with 
   gcc -Wall -o generateMetatiles generateMetatiles.c
-*/
+  TODO make the end of stream flag a -1 (empty) for compatibility with an empty metatile with different collision
+  */
 
 #include <stdio.h>
 #include <stdint.h>
