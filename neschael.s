@@ -20,9 +20,10 @@
 .IMPORT update_player_movement
 .IMPORT update_camera
 
+.IMPORT scroll_screen
 .IMPORT update_entities
 
-.IMPORT scroll_screen
+.IMPORT buffer_hud
 
 ; =================================================================================================
 ;  ROM (PRG) Data
@@ -56,6 +57,8 @@ game_loop:
   JSR scroll_screen
   
   JSR update_entities
+
+  JSR buffer_hud
 
   ; conditionally load a new level based on the levelFlag
   LDA gameFlags

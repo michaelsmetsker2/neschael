@@ -12,6 +12,8 @@
 .INCLUDE "lib/scrolling/scrolling.inc"
 .INCLUDE "lib/hud/hud.inc"
 
+.IMPORTZP HUD_BUFFER
+
 .EXPORT isr_nmi
 
 .PROC isr_nmi

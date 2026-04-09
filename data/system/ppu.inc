@@ -47,11 +47,11 @@
 _NAMETABLE_B = $2400
 _NAMETABLE_A = $2000
 _NAMETABLE_C = $2800
-_NAMETABLE_D = $2c00
-_ATTR_A      = $23c0
-_ATTR_B      = $27c0
-_ATTR_C      = $2bc0
-_ATTR_D      = $2fc0
+_NAMETABLE_D = $2C00
+_ATTR_A      = $23C0
+_ATTR_B      = $27C0
+_ATTR_C      = $2BC0
+_ATTR_D      = $2FC0
 
 ; ------+-----+---------------------------------------------------------------
 ; $2000 | RW  | PPU Control Register 1

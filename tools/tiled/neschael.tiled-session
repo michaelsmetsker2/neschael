@@ -54,27 +54,27 @@
             "scaleInDock": 1
         },
         "levels/testLv3.tmx": {
-            "scale": 1,
+            "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1034.5,
-                "y": 165.5
+                "x": 360.5,
+                "y": 155.83333333333331
             }
         },
         "levels/testLvl.tmx": {
-            "scale": 4,
+            "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 251.125,
-                "y": 124.375
+                "x": 510.33333333333337,
+                "y": 269.66666666666663
             }
         },
         "levels/testLvl2.tmx": {
-            "scale": 1.9890625,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 512.0502749410841,
-                "y": 178.22466614296934
+                "x": 538.75,
+                "y": 180.25
             }
         },
         "levels/test_level.tmx": {

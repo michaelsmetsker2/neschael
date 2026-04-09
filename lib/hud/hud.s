@@ -5,25 +5,36 @@
 ; supbroccesses relating to the hud bar at the top of the screen
 ;
 
-.INCLUDE "/data/system/ppu.inc"
+.INCLUDE "data/system/ppu.inc"
+.INCLUDE "lib/player/player.inc"
 
-.EXPORT hud_init
+.IMPORTZP HUD_BUFFER
+.IMPORT   shadowOam
+
+.EXPORT   hud_init
+.EXPORT buffer_hud
 
   ; draw the hud upon level load
 .PROC hud_init
 
   HUD_START_OFFSET = $40 ; ppu offset from nametable 1, skips first two tile rows (overscan) 
 
-    ; sprite zero
-  LDA #$1D
-  STA $0200
-  LDA #$FF
-  STA $0201
-  LDA #$00
-  STA $0202
-  LDA #$FE
-  STA $0203
+  SPRITE_ZERO_Y    = $1D
+  SPRITE_ZERO_TILE = $FF
+  SPRITE_ZERO_ATTR = $00
+  SPRITE_ZERO_X    = $FE
 
+@set_sprite_zero:
+  LDA #SPRITE_ZERO_Y
+  STA shadowOam
+  LDA #SPRITE_ZERO_TILE
+  STA shadowOam+1
+  LDA #SPRITE_ZERO_ATTR
+  STA shadowOam+2
+  LDA #SPRITE_ZERO_X
+  STA shadowOam+3
+
+@set_hud_attr:
     ; set ppu increment mode to +1
   LDA #%00001000
   STA _PPUCTRL
@@ -42,6 +53,7 @@
   CPY #$08      ; loop through first row
   BNE @loop
 
+@draw_base_hud:
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
@@ -56,6 +68,44 @@
 
   CPY #$00
   BNE @tile_loop
+
+  RTS
+.ENDPROC
+
+.PROC buffer_hud
+
+  NUMBERTILE_INDEX = $DC
+
+  CLC
+@buffer_speed:
+  LDA velocityX
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+2
+  
+  LDA velocityX
+  AND #%00001111
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+3
+
+  LDA velocityX+1
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER
+  
+  LDA velocityX+1
+  AND #%00001111
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+1
+
+@buffer_charge:
+
 
   RTS
 .ENDPROC
