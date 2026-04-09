@@ -236,7 +236,7 @@
 	@done:
 		RTS
 fall_speeds:
-		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL
+		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL ; FIXME implementation looks screwy and inneficient here
 		.BYTE <Jump::SLOW_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .ENDPROC
 
