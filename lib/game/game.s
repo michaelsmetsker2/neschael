@@ -34,14 +34,13 @@
 .ENDPROC
 
 .PROC level_init
+    ; disable output as we will be drawing to the ppu
+  DisableVideoOutput 
 
-@clear_level_flag: ; so levels don't repeatedly load
+@clear_level_flag:
   LDA #%11101111
   AND gameFlags
   STA gameFlags
-
-  ; disable output since we are drawing to the ppu
-  DisableVideoOutput 
 
   ClearOamMemory ; remove all current sprites
   JSR entities_init
@@ -53,21 +52,23 @@
   LDA level_index_high,Y
   STA levelPtr+1
 
-    ; TODO set up palletes for current level?
- LoadPaletteData
-
+ LoadPaletteData ; TODO set up palletes for current level?
     ; TODO set music for current level and clear audio streams
 
 @decompress_starting_nametables:
-  ; decompress second nametable normally
+    ; reset scroll variables so the correct backgrounds load
+  LDA #$00
+  STA nametable
+  STA screenPosX+1
+    ; decompress second nametable normally
   JSR decompress_nametable
-  ; change primary nametable and scroll pos to decompress first nametable
+    ; change primary nametable and scroll pos to decompress first nametable
   LDA #$01
   STA nametable
   LDA #$FF
   STA screenPosX+1
   JSR decompress_nametable
-  ; reset values
+    ; reset values
   LDA #$00
   STA nametable
   STA screenPosX+1

@@ -44,8 +44,8 @@ load_level: ; loads the level in levelId
   ; the main game loop, runs after each NMI
 game_loop:
 
-  ; first thing after NMI so timing is consistant
-    ; it is always consistant even when conditionally drawing due to sprite zero hit waiting
+    ; first thing after NMI so timing is consistant
+      ; it is always consistant even when conditionally drawing due to sprite zero hit waiting
   JSR play_sound_frame 
   
   JSR read_joypad_1
@@ -62,7 +62,7 @@ game_loop:
 
   ; conditionally load a new level based on the levelFlag
   LDA gameFlags
-  AND #%00010000 ; mask levelFlag
+  AND #%00010000        ; mask levelFlag
   BNE load_level
   
   SetRenderFlag
@@ -74,16 +74,16 @@ game_loop:
   RTS                   ; should never get called
 .ENDPROC
 
-; Interrupt service routines
+  ; Interrupt service routines
 .IMPORT isr_reset
 .IMPORT isr_nmi
 .IMPORT isr_custom
 
-; Graphics tile data, used by the sprites
+  ; Graphics tile data, used by the sprites
 .SEGMENT "TILES"
 .INCBIN "data/tiles/neschael.chr"
 
-; Addresses for interrupts, must be in this order
+  ; Addresses for interrupts, must be in this order
 .SEGMENT "VECTORS"
 .WORD isr_nmi
 .WORD isr_reset
