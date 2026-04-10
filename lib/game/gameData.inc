@@ -9,11 +9,11 @@
 .IMPORTZP GAME_DATA
 
   ; gameFlags holds major flags for the state of the Game
-  ; bit 0-3: unused
-  ; bit 4:   levelFlag, set when a new level needs to be loaded
-  ; bit 5:   audioFlag, set when audio is enabled
-  ; bit 6:   drawFlag, set when data from the scroll buffer should be copied to VRAM next NMI
   ; bit 7:   renderFlag, indicates that logic is complete and vram can be updated
+  ; bit 6:   drawFlag, set when data from the scroll buffer should be copied to VRAM next NMI
+  ; bit 5:   audioFlag, set when audio is enabled
+  ; bit 4:   levelFlag, set when a new level needs to be loaded
+  ; bit 0-3: unused
 gameFlags      = GAME_DATA
 
   ; use buttom masks to see what is held

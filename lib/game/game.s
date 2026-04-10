@@ -28,22 +28,26 @@
 .PROC game_init
 
   ; maybe here i set the fixed palletes and only set dynamic ones on level load 
-
  ; TODO still empty.
 
   RTS
 .ENDPROC
 
 .PROC level_init
+
+@clear_level_flag: ; so levels don't repeatedly load
+  LDA #%11101111
+  AND gameFlags
+  STA gameFlags
+
   ; disable output since we are drawing to the ppu
-    ; should already be disabled on entry
   DisableVideoOutput 
 
   ClearOamMemory ; remove all current sprites
   JSR entities_init
   
   ; set the level pointer to the id of levelID
-  LDA levelId
+  LDY levelId
   LDA level_index_low,Y
   STA levelPtr
   LDA level_index_high,Y

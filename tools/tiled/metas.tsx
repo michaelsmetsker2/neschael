@@ -35,10 +35,10 @@
  </tile>
  <tile id="4">
   <properties>
-   <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="1" type="int" value="2"/>
+   <property name="2" type="int" value="2"/>
+   <property name="3" type="int" value="2"/>
+   <property name="4" type="int" value="2"/>
   </properties>
  </tile>
  <tile id="5">

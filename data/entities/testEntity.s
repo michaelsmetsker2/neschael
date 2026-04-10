@@ -18,7 +18,7 @@ test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
   .BYTE SPRITE_COUNT
 
-sprites:
+sprites: ; FIXME unused
   .BYTE $00, $00, $02, $00
   .BYTE $00, $08, $02, $00
   .BYTE $08, $00, $02, $00

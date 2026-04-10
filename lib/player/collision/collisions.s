@@ -17,23 +17,23 @@
 collision_index_x_low:
 	.BYTE <(Empty::col_x-1)
 	.BYTE <(Solid::col_x-1)
-	.BYTE <(Hazard::col_x-1)
+	.BYTE <(LevelEnd::both-1)
 
 collision_index_x_high:
 	.BYTE >(Empty::col_x-1)
 	.BYTE >(Solid::col_x-1)
-	.BYTE >(Hazard::col_x-1)
+	.BYTE >(LevelEnd::both-1)
 
 
 collision_index_y_low:
 	.BYTE <(Empty::col_y-1)
 	.BYTE <(Solid::col_y-1)
-	.BYTE <(Hazard::col_y-1)
+	.BYTE <(LevelEnd::both-1)
 
 collision_index_y_high:
 	.BYTE >(Empty::col_y-1)
 	.BYTE >(Solid::col_y-1)
-	.BYTE >(Hazard::col_y-1)
+	.BYTE >(LevelEnd::both-1)
 
   ; ID: 0, no collision
 .SCOPE Empty
@@ -136,13 +136,17 @@ collision_index_y_high:
   .ENDPROC
 .ENDSCOPE
 
-  ; ID: 2, ; TODO
-.SCOPE Hazard
-  .PROC col_x
-    RTS
-  .ENDPROC
+  ; ID: 2, ; triggers the end of the level
+.SCOPE LevelEnd
+  .PROC both
 
-  .PROC col_y
-    RTS
+		LDA #%00010000
+		ORA gameFlags
+		STA gameFlags
+
+		LDA #$01
+		STA levelId
+
+		RTS
   .ENDPROC
 .ENDSCOPE
