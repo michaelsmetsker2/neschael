@@ -46,7 +46,7 @@
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
   tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
 
-  oamOffset              = SCRATCH + 5 ; FIXME 16 bit, 
+  oamOffset              = SCRATCH + 5 ; FIXME
 
 @clear_oam: ; TODO find a way to only clear the filled stuff
     ; clear non reserved OAM memory
@@ -186,7 +186,6 @@
   CLC
   ADC spriteCount
   CMP #SPRITE_CAP+1
-    ; TODO if needed I can make an optional not spawn fallback subproccess 
   BCS @done       ; sprite cap exceeded, return early
     ; update the count
   STA spriteCount

@@ -3,7 +3,6 @@
 ; lib/sound/sound.inc
 ;
 ; lookup table of notes
-; TODO include a lookup table for both pal and ntsc?
 ;
 
 periodTableLo:

@@ -195,9 +195,14 @@
 		RTS
 .ENDPROC
 
+	; small fall speed lookup table for use in update_jump_velocity
+fall_speeds_low:
+		.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
+fall_speeds_high:
+		.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .PROC update_jump_velocity ; this updates mid air velocity
 		; Determine if velocity decelerates slow or fest based on button hold
-		LDY #0                      ; lookup table offset for BASE_FALL_SPEED
+		LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
 		BIT playerFlags
 		BPL @decelerate             ; branch if held jump isn't set
 		LDA btnDown
@@ -208,7 +213,7 @@
 		LDA velocityY+1
 		CMP #Jump::DECELERATION_THRESHOLD
 		BPL @newly_fast             ; branch if velocity is past threshold
-		LDY #2                      ; SLOW_FALL_SPEED offset
+		INY                         ; SLOW_FALL_SPEED offset
 		JMP @decelerate
 @newly_fast:                  	; for first times using fast falling set flag
 		LDA playerFlags             ; updates the flag to save cpu cycles
@@ -217,11 +222,10 @@
 @decelerate: 
 		; Perform the deceleration
 		CLC 
-		LDA fall_speeds,Y
+		LDA fall_speeds_low,Y
 		ADC velocityY
 		STA velocityY
-		INY
-		LDA fall_speeds,Y
+		LDA fall_speeds_high,Y
 		ADC velocityY+1
 		STA velocityY+1
 
@@ -235,9 +239,6 @@
 		STA velocityY
 	@done:
 		RTS
-fall_speeds:
-		.BYTE <Jump::BASE_FALL_DECCEL, >Jump::BASE_FALL_DECCEL ; FIXME implementation looks screwy and inneficient here
-		.BYTE <Jump::SLOW_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .ENDPROC
 
 ; proccess the b button charge ability
@@ -352,7 +353,7 @@ fall_speeds:
 	BNE @get_heading
 
 	; TODO make 1.5 instead of 2x
-	; BUG logic may be broken verify
+	;  logic is broken verify
 	; double stored velocity
 	ASL storedVelocity
 	ROL storedVelocity+1

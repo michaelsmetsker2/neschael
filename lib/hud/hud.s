@@ -74,12 +74,27 @@
 
   ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
-
+    ; offset in background CHR for the start of numbers and letters
   NUMBERTILE_INDEX = $DC
 
-  CLC
 @buffer_speed:
-  LDA velocityX
+  LDX velocityX
+  LDY velocityX+1
+    ; twos compliment if velocity is negative
+  TYA
+  BPL @low_byte
+  TXA
+  EOR #$FF
+  TAX       ; Invert low byte
+  TYA
+  EOR #$FF
+  TAY       ; Invert high byte
+  INX       ; add one
+  BNE @low_byte
+  INY
+@low_byte:
+  CLC
+  TXA
   LSR A
   LSR A
   LSR A
@@ -87,12 +102,13 @@
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+2
   
-  LDA velocityX
+  TXA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+3
 
-  LDA velocityX+1
+@high_byte:
+  TYA
   LSR A
   LSR A
   LSR A
@@ -100,12 +116,44 @@
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER
   
-  LDA velocityX+1
+  TYA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+1
 
+  LDA #$00
+  STA HUD_BUFFER+4
+
 @buffer_charge:
+
+@lb:
+  CLC
+  LDA storedVelocity
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+7
+  
+  LDA storedVelocity
+  AND #%00001111
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+8
+
+@hb:
+  LDA storedVelocity+1
+  LSR A
+  LSR A
+  LSR A
+  LSR A
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+5
+  
+  LDA storedVelocity+1
+  AND #%00001111
+  ADC #NUMBERTILE_INDEX
+  STA HUD_BUFFER+6
 
 
   RTS

@@ -20,7 +20,6 @@
   STA _PPUDATA
   INY
 
-  CPY #$04
+  CPY #$09
   BNE @tile_loop
-
 .ENDMACRO

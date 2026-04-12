@@ -126,11 +126,11 @@
 	BIT velocityX+1
 	BPL	@offset_position
 	LDA #PLAYER_LEFT_OFFSET
-	STA offset_x								; store the offset
+	STA offset_x						  ; store the offset
 
 @offset_position:						; add the offset to the position
 	CLC
-	ADC tmpProposedPosFinal+1 ; BUG this may overflow when the player at the very end of a level?
+	ADC tmpProposedPosFinal+1
 	STA $16			          		; store in scratch
 
 @check_top:
