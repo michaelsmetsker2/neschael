@@ -18,26 +18,25 @@
 
 .PROC update_player_movement
 		JSR set_target_velocity_x
+		JSR update_charge
 		JSR accelerate_x
-		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for hor boost
+		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
 																	; and before apply_velocity_x so the jump boost can be applied frame one
-		JSR charge_boost
     JSR update_position_x				; x collision first to avoid getting stuck on walls
 		JSR update_position_y
 		RTS
 .ENDPROC
 
+	; sets the target velocity to accelerate to, also updates heading
 .PROC set_target_velocity_x
-		; TODO check input, eventually use a lookup tabledepending on tile?
-		; heading is also updated in this subproccess
 		LDA btnDown
 		AND #_BUTTON_RIGHT
 		BEQ @check_left
-		; change heading to 0 (right)
+			; change heading to 0 (right)
 		LDA playerFlags
 		AND #%10111111
 		STA playerFlags
-		; set target velocity
+			; set target velocity
 		LDA #<Velocities::RIGHT_WALK_TARGET
 		STA targetVelocityX
 		LDA #>Velocities::RIGHT_WALK_TARGET
@@ -47,19 +46,19 @@
 		LDA btnDown
 		AND #_BUTTON_LEFT
 		BEQ @no_direction
-		; change heading to 1 (left)
+			; change heading to 1 (left)
 		LDA playerFlags
 		ORA #%01000000
 		STA playerFlags
-		; set target velocity
+			; set target velocity
 		LDA #<Velocities::LEFT_WALK_TARGET
 		STA targetVelocityX
 		LDA #>Velocities::LEFT_WALK_TARGET
 		STA targetVelocityX+1
 		RTS
 @no_direction:
-		; heading does not change
-		LDA #0
+			; heading remains the same as last frame
+		LDA #$00
 		STA targetVelocityX
 		STA targetVelocityX+1
 		RTS
@@ -242,52 +241,46 @@ fall_speeds_high:
 .ENDPROC
 
 ; proccess the b button charge ability
-.PROC charge_boost
-	; check the input
+.PROC update_charge
+
+	; TODO pressing up or down check first then return early?
+
+		; check input for b button
 	LDA btnDown
 	AND #_BUTTON_B
-	BNE @b_pressed     ; branch if b is pressed
-
-@no_press: ; check if we were charging last frame
-	LDA playerFlags
-	AND #CHARGE_STATE_MASK
-	BEQ @done								; no charge, return	
-	JSR release_charge			; existing charge, release
-	JMP @done	
+	BEQ @decay_charge     ; decay if b is not pressed
 
 @b_pressed:
-	; check if there is a charge currently ongoing
-	LDA playerFlags
-	AND #CHARGE_STATE_MASK
-	BNE @store_charge
+		; if targetVelocity isn't zero a direction is held, so release charge
+	LDA targetVelocityX
+	ORA targetVelocityX+1
+	BEQ @store
 
-@new_charge:  			; no existing, make a new one 
-	; set chargeFlag
-	LDA playerFlags
-	ORA #CHARGE_STATE_MASK
-	STA playerFlags
-; reset stored charge and timer
-	LDA #$00
-	STA storedVelocity
-	STA storedVelocity+1
-	STA chargeCounter
+	JSR release_charge
+	RTS
 
-@store_charge:
+@store:
 	JSR store_charge
-@done:
+
+@decay_charge:
+
+	; if velocity hits zero then start the decay?
+
+	; TODO decay from a timer that is reset each b press
+	; if charge not equal zero decrement it
+
 	RTS
 .ENDPROC
 
-; proccess adding to an existing charge
+	; take velocity fromt the player and stores it
 .PROC store_charge
-
-	 ; ammount of velocity to store and remove from player
-	tmpCurCharge = $01
-
-	LDA #chargeCounter
-	LSR
-	LSR
-	STA tmpCurCharge
+		; if this is the first frame the B button has been pressed, reset the charge counter
+	LDA btnPressed
+	AND #_BUTTON_B
+	BEQ :+
+	LDA #$00
+	STA chargeCounter
+:
 
 	LDA velocityX+1
 	AND #%10000000   ; mask sign bit
@@ -297,7 +290,7 @@ fall_speeds_high:
 @sub_vel:
 	SEC
 	LDA velocityX
-	SBC tmpCurCharge
+	SBC chargeCounter
 	TAX              		 ; low byte in X
 	LDA velocityX+1
 	SBC #$00             ; subtract carry
@@ -307,7 +300,7 @@ fall_speeds_high:
 @add_vel:
 	CLC
 	LDA velocityX
-	ADC tmpCurCharge
+	ADC chargeCounter
 	TAX                 ; low byte in X
 	LDA velocityX+1
 	ADC #$00				    ; add carry
@@ -317,46 +310,38 @@ fall_speeds_high:
 	; high byte should still be in ACC
 	AND #%10000000 ; mask sign bit
 	CMP $00        ; compare to the velocities sign
-	BNE @done      ; sign has fliped, return ; TODO make this flip the no more flag or something?
+	BNE @done      ; sign has fliped, return
 	
 	; sign has not flipped, apply new velocity
 	STX velocityX
 	STY velocityX+1
 	
-; maybe add one stored to each tick to dupe velocity a little bit :)
 @store_vel: ; increment the ammount of currently stored veloctiy
 	CLC
-	LDA storedVelocity
-	ADC tmpCurCharge
-	STA storedVelocity
-	LDA storedVelocity+1
-	ADC #$00
-	STA storedVelocity+1
-
+	LDA storedCharge
+	ADC chargeCounter
+	STA storedCharge
+	BCC :+
+	INC storedCharge+1
+:
 	INC chargeCounter ; increment the timer upon a succesful charge
 @done:
 	RTS
 .ENDPROC
 
-; releases the stored charge into players velocity
+	; releases the stored charge into players velocity
 .PROC release_charge
-	; reset the chargeState flag
-	LDA playerFlags
-	AND #%11011111
-	STA playerFlags
+		; check if heading and direction don't match
+	;LDA playerFlags
+	;AND HEADING_MASK
+	;ASL
+	;CMP $00          ; sign bit of velocity stored in add_charge
+	;BNE @get_heading
 
-	; check if heading and direction don't match
-	LDA playerFlags
-	AND HEADING_MASK
-	ASL
-	CMP $00          ; sign bit of velocity stored in store_charge
-	BNE @get_heading
-
-	; TODO make 1.5 instead of 2x
 	;  logic is broken verify
 	; double stored velocity
-	ASL storedVelocity
-	ROL storedVelocity+1
+	;ASL storedCharge
+	;ROL storedCharge+1
 
 @get_heading:      ; branch based on boost direction
 	LDA playerFlags
@@ -366,19 +351,23 @@ fall_speeds_high:
 @boost_right: ; add boost (right)
 	CLC	
 	LDA velocityX
-	ADC storedVelocity
+	ADC storedCharge
 	STA velocityX
 	LDA velocityX+1
-	ADC storedVelocity+1
+	ADC storedCharge+1
 	STA velocityX+1
-	RTS
+	JMP @reset_charge
 @boost_left: ; subtract boost (left)
 	SEC	
 	LDA velocityX
-	SBC storedVelocity
+	SBC storedCharge
 	STA velocityX
 	LDA velocityX+1
-	SBC storedVelocity+1
+	SBC storedCharge+1
 	STA velocityX+1
-	RTS
+
+@reset_charge:
+	LDA #$00
+	STA storedCharge
+	STA storedCharge+1
 .ENDPROC

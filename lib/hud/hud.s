@@ -128,7 +128,7 @@
 
 @lb:
   CLC
-  LDA storedVelocity
+  LDA storedCharge
   LSR A
   LSR A
   LSR A
@@ -136,13 +136,13 @@
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+7
   
-  LDA storedVelocity
+  LDA storedCharge
   AND #%00001111
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+8
 
 @hb:
-  LDA storedVelocity+1
+  LDA storedCharge+1
   LSR A
   LSR A
   LSR A
@@ -150,7 +150,7 @@
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+5
   
-  LDA storedVelocity+1
+  LDA storedCharge+1
   AND #%00001111
   ADC #NUMBERTILE_INDEX
   STA HUD_BUFFER+6

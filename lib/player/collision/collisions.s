@@ -18,22 +18,30 @@ collision_index_x_low:
 	.BYTE <(Empty::col_x-1)
 	.BYTE <(Solid::col_x-1)
 	.BYTE <(LevelEnd::both-1)
+	.BYTE <(SteepSlope::Up::col_x-1)
+	.BYTE <(SteepSlope::Down::col_x-1)
 
 collision_index_x_high:
 	.BYTE >(Empty::col_x-1)
 	.BYTE >(Solid::col_x-1)
 	.BYTE >(LevelEnd::both-1)
+	.BYTE >(SteepSlope::Up::col_x-1)
+	.BYTE >(SteepSlope::Down::col_x-1)
 
 
 collision_index_y_low:
 	.BYTE <(Empty::col_y-1)
 	.BYTE <(Solid::col_y-1)
 	.BYTE <(LevelEnd::both-1)
+	.BYTE <(SteepSlope::Up::col_y-1)
+	.BYTE <(SteepSlope::Down::col_y-1)
 
 collision_index_y_high:
 	.BYTE >(Empty::col_y-1)
 	.BYTE >(Solid::col_y-1)
 	.BYTE >(LevelEnd::both-1)
+	.BYTE >(SteepSlope::Up::col_y-1)
+	.BYTE >(SteepSlope::Down::col_y-1)
 
   ; ID: 0, no collision
 .SCOPE Empty
@@ -58,8 +66,8 @@ collision_index_y_high:
 		ADC screenPosX
 
     BIT velocityX+1
-    BPL @solid_right       			; branch based on direction
-  @solid_left:
+    BPL @right       			; branch based on direction
+  @left:
 		; find ammount overshoot tile boundary
 		CLC
 		ADC #$FF
@@ -77,8 +85,8 @@ collision_index_y_high:
 		ADC $16
     STA tmpDeltaX+1
 
-    JMP @solid_done
-  @solid_right:
+    JMP @done
+  @right:
 		; find ammount overshot tile boundary
 		AND #%00000111
 		STA $16
@@ -89,7 +97,7 @@ collision_index_y_high:
 		SBC $16 
 		STA tmpDeltaX+1		
 
-  @solid_done:
+  @done:
 		; zero velocity
 		LDA #$00
 		STA velocityX
@@ -149,4 +157,40 @@ collision_index_y_high:
 
 		RTS
   .ENDPROC
+.ENDSCOPE
+
+	; ID: 3-4 45 degree slope collision up and down
+.SCOPE SteepSlope
+	.SCOPE Up 
+		.PROC col_x
+			RTS
+		.ENDPROC
+
+		.PROC col_y
+
+			LDA tmpProposedPosFinal+1
+			AND #%11111000
+			
+
+			LDA tmpCollisionPointX
+			AND #%00000111
+
+			RTS
+		.ENDPROC
+
+	.ENDSCOPE
+
+	.SCOPE Down
+
+		.PROC col_x
+
+			RTS
+		.ENDPROC
+
+		.PROC col_y
+
+			RTS
+		.ENDPROC
+
+	.ENDSCOPE
 .ENDSCOPE

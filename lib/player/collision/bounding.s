@@ -88,7 +88,7 @@
 	JMP @enact_collision
 @check_collision: ; check the collision at the endpoint
 
-	; add position do deltax to find screen position endpoint
+	; add position to deltax to find screen position endpoint
 	CLC
 	LDA positionX
 	ADC tmpDeltaX

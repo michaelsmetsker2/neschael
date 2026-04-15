@@ -158,13 +158,13 @@ reference:			 ; control byte is a match
 	IncrementWritePtr
 	DEC tmpLength
 	BNE @ref_loop
-	LDY temp			 ; restore and increment read offset
+	LDY temp			           ; restore and increment read offset
 	INY
 	BNE decomp_loop
-	INC tmpDataPointer+1			 ; increment pointer if page boundary crossed
+	INC tmpDataPointer+1	   ; increment pointer if page boundary crossed
 	JMP decomp_loop
 literal:
-	INY						 ; page safe increment
+	INY						           ; page safe increment
 	BNE :+
 	INC tmpDataPointer+1
 	:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.11.2" name="metas" tilewidth="16" tileheight="16" tilecount="256" columns="16">
- <image source="../../data/tiles/raw/metas.bmp" width="256" height="256"/>
+ <image source="../../data/tiles/raw/metas.bmp" width="256" height="240"/>
  <tile id="0">
   <properties>
    <property name="1" type="int" value="0"/>
@@ -44,65 +44,65 @@
  <tile id="5">
   <properties>
    <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="2" type="int" value="3"/>
+   <property name="3" type="int" value="3"/>
+   <property name="4" type="int" value="1"/>
   </properties>
  </tile>
  <tile id="6">
   <properties>
-   <property name="1" type="int" value="0"/>
+   <property name="1" type="int" value="4"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="3" type="int" value="1"/>
+   <property name="4" type="int" value="4"/>
   </properties>
  </tile>
  <tile id="7">
   <properties>
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="3" type="int" value="5"/>
+   <property name="4" type="int" value="6"/>
   </properties>
  </tile>
  <tile id="8">
   <properties>
-   <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="1" type="int" value="5"/>
+   <property name="2" type="int" value="6"/>
+   <property name="3" type="int" value="1"/>
+   <property name="4" type="int" value="1"/>
   </properties>
  </tile>
  <tile id="9">
   <properties>
-   <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="1" type="int" value="7"/>
+   <property name="2" type="int" value="8"/>
+   <property name="3" type="int" value="1"/>
+   <property name="4" type="int" value="1"/>
   </properties>
  </tile>
  <tile id="10">
   <properties>
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="3" type="int" value="7"/>
+   <property name="4" type="int" value="8"/>
   </properties>
  </tile>
  <tile id="11">
   <properties>
-   <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="1" type="int" value="1"/>
+   <property name="2" type="int" value="1"/>
+   <property name="3" type="int" value="1"/>
+   <property name="4" type="int" value="1"/>
   </properties>
  </tile>
  <tile id="12">
   <properties>
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="3" type="int" value="1"/>
+   <property name="4" type="int" value="1"/>
   </properties>
  </tile>
  <tile id="13">

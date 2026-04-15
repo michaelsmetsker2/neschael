@@ -19,7 +19,7 @@
 
   animationTimer  = PLAYER_DATA + 11  ; determines the current frame of the walking animation
 
-  storedVelocity  = PLAYER_DATA + 12  ; Unsigned 8.8 ammount of boost stored
+  storedCharge    = PLAYER_DATA + 12  ; Unsigned 8.8 ammount of velocity stored
   chargeCounter   = PLAYER_DATA + 14  ; counter that determines how much boost is stored per tick
 
   playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
@@ -30,8 +30,6 @@
 
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
-  ; chargable flag
-  CHARGE_STATE_MASK = %00100000
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
