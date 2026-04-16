@@ -16,32 +16,48 @@
 
 collision_index_x_low:
 	.BYTE <(Empty::col_x-1)
-	.BYTE <(Solid::col_x-1)
 	.BYTE <(LevelEnd::both-1)
 	.BYTE <(SteepSlope::Up::col_x-1)
 	.BYTE <(SteepSlope::Down::col_x-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE <(Solid::col_x-1)
 
 collision_index_x_high:
 	.BYTE >(Empty::col_x-1)
-	.BYTE >(Solid::col_x-1)
 	.BYTE >(LevelEnd::both-1)
 	.BYTE >(SteepSlope::Up::col_x-1)
 	.BYTE >(SteepSlope::Down::col_x-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE >(Solid::col_x-1)
 
 
 collision_index_y_low:
 	.BYTE <(Empty::col_y-1)
-	.BYTE <(Solid::col_y-1)
 	.BYTE <(LevelEnd::both-1)
 	.BYTE <(SteepSlope::Up::col_y-1)
 	.BYTE <(SteepSlope::Down::col_y-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE <(Solid::col_y-1)
 
 collision_index_y_high:
 	.BYTE >(Empty::col_y-1)
-	.BYTE >(Solid::col_y-1)
 	.BYTE >(LevelEnd::both-1)
 	.BYTE >(SteepSlope::Up::col_y-1)
 	.BYTE >(SteepSlope::Down::col_y-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE >(Solid::col_y-1)
 
   ; ID: 0, no collision
 .SCOPE Empty
@@ -163,17 +179,18 @@ collision_index_y_high:
 .SCOPE SteepSlope
 	.SCOPE Up 
 		.PROC col_x
+		
 			RTS
 		.ENDPROC
 
 		.PROC col_y
-
 			LDA tmpProposedPosFinal+1
 			AND #%11111000
-			
-
+			STA $10
 			LDA tmpCollisionPointX
 			AND #%00000111
+			ORA $10
+			STA tmpProposedPosFinal+1
 
 			RTS
 		.ENDPROC
@@ -183,12 +200,54 @@ collision_index_y_high:
 	.SCOPE Down
 
 		.PROC col_x
-
-			RTS
+			RTS	
 		.ENDPROC
 
 		.PROC col_y
 
+			LDA tmpProposedPosFinal+1
+			AND #%00000111
+			STA $10
+
+			CMP #$06
+			BCS @collide
+			BCC @collide
+		  LDA #MotionState::Airborne
+			STA motionState
+			RTS
+
+		@collide:
+
+			LDY tmpCollisionPointX
+			INY
+			TYA
+			AND #%00000111
+			STA $11
+			INC $11
+			STA $E0
+
+			LDX velocityY+1 ; store to find direction after zeroing
+
+			; zero velocity and fractional position
+			LDA #$00
+			STA velocityY
+			STA velocityY+1
+			STA tmpProposedPosFinal
+
+
+		@land:
+			; clamp position to top of tile
+			LDA tmpProposedPosFinal+1
+			AND #%11111000  					; allign to the top of the tile
+			CLC
+			ADC $11
+			STA tmpProposedPosFinal+1
+			; set motion state
+			LDA #MotionState::Still
+			STA motionState
+			RTS
+
+		@done:
 			RTS
 		.ENDPROC
 

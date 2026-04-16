@@ -27,7 +27,7 @@
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
 	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
 
-	PLAYER_LEFT_OFFSET           = $FF ; -1 pixel to the left of the character
+
 
 ; =====================================================================
 ; bound X
@@ -88,7 +88,7 @@
 	JMP @enact_collision
 @check_collision: ; check the collision at the endpoint
 
-	; add position to deltax to find screen position endpoint
+		; add position to deltax to find screen position endpoint
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -101,7 +101,7 @@
 @enact_collision:
 	JSR enact_collision_x
 
-	; add deltaX to position
+		; add deltaX to position
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -116,17 +116,15 @@
 ; returns the collision data in accumulator
 .PROC check_collision_x
 
-	RIGHT_OFFSET   = $08 ; 8 pixels, the players width plus an extra for external checking	
-	LOWER_OFFSET   = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
+	PLAYER_LEFT_OFFSET    = $FF ; -1 pixel to the left of the character
+	PLAYER_RIGHT_OFFSET   = $08 ; 8 pixels, the players width plus an extra for external checking	
+	LOWER_OFFSET          = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
 		
-	offset_x = $10	; the correct x ammount to offset the collision point from the characters position
-
 	; calculate the correct x offset based on direction
-	LDA #RIGHT_OFFSET
+	LDA #PLAYER_RIGHT_OFFSET
 	BIT velocityX+1
 	BPL	@offset_position
 	LDA #PLAYER_LEFT_OFFSET
-	STA offset_x						  ; store the offset
 
 @offset_position:						; add the offset to the position
 	CLC

@@ -5,10 +5,10 @@
     },
     "activeFile": "metas.tsx",
     "expandedProjectPaths": [
+        "metas",
         ".",
         "levels/test_level",
         "levels",
-        "metas",
         "levels/testlevel"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -51,8 +51,8 @@
             "scale": 5.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 187.63636363636363,
-                "y": 108.81818181818184
+                "x": 261.9090909090909,
+                "y": 95.90909090909092
             }
         },
         "levels/metas.tsx": {
