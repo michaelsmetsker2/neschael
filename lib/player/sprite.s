@@ -82,8 +82,9 @@ walk_frames:
 
 ; copies the sprite x and y variables to the players data
 .PROC update_sprite_position
-    LDA positionX+1
-    STA PLAYER_OAM_ADDRESS + _OAM_X
+    LDY positionX+1
+		; FIXME potentially decremeny y here based on heading to allign sprite with collision as sprite is asymmetrical
+    STY PLAYER_OAM_ADDRESS + _OAM_X
     LDY positionY+1
     DEY                     ; NES displays sprites one pixel lower than they should, this counteracts that
     STY PLAYER_OAM_ADDRESS + _OAM_Y

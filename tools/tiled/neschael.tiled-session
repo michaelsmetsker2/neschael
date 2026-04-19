@@ -5,9 +5,9 @@
     },
     "activeFile": "metas.tsx",
     "expandedProjectPaths": [
-        "metas",
         ".",
         "levels/test_level",
+        "metas",
         "levels",
         "levels/testlevel"
     ],

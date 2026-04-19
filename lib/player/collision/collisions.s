@@ -203,30 +203,35 @@ collision_index_y_high:
 			RTS	
 		.ENDPROC
 
+		test_offset_down:
+			.BYTE $00, $01, $02, $03, $04, $05, $06, $07
+
 		.PROC col_y
 
 			LDA tmpProposedPosFinal+1
 			AND #%00000111
 			STA $10
 
+		.IF 0 ; conditionally snapping will just make higher speed collisions pass through more
 			CMP #$06
 			BCS @collide
 			BCC @collide
 		  LDA #MotionState::Airborne
 			STA motionState
 			RTS
+		.ENDIF
 
 		@collide:
-
 			LDY tmpCollisionPointX
+			INY
 			INY
 			TYA
 			AND #%00000111
-			STA $11
-			INC $11
 			STA $E0
-
-			LDX velocityY+1 ; store to find direction after zeroing
+			TAY
+			LDA test_offset_down, Y
+			STA $11
+			
 
 			; zero velocity and fractional position
 			LDA #$00
@@ -234,18 +239,14 @@ collision_index_y_high:
 			STA velocityY+1
 			STA tmpProposedPosFinal
 
-
-		@land:
-			; clamp position to top of tile
+		@clamp:
 			LDA tmpProposedPosFinal+1
-			AND #%11111000  					; allign to the top of the tile
-			CLC
-			ADC $11
+			AND #%11111000
+			ORA $11
 			STA tmpProposedPosFinal+1
-			; set motion state
+			; set motion state in case of a land
 			LDA #MotionState::Still
 			STA motionState
-			RTS
 
 		@done:
 			RTS
