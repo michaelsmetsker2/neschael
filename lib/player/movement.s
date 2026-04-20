@@ -65,13 +65,13 @@
 .ENDPROC
 
 .PROC accelerate_x
-		; Having a target of 0 (holding nothing) in air will not slow you down
-		;NOTE probably inneficient to check this first
+			; Having a target of 0 (holding nothing) in air will not slow you down
+			; NOTE probably inneficient to check this first
 		LDA targetVelocityX         
 		ORA targetVelocityX+1
 		BNE @accelerate             ;branch if target is not zero
 		LDA motionState
-		CMP #MotionState::Airborne
+		;CMP #MotionState::Airborne ; redundant as Airborne is zero
 		BNE @accelerate             ; branch if on the ground
 		RTS                         ; return early
 @accelerate:

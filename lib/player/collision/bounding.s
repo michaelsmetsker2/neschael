@@ -14,6 +14,7 @@
 .IMPORT find_collision
 .IMPORT enact_collision_x
 .IMPORT enact_collision_y
+.IMPORTZP SCRATCH
 
 .EXPORT update_position_x
 .EXPORT update_position_y
@@ -25,9 +26,7 @@
 
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
-	PLAYER_FEET_RIGHT_OFFSET	   = $07 ; 7 pixels to the right foot of the player
-
-
+	PLAYER_FEET_RIGHT_OFFSET	   = $06 ; 6 pixels, the width of the player, acts as thbe player's right foot
 
 ; =====================================================================
 ; bound X
@@ -117,7 +116,7 @@
 .PROC check_collision_x
 
 	PLAYER_LEFT_OFFSET    = $FF ; -1 pixel to the left of the character
-	PLAYER_RIGHT_OFFSET   = $08 ; 8 pixels, the players width plus an extra for external checking	
+	PLAYER_RIGHT_OFFSET   = $07 ; 7 pixels, the players width plus an extra for external checking	
 	LOWER_OFFSET          = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
 		
 	; calculate the correct x offset based on direction
@@ -162,12 +161,12 @@
 	RTS
 .ENDPROC
 
-; =====================================================================
+; =============================================================================
 ; bound Y
-; =====================================================================
+; =============================================================================
 
 .PROC update_position_y
-	; find the proposed final position
+		; find the proposed final position
 	CLC
 	LDA positionY
 	ADC velocityY 				   	; add low bytes
@@ -190,6 +189,9 @@
 
 ; sets offsets and returns the highest priority collision value in the accumulator
 .PROC check_collision_y
+	
+	tmpCollisionData = SCRATCH
+
 @check_left: ; check collision at top left or bottom left
   ; player pos plus world pos
 	CLC                       
@@ -214,10 +216,10 @@
 	STA tmpCollisionPointY
 
 	JSR find_collision ; load accumulator with collision data
-  STA $1F
+  STA tmpCollisionData
   
 @check_collision_right:
-	CLC      
+	CLC
 	LDA tmpCollisionPointX
 	ADC #PLAYER_FEET_RIGHT_OFFSET 									; offset to right side
 	STA tmpCollisionPointX
@@ -226,10 +228,9 @@
 :
 
 	JSR find_collision       ; load accumulator with data again
-  CMP $1F                  ; see which check has the higher prioriy collision
-  BCS @done                ; branch if accumulator has the highest pri already
-  LDA $1F
-  RTS
+  CMP tmpCollisionData     ; see which check has the higher prioriy collision
+  BCS @done                ; branch if left foot has the higher priority
+	LDA tmpCollisionData
 @done:
 	RTS
 .ENDPROC

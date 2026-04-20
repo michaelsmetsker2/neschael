@@ -49,8 +49,10 @@
   TEST_ACC = $0011 ; TODO temp ====================================================================================================== 
 
 .ENUM MotionState
-  Still = 0 ; TODO mostly unused? combine with walk to be grounded?
-  Walk = 1
-  Sliding = 2 ; TODO remove due to down ability?
-  Airborne = 3 
+  Airborne = 0
+  Grounded = 1
+  SteepSlopeUp = 2
+  SteepSlopeDown = 3
+  ShallowSlopeUp = 4
+  ShallowSlopeDown = 5
 .ENDENUM

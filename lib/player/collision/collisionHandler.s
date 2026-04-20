@@ -25,7 +25,7 @@
 
 	OVERSCAN_OFFSET = $20 ; offset y position in draw buffer by 32 pixels to account for overscan
 
-	tmpTilePointer = $08 ; pointer to the metatile being checked for collision
+	tmpTilePointer  = $08 ; pointer to the metatile being checked for collision
 
 	; uses rts trick to jump to the correct collision subproccess
 	; BUG these will crash when jumping to uninitialized metatiles, could add a check to ensure this doesnt happen
@@ -38,6 +38,7 @@
 	RTS
 .ENDPROC
 .PROC enact_collision_y
+		; Y register will also be passed the foot being used, 0 for left foot 1 for right.
 	TAX
 	LDA collision_index_y_high, x
 	PHA 
