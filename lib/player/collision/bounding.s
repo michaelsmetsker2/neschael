@@ -35,7 +35,7 @@
 ; adds the velocity to the position
 .PROC update_position_x
 
-	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
+	MIDPOINT_THRESHOLD  				 = $04 ; thes speed the player is going at to warrent a mid check
 																			; 8 px per frame is the size of a tile.
 
 	; copy velocity into deltaX

@@ -278,7 +278,7 @@ fall_speeds_high:
 	LDA btnPressed
 	AND #_BUTTON_B
 	BEQ :+
-	LDA #$00
+	LDA #$50
 	STA chargeCounter
 :
 
@@ -331,17 +331,6 @@ fall_speeds_high:
 
 	; releases the stored charge into players velocity
 .PROC release_charge
-		; check if heading and direction don't match
-	;LDA playerFlags
-	;AND HEADING_MASK
-	;ASL
-	;CMP $00          ; sign bit of velocity stored in add_charge
-	;BNE @get_heading
-
-	;  logic is broken verify
-	; double stored velocity
-	;ASL storedCharge
-	;ROL storedCharge+1
 
 @get_heading:      ; branch based on boost direction
 	LDA playerFlags

@@ -62,21 +62,21 @@
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
    <property name="3" type="int" value="4"/>
-   <property name="4" type="int" value="5"/>
+   <property name="4" type="int" value="4"/>
   </properties>
  </tile>
  <tile id="8">
   <properties>
    <property name="1" type="int" value="4"/>
-   <property name="2" type="int" value="5"/>
+   <property name="2" type="int" value="4"/>
    <property name="3" type="int" value="8"/>
    <property name="4" type="int" value="8"/>
   </properties>
  </tile>
  <tile id="9">
   <properties>
-   <property name="1" type="int" value="6"/>
-   <property name="2" type="int" value="7"/>
+   <property name="1" type="int" value="5"/>
+   <property name="2" type="int" value="5"/>
    <property name="3" type="int" value="8"/>
    <property name="4" type="int" value="8"/>
   </properties>
@@ -85,8 +85,8 @@
   <properties>
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="6"/>
-   <property name="4" type="int" value="7"/>
+   <property name="3" type="int" value="5"/>
+   <property name="4" type="int" value="5"/>
   </properties>
  </tile>
  <tile id="11">
