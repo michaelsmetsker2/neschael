@@ -3,13 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "levels/head.tmx",
+    "activeFile": "levels/testLv3.tmx",
     "expandedProjectPaths": [
         "levels/test_level",
+        "levels",
         "levels/testlevel",
         ".",
-        "metas",
-        "levels"
+        "metas"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -48,11 +48,11 @@
             "scaleInDock": 1
         },
         "levels/head.tmx": {
-            "scale": 5.5,
+            "scale": 8,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 339.27272727272725,
-                "y": 178.81818181818184
+                "x": 162.625,
+                "y": 158.8125
             }
         },
         "levels/metas.tsx": {
@@ -62,11 +62,11 @@
             "scaleInDock": 1
         },
         "levels/testLv3.tmx": {
-            "scale": 1,
+            "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1069,
-                "y": 16.5
+                "x": 664.3333333333333,
+                "y": 201.5
             }
         },
         "levels/testLvl.tmx": {
@@ -135,7 +135,7 @@
         },
         "metas.tsx": {
             "scaleInDock": 3,
-            "scaleInEditor": 32
+            "scaleInEditor": 16
         },
         "metas/chr.tsx": {
             "dynamicWrapping": false,
@@ -165,7 +165,7 @@
         },
         "numbers.tsx": {
             "scaleInDock": 3,
-            "scaleInEditor": 5.5
+            "scaleInEditor": 11
         },
         "test_level.tmx": {
             "scale": 8.623076923076923,
@@ -186,15 +186,16 @@
     "map.tileWidth": 16,
     "map.width": 128,
     "openFiles": [
-        "levels/head.tmx",
-        "metas.tsx",
-        "levels/testLv3.tmx"
+        "levels/testLv3.tmx",
+        "numbers.tsx",
+        "metas.tsx"
     ],
     "project": "neschael.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "levels/testLv3.tmx",
         "metas.tsx",
+        "numbers.tsx",
+        "levels/testLv3.tmx",
         "levels/head.tmx",
         "levels/testLvl2.tmx",
         "levels/testLvl.tmx",
@@ -203,8 +204,7 @@
         "levels/testlevel/testLvl.tmx",
         "levels/testlevel/testLv3.tmx",
         "levels/testlevel/testLvl3tmx.tmx",
-        "levels/test_level/testLvl.tmx",
-        "numbers.tsx"
+        "levels/test_level/testLvl.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

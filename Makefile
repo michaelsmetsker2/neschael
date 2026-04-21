@@ -48,9 +48,18 @@ $(BIN_DIR)/neschael.link: $(OBJECTS)
 build: bin/hdr.bin bin/prg.bin bin/chr.bin
 	cat bin/hdr.bin bin/prg.bin bin/chr.bin > neschael.nes
 
+# compiles dev tool scripts in the /tools folder
+tools:
+	cd tools && gcc -Wall -o generateMetatiles generateMetatiles.c
+	cd tools && gcc -Wall -o formatCanvas formatCanvas.c
+
+# updates the metatile file using the generateMetatiles sscript
+tiles:
+	cd tools && ./generateMetatiles
+
 # Cleans bin directory
 clean:
 	$(RM) -r $(BIN_DIR)/* neschael.nes a.out neschael.nes.deb
 
-.PHONY: default dev test assemble link build clean
+.PHONY: default dev test assemble link build clean tools tiles
 	
