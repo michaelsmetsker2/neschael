@@ -5,6 +5,9 @@
   ; variables and enums relating to proccessing player collision
   ;
 
+	MIDPOINT_THRESHOLD  				 = $08 ; the horizontal speed the player is going at to warrent a mid check
+																			; 8 px per frame is the size of a tile.
+
   ; not memory safe. only for use in find_collision
 	tmpCollisionPointX  = $05 ; unsigned 16,  world coords at which to find the collision type
 	tmpCollisionPointY  = $07 ; unsigned,     screen coords at which to find the collision type 

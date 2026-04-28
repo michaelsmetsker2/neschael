@@ -5,20 +5,18 @@
 ; handles bounding an collision for the player
 ;
 
-.SEGMENT "CODE"
-
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/player/collision/collision.inc"
 
+.IMPORTZP SCRATCH
 .IMPORT find_collision
 .IMPORT enact_collision_x
 .IMPORT enact_collision_y
-.IMPORTZP SCRATCH
 
 .EXPORT update_position_x
 .EXPORT update_position_y
-.EXPORT tmpDeltaX
+.EXPORT update_sloped_position
 
 	; pixel values where the screen will scroll instead of move the player
 	SCROLL_THRESHOLD_LEFT        = $6A
@@ -35,10 +33,7 @@
 ; adds the velocity to the position
 .PROC update_position_x
 
-	MIDPOINT_THRESHOLD  				 = $08 ; thes speed the player is going at to warrent a mid check
-																			; 8 px per frame is the size of a tile.
-
-	; copy velocity into deltaX
+		; copy velocity into deltaX
 	LDA velocityX
 	STA tmpDeltaX
 	LDA velocityX+1
@@ -231,6 +226,92 @@
   CMP tmpCollisionData     ; see which check has the higher prioriy collision
   BCS @done                ; branch if left foot has the higher priority
 	LDA tmpCollisionData
+@done:
+	RTS
+.ENDPROC
+
+; =============================================================================
+; bound sloped movement
+; =============================================================================
+
+	; handles the players movement while on a slope
+.PROC update_sloped_position
+
+	tmpDerivedDeltaY = 08
+
+		; copy velocity into deltaX
+	LDA velocityX
+	STA tmpDeltaX
+	STA tmpDerivedDeltaY
+	LDA velocityX+1
+	STA tmpDerivedDeltaY+1
+	STA tmpDeltaX+1
+
+	; TODO divide the deltaY by two depending on teh inclination of the slope
+
+		; add position to deltax to find screen position endpoint
+	CLC
+	LDA positionX
+	ADC tmpDeltaX
+	STA tmpProposedPosFinal
+	LDA positionX+1
+	ADC tmpDeltaX+1
+	STA tmpProposedPosFinal+1
+	
+	JSR check_collision_slope
+@enact_collision:
+	JSR enact_collision_x
+
+	; this should also add the x change in position
+
+	CLC
+	LDA positionY
+	ADC tmpDeltaX
+	STA positionY
+	LDA positionY+1
+	ADC tmpDeltaX+1
+	STA positionY+1
+
+		; add deltaX to position
+	CLC
+	LDA positionX
+	ADC tmpDeltaX
+	STA positionX
+	LDA positionX+1
+	ADC tmpDeltaX+1
+	STA positionX+1
+	RTS
+.ENDPROC
+
+.PROC check_collision_slope
+
+		; we only need to check a single point
+
+	PLAYER_LEFT_OFFSET    = $FF ; -1 pixel to the left of the character
+	LOWER_OFFSET          = $07 ; vertical offset to lower horizontal check, 1 pixel above ground check
+		
+	LDA PLAYER_LEFT_OFFSET
+
+@offset_position:						; add the offset to the position
+	CLC
+	ADC tmpProposedPosFinal+1
+	STA $16			          		; store in scratch
+
+@check_top:
+	; load collision point x
+	CLC
+	LDA screenPosX
+	ADC $16                   ; add the offset player position plus world position (for right side of the player)
+	STA tmpCollisionPointX
+	LDA screenPosX+1
+	ADC #$00				          ; add carry
+	STA tmpCollisionPointX+1
+	
+	; load y
+	LDA positionY+1 ; hight byte of y position (pixel pos)
+	STA tmpCollisionPointY
+
+	JSR find_collision
 @done:
 	RTS
 .ENDPROC

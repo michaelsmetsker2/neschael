@@ -13,6 +13,7 @@
 
 .IMPORT update_position_x
 .IMPORT update_position_y
+.IMPORT update_sloped_position
 
 .EXPORT update_player_movement
 
@@ -22,9 +23,18 @@
 		JSR accelerate_x
 		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
 																	; and before apply_velocity_x so the jump boost can be applied frame one
+
+			; checks if the player is standing on a slope
+		LDA motionState
+		CMP #MotionState::SteepSlopeUp
+		BCS @handle_slopes
+
     JSR update_position_x				; x collision first to avoid getting stuck on walls
 		JSR update_position_y
 		RTS
+
+	@handle_slopes:
+		JMP update_sloped_position
 .ENDPROC
 
 	; sets the target velocity to accelerate to, also updates heading
@@ -87,13 +97,13 @@
 		ORA $00             ; exit if the player is at the target velocity
 		BEQ @done
 
+
 		; TODO here we would determing what acceleration values to actually use depending on the surface
 		;and we would load the correct accecleration bytes into memory
 		LDA #<TEST_ACC
 		STA $04
 		LDA #>TEST_ACC
 		STA $05
-		; TODO all of that is temp ====================================================================================
 
 		; check sign of velocity difference
 		BIT $01
@@ -331,7 +341,6 @@ fall_speeds_high:
 
 	; releases the stored charge into players velocity
 .PROC release_charge
-
 @get_heading:      ; branch based on boost direction
 	LDA playerFlags
 	AND #HEADING_MASK
