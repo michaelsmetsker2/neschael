@@ -18,228 +18,230 @@
 .EXPORT update_player_movement
 
 .PROC update_player_movement
-		JSR set_target_velocity_x
-		JSR update_charge
-		JSR accelerate_x
-		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
-																	; and before apply_velocity_x so the jump boost can be applied frame one
-    JSR update_position_x				; x collision first to avoid getting stuck on walls
-		JSR update_position_y
-		RTS
+	JSR set_target_velocity_x
+	JSR update_charge
+	JSR accelerate_x
+	JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
+																; and before apply_velocity_x so the jump boost can be applied frame one
+	JSR update_position_x				; x collision first to avoid getting stuck on walls
+	JSR update_position_y
+	RTS
 
 .ENDPROC
 
 	; sets the target velocity to accelerate to, also updates heading
 .PROC set_target_velocity_x
-		LDA btnDown
-		AND #_BUTTON_RIGHT
-		BEQ @check_left
-			; change heading to 0 (right)
-		LDA playerFlags
-		AND #%10111111
-		STA playerFlags
-			; set target velocity
-		LDA #<Velocities::RIGHT_WALK_TARGET
-		STA targetVelocityX
-		LDA #>Velocities::RIGHT_WALK_TARGET
-		STA targetVelocityX+1
-		RTS
+	LDA btnDown
+	AND #_BUTTON_RIGHT
+	BEQ @check_left
+		; change heading to 0 (right)
+	LDA playerFlags
+	AND #%10111111
+	STA playerFlags
+		; set target velocity
+	LDA #<Velocities::RIGHT_WALK_TARGET
+	STA targetVelocityX
+	LDA #>Velocities::RIGHT_WALK_TARGET
+	STA targetVelocityX+1
+	RTS
 @check_left:
-		LDA btnDown
-		AND #_BUTTON_LEFT
-		BEQ @no_direction
-			; change heading to 1 (left)
-		LDA playerFlags
-		ORA #%01000000
-		STA playerFlags
-			; set target velocity
-		LDA #<Velocities::LEFT_WALK_TARGET
-		STA targetVelocityX
-		LDA #>Velocities::LEFT_WALK_TARGET
-		STA targetVelocityX+1
-		RTS
+	LDA btnDown
+	AND #_BUTTON_LEFT
+	BEQ @no_direction
+		; change heading to 1 (left)
+	LDA playerFlags
+	ORA #%01000000
+	STA playerFlags
+		; set target velocity
+	LDA #<Velocities::LEFT_WALK_TARGET
+	STA targetVelocityX
+	LDA #>Velocities::LEFT_WALK_TARGET
+	STA targetVelocityX+1
+	RTS
 @no_direction:
-			; heading remains the same as last frame
-		LDA #$00
-		STA targetVelocityX
-		STA targetVelocityX+1
-		RTS
+		; heading remains the same as last frame
+	LDA #$00
+	STA targetVelocityX
+	STA targetVelocityX+1
+	RTS
 .ENDPROC
 
 .PROC accelerate_x
-			; Having a target of 0 (holding nothing) in air will not slow you down
-			; NOTE probably inneficient to check this first
-		LDA targetVelocityX         
-		ORA targetVelocityX+1
-		BNE @accelerate             ;branch if target is not zero
-		LDA motionState
-		;CMP #MotionState::Airborne ; redundant as Airborne is zero
-		BNE @accelerate             ; branch if on the ground
-		RTS                         ; return early
+		; Having a target of 0 (holding nothing) in air will not slow you down
+		; NOTE probably inneficient to check this first
+	LDA targetVelocityX         
+	ORA targetVelocityX+1
+	BNE @accelerate             ;branch if target is not zero
+	LDA motionState
+	;CMP #MotionState::Airborne ; redundant as Airborne is zero
+	BNE @accelerate             ; branch if on the ground
+	RTS                         ; return early
 @accelerate:
-		; find the difference between the target and current velocities
-		SEC
-		LDA targetVelocityX
-		SBC velocityX
-		STA $00
-		LDA targetVelocityX+1
-		SBC velocityX+1
-		STA $01
+	; find the difference between the target and current velocities
+	SEC
+	LDA targetVelocityX
+	SBC velocityX
+	STA $00
+	LDA targetVelocityX+1
+	SBC velocityX+1
+	STA $01
 
-		ORA $00             ; exit if the player is at the target velocity
-		BEQ @done
+	ORA $00             ; exit if the player is at the target velocity
+	BEQ @done
 
 
-		; TODO here we would determing what acceleration values to actually use depending on the surface
-		;and we would load the correct accecleration bytes into memory
-		LDA #<TEST_ACC
-		STA $04
-		LDA #>TEST_ACC
-		STA $05
+	; TODO here we would determing what acceleration values to actually use depending on the surface
+	;and we would load the correct accecleration bytes into memory
+	LDA #<TEST_ACC
+	STA $04
+	LDA #>TEST_ACC
+	STA $05
 
-		; check sign of velocity difference
-		BIT $01
-		BPL @apply_acceleration ; if the difference is positive, accelerate to the right
-		; invert the acceleration if we're accelerating left
-		LDA #0
-		SEC
-		SBC $04
-		STA $04
-		LDA #0
-		SBC $05
-		STA $05
+	; check sign of velocity difference
+	BIT $01
+	BPL @apply_acceleration ; if the difference is positive, accelerate to the right
+	; invert the acceleration if we're accelerating left
+	LDA #0
+	SEC
+	SBC $04
+	STA $04
+	LDA #0
+	SBC $05
+	STA $05
 
 @apply_acceleration:
-		; add the acceleration to the velocity
-		CLC
-		LDA velocityX
-		ADC $04
-		STA velocityX
-		LDA velocityX+1
-		ADC $05
-		STA velocityX+1
+	; add the acceleration to the velocity
+	CLC
+	LDA velocityX
+	ADC $04
+	STA velocityX
+	LDA velocityX+1
+	ADC $05
+	STA velocityX+1
 
-		; recompute updated difference between velocity and target
-		SEC
-		LDA targetVelocityX
-		SBC velocityX   				; only need carry
-		LDA targetVelocityX+1
-		SBC velocityX+1
-		; if the sign of the difference has flipped, then velocity was overshot
-		EOR $01
-		BPL @done
-		; clamp to the target on overshoot
-		LDA targetVelocityX
-		STA velocityX
-		LDA targetVelocityX+1
-		STA velocityX+1
+	; recompute updated difference between velocity and target
+	SEC
+	LDA targetVelocityX
+	SBC velocityX   				; only need carry
+	LDA targetVelocityX+1
+	SBC velocityX+1
+	; if the sign of the difference has flipped, then velocity was overshot
+	EOR $01
+	BPL @done
+	; clamp to the target on overshoot
+	LDA targetVelocityX
+	STA velocityX
+	LDA targetVelocityX+1
+	STA velocityX+1
 
 @done:
-		RTS
+	RTS
 .ENDPROC
 
 .PROC update_vertical_motion
-		LDA motionState  
-		CMP #MotionState::Airborne
-		BEQ @airborne              ; branch if player is airborne
+
+	LDA motionState  
+	CMP #MotionState::Airborne
+	BEQ @airborne              ; branch if player is airborne
 @check_jump:                   ; can only start a new jump from the ground
-		LDA btnPressed
-		AND #_BUTTON_A
-		BNE @begin_jump            ; branch if a new jump is detected
-		RTS
+	LDA btnPressed
+	AND #_BUTTON_A
+	BNE @begin_jump            ; branch if a new jump is detected
+	RTS
 @begin_jump:
-		LDA playerFlags
-		ORA #%10000000               ; set the holding jump flag
-		STA playerFlags
-		; add vertical velocity
-		LDA #<Jump::INITIAL_VELOCITY ; update vertical velocity
-		STA velocityY
-		LDA #>Jump::INITIAL_VELOCITY
-		STA velocityY+1
-		LDA #MotionState::Airborne   ; set motionState to airborne
-		STA motionState
+	LDA playerFlags
+	ORA #%10000000               ; set the holding jump flag
+	STA playerFlags
+		; set vertical velocity
+	LDA #<Jump::INITIAL_VELOCITY
+	STA velocityY
+	LDA #>Jump::INITIAL_VELOCITY
+	STA velocityY+1
+		; set motionstate to airborne
+	LDA #MotionState::Airborne
+	STA motionState
 
 		; only apply the boost if the character is moving
-		LDA velocityX+1
-		BNE @horizontal_boost
-		CLC 
-		ADC velocityX
-		BNE @horizontal_boost
-		JMP @airborne			; skip of no velocity found
-		; add vertical velocity boost in heading direction
+	LDA velocityX+1
+	BNE @horizontal_boost
+	CLC 
+	ADC velocityX
+	BNE @horizontal_boost
+	JMP @airborne			; skip of no velocity found
+	; add vertical velocity boost in heading direction
 @horizontal_boost:
-		LDA #<Jump::HORIZONRAL_BOOST
-		STA $02
-		LDA #>Jump::HORIZONRAL_BOOST
-		STA $03      
+	LDA #<Jump::HORIZONRAL_BOOST
+	STA $02
+	LDA #>Jump::HORIZONRAL_BOOST
+	STA $03      
 
-		LDA playerFlags
-		AND #%01000000   ; check heading
-		BEQ @apply_boost ; if heading is left, invert the boost velocity
-		LDA #0
-		SEC
-		SBC $02					 ; unused, only carry is needed
-		LDA #0
-		SBC $03
-		STA $03
+	LDA playerFlags
+	AND #%01000000   ; check heading
+	BEQ @apply_boost ; if heading is left, invert the boost velocity
+	LDA #0
+	SEC
+	SBC $02					 ; unused, only carry is needed
+	LDA #0
+	SBC $03
+	STA $03
 @apply_boost:
-		CLC 
-		LDA velocityX
-		ADC $02
-		STA velocityX
-		LDA velocityX+1
-		ADC $03
-		STA velocityX+1      
-		RTS
+	CLC 
+	LDA velocityX
+	ADC $02
+	STA velocityX
+	LDA velocityX+1
+	ADC $03
+	STA velocityX+1      
+	RTS
 @airborne:
-		JSR update_jump_velocity  ; this are not in update so an early exit can save cpu cycles
-		RTS
+	JSR update_jump_velocity  ; this are not in update so an early exit can save cpu cycles
+	RTS
 .ENDPROC
 
 	; small fall speed lookup table for use in update_jump_velocity
 fall_speeds_low:
-		.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
+	.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
 fall_speeds_high:
-		.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
+	.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .PROC update_jump_velocity ; this updates mid air velocity
-		; Determine if velocity decelerates slow or fest based on button hold
-		LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
-		BIT playerFlags
-		BPL @decelerate             ; branch if held jump isn't set
-		LDA btnDown
-		AND #_BUTTON_A
-		BEQ @newly_fast             ; branch if A isn't held
-		; check velocity threshold
+	; Determine if velocity decelerates slow or fest based on button hold
+	LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
+	BIT playerFlags
+	BPL @decelerate             ; branch if held jump isn't set
+	LDA btnDown
+	AND #_BUTTON_A
+	BEQ @newly_fast             ; branch if A isn't held
+	; check velocity threshold
 
-		LDA velocityY+1
-		CMP #Jump::DECELERATION_THRESHOLD
-		BPL @newly_fast             ; branch if velocity is past threshold
-		INY                         ; SLOW_FALL_SPEED offset
-		JMP @decelerate
+	LDA velocityY+1
+	CMP #Jump::DECELERATION_THRESHOLD
+	BPL @newly_fast             ; branch if velocity is past threshold
+	INY                         ; SLOW_FALL_SPEED offset
+	JMP @decelerate
 @newly_fast:                  	; for first times using fast falling set flag
-		LDA playerFlags             ; updates the flag to save cpu cycles
-		AND #%01111111
-		STA playerFlags
+	LDA playerFlags             ; updates the flag to save cpu cycles
+	AND #%01111111
+	STA playerFlags
 @decelerate: 
-		; Perform the deceleration
-		CLC 
-		LDA fall_speeds_low,Y
-		ADC velocityY
-		STA velocityY
-		LDA fall_speeds_high,Y
-		ADC velocityY+1
-		STA velocityY+1
+	; Perform the deceleration
+	CLC 
+	LDA fall_speeds_low,Y
+	ADC velocityY
+	STA velocityY
+	LDA fall_speeds_high,Y
+	ADC velocityY+1
+	STA velocityY+1
 
-		CMP #$08
-		BNE @done
+	CMP #$08
+	BNE @done
 
-		; clamp to max fall speed if exceeded
-		LDA #>Jump::MAX_FALL_SPEED	
-		STA velocityY+1
-		LDA #<Jump::MAX_FALL_SPEED
-		STA velocityY
-	@done:
-		RTS
+	; clamp to max fall speed if exceeded
+	LDA #>Jump::MAX_FALL_SPEED	
+	STA velocityY+1
+	LDA #<Jump::MAX_FALL_SPEED
+	STA velocityY
+@done:
+	RTS
 .ENDPROC
 
 ; proccess the b button charge ability

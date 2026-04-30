@@ -72,6 +72,7 @@ collision_index_y_high:
 		RTS
   .ENDPROC
 .ENDSCOPE
+
   ; ID: 1, ; triggers the end of the level
 .SCOPE LevelEnd
   .PROC both
@@ -164,11 +165,11 @@ collision_index_y_high:
 			CMP #MotionState::Grounded
 			BNE @done
 
-			LDA tmpProposedPosFinal+1
+		  ;	LDA tmpProposedPosFinal+1
 			;AND #%00000111
-			STA $E1
-			CMP #$01
-			BEQ @done
+			;STA $E1
+			;CMP #$01
+			;BEQ @done
 			; nudge player 1 px to set them on the slope
 			;DEC positionY+1
 

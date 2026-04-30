@@ -11,7 +11,7 @@
   velocityX       = PLAYER_DATA + 2   ; Signed Fixed Point 8.8
   velocityY       = PLAYER_DATA + 4   ; Signed Fixed Point 8.8
 
-    ; integer part can be used as the pixel positions of the sprite
+    ; high byte is pixel position
   positionX       = PLAYER_DATA + 6   ; Unsigned Fixed Point 8.8 screen position +/- lookahead offset
   positionY       = PLAYER_DATA + 8   ; Unsigned Fixed Point 8.8
 
@@ -23,14 +23,15 @@
   chargeCounter   = PLAYER_DATA + 14  ; counter that determines how much boost is stored per tick
 
   playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
-                                        ; 0-4 unused
-                                        ; 3   slopeJump   if the player is jumping on a slope, set to 1, disables x collision to avoid snagging
+                                        ; 0-3 unused
+                                        ; 4   slopeJump   if the player is jumping on a slope, set to 1, disables x collision to avoid snagging
                                         ; 5   chargeState if player is charging boost 0 for no
                                         ; 6   heading     0 for right, 1 for left
                                         ; 7   slowJump    flag if the player has been holding A since the start of the jump
 
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
+  SLOPE_JUMP_MASK   = %00001000
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
@@ -39,7 +40,7 @@
   HORIZONRAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
   SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
   BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
-  DECELERATION_THRESHOLD = $FE   ; greater than this velocity, slow falling
+  DECELERATION_THRESHOLD = $FE   ; force slow falling when velocity is greater than this
 .ENDSCOPE
 
 .SCOPE Velocities
@@ -47,7 +48,7 @@
   LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
 .ENDSCOPE
 
-  TEST_ACC = $0011 ; TODO temp ====================================================================================================== 
+  TEST_ACC = $0011 ; TODO temp
 
 .ENUM MotionState
   Airborne = 0
