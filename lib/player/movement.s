@@ -23,18 +23,10 @@
 		JSR accelerate_x
 		JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
 																	; and before apply_velocity_x so the jump boost can be applied frame one
-
-			; checks if the player is standing on a slope
-		LDA motionState
-		CMP #MotionState::SteepSlopeUp
-		BCS @handle_slopes
-
     JSR update_position_x				; x collision first to avoid getting stuck on walls
 		JSR update_position_y
 		RTS
 
-	@handle_slopes:
-		JMP update_sloped_position
 .ENDPROC
 
 	; sets the target velocity to accelerate to, also updates heading

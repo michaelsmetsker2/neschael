@@ -24,9 +24,10 @@
 
   playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
                                         ; 0-4 unused
-                                        ; 5   chargeState, if player is charging boost 0 for no
-                                        ; 6   heading, 0 for right, 1 for left
-                                        ; 7   slowJump flag if the player has been holding A since the start of the jump
+                                        ; 3   slopeJump   if the player is jumping on a slope, set to 1, disables x collision to avoid snagging
+                                        ; 5   chargeState if player is charging boost 0 for no
+                                        ; 6   heading     0 for right, 1 for left
+                                        ; 7   slowJump    flag if the player has been holding A since the start of the jump
 
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 

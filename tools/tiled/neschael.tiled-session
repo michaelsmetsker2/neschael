@@ -3,13 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "levels/head.tmx",
+    "activeFile": "metas.tsx",
     "expandedProjectPaths": [
-        "levels/test_level",
-        "levels",
         "levels/testlevel",
+        "levels",
+        "metas",
         ".",
-        "metas"
+        "levels/test_level"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -51,8 +51,8 @@
             "scale": 8,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 307.9375,
-                "y": 184.3125
+                "x": 403.3125,
+                "y": 232.0625
             }
         },
         "levels/metas.tsx": {
@@ -65,8 +65,8 @@
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 664.1666666666666,
-                "y": 201.5
+                "x": 1034.8333333333333,
+                "y": 95.83333333333334
             }
         },
         "levels/testLvl.tmx": {
@@ -197,9 +197,9 @@
     "recentFiles": [
         "levels/testLv3.tmx",
         "numbers.tsx",
-        "metas.tsx",
         "attributes.tsx",
         "levels/head.tmx",
+        "metas.tsx",
         "levels/testLvl2.tmx",
         "levels/testLvl.tmx",
         "levels/testlevel/testLvl2.tmx",
