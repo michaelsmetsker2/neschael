@@ -31,7 +31,7 @@
 
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
-  SLOPE_JUMP_MASK   = %00001000
+  SLOPE_JUMP_MASK   = %00010000
   HEADING_MASK      = %01000000
 
 .SCOPE Jump

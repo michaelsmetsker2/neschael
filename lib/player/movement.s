@@ -66,6 +66,7 @@
 	RTS
 .ENDPROC
 
+	; apply give the player the correct velocity to push them toward their target
 .PROC accelerate_x
 		; Having a target of 0 (holding nothing) in air will not slow you down
 		; NOTE probably inneficient to check this first
@@ -88,7 +89,6 @@
 
 	ORA $00             ; exit if the player is at the target velocity
 	BEQ @done
-
 
 	; TODO here we would determing what acceleration values to actually use depending on the surface
 	;and we would load the correct accecleration bytes into memory
@@ -138,25 +138,40 @@
 	RTS
 .ENDPROC
 
+	; sets the correct velocity and states for the players y movement
 .PROC update_vertical_motion
-
+		;branch if player is currently airborne
 	LDA motionState  
 	CMP #MotionState::Airborne
-	BEQ @airborne              ; branch if player is airborne
-@check_jump:                   ; can only start a new jump from the ground
+	BEQ @airborne
+
+@check_jump:                 ; can only start a new jump from the ground
 	LDA btnPressed
 	AND #_BUTTON_A
-	BNE @begin_jump            ; branch if a new jump is detected
+	BNE @begin_jump            ; if grounded and not jumping, break
 	RTS
+
 @begin_jump:
+		; set the holding jump flag
 	LDA playerFlags
-	ORA #%10000000               ; set the holding jump flag
+	ORA #%10000000
 	STA playerFlags
 		; set vertical velocity
 	LDA #<Jump::INITIAL_VELOCITY
 	STA velocityY
 	LDA #>Jump::INITIAL_VELOCITY
 	STA velocityY+1
+
+		; FIXME add handling slope physics here?
+		; jumping from a slope sets the slopeJump flag to disable x collision for 1 frame
+	LDA motionState
+	CMP #MotionState::SteepSlopeUp
+	BCC :+
+	LDA playerFlags
+	ORA #SLOPE_JUMP_MASK
+	STA playerFlags
+:
+
 		; set motionstate to airborne
 	LDA #MotionState::Airborne
 	STA motionState
@@ -168,7 +183,7 @@
 	ADC velocityX
 	BNE @horizontal_boost
 	JMP @airborne			; skip of no velocity found
-	; add vertical velocity boost in heading direction
+		; add vertical velocity boost in heading direction
 @horizontal_boost:
 	LDA #<Jump::HORIZONRAL_BOOST
 	STA $02
@@ -176,12 +191,12 @@
 	STA $03      
 
 	LDA playerFlags
-	AND #%01000000   ; check heading
+	AND	#HEADING_MASK 
 	BEQ @apply_boost ; if heading is left, invert the boost velocity
-	LDA #0
+	LDA #$00
 	SEC
 	SBC $02					 ; unused, only carry is needed
-	LDA #0
+	LDA #$00
 	SBC $03
 	STA $03
 @apply_boost:
@@ -222,8 +237,7 @@ fall_speeds_high:
 	LDA playerFlags             ; updates the flag to save cpu cycles
 	AND #%01111111
 	STA playerFlags
-@decelerate: 
-	; Perform the deceleration
+@decelerate: ; Perform the deceleration
 	CLC 
 	LDA fall_speeds_low,Y
 	ADC velocityY
@@ -235,7 +249,7 @@ fall_speeds_high:
 	CMP #$08
 	BNE @done
 
-	; clamp to max fall speed if exceeded
+		; clamp to max fall speed if exceeded
 	LDA #>Jump::MAX_FALL_SPEED	
 	STA velocityY+1
 	LDA #<Jump::MAX_FALL_SPEED

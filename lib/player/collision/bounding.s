@@ -32,7 +32,12 @@
 	LDA velocityX
 	STA tmpDeltaX
 	LDA velocityX+1
-	STA tmpDeltaX+1  
+	STA tmpDeltaX+1
+
+		; check slope jump flag to conditionally skip x collision
+	LDA playerFlags
+	AND #%00010000
+	BNE @skip_collision
 
 	; see if velocity magnitude is over threshold to warent a mid check
 	LDA velocityX+1
@@ -90,7 +95,7 @@
 @enact_collision:
 	JSR enact_collision_x
 
-		; add deltaX to position
+@add_delta_x:
 	CLC
 	LDA positionX
 	ADC tmpDeltaX
@@ -98,7 +103,14 @@
 	LDA positionX+1
 	ADC tmpDeltaX+1
 	STA positionX+1
-	RTS
+	RTS								; exit point
+
+@skip_collision:
+		; resets slope jump flag and jumps to add_delta_x to return
+	LDA playerFlags
+	AND #%11101111
+	STA playerFlags
+	JMP @add_delta_x
 .ENDPROC
 
 ; check if the player collides with anything and return collision data

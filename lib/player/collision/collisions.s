@@ -165,12 +165,13 @@ collision_index_y_high:
 			CMP #MotionState::Grounded
 			BNE @done
 
-		  ;	LDA tmpProposedPosFinal+1
+			; FIXME new nudge code?
+		  ;LDA tmpProposedPosFinal+1
 			;AND #%00000111
 			;STA $E1
 			;CMP #$01
 			;BEQ @done
-			; nudge player 1 px to set them on the slope
+				; nudge player 1 px to set them on the slope
 			;DEC positionY+1
 
 			LDA #MotionState::SteepSlopeDown
@@ -297,20 +298,20 @@ collision_index_y_high:
     LDA tmpProposedPosFinal+1
     AND #%11111000  					; allign to the top of the tile
 		STA tmpProposedPosFinal+1
-    	; set motion state
-  
+
+			; check if the player is moving froma  sloped surface to flat ground
 		LDA motionState
 		CMP #MotionState::SteepSlopeUp
 		BCC @reset_state
 
+			; do a second check to see what tile type is conditionally above or below the player?
 		DEC	tmpProposedPosFinal+1 
 		JMP ShallowSlope::Up::col_y	; TODO choose what slope type to actually jump to
 		RTS
 
-	@reset_state:				
+	@reset_state: ; set the motion state to grounded and return
 	  LDA #MotionState::Grounded
     STA motionState
-		
 		RTS
 
 	@hit_head:
