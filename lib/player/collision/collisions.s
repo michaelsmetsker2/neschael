@@ -9,6 +9,8 @@
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/game/gameData.inc"
 
+.IMPORT find_collision ; an additional collision check is needed sometimes for slopes
+
 .EXPORT collision_index_x_low
 .EXPORT collision_index_x_high
 .EXPORT collision_index_y_low
@@ -147,8 +149,6 @@ collision_index_y_high:
 				; set motion state in case of a land
 			LDA #MotionState::SteepSlopeDown
 			STA motionState
-
-		@done:
 			RTS
 		.ENDPROC
 
@@ -166,9 +166,8 @@ collision_index_y_high:
 			BNE @done
 
 			; FIXME new nudge code?
-		  ;LDA tmpProposedPosFinal+1
+			;LDA tmpProposedPosFinal+1
 			;AND #%00000111
-			;STA $E1
 			;CMP #$01
 			;BEQ @done
 				; nudge player 1 px to set them on the slope
@@ -276,14 +275,12 @@ collision_index_y_high:
   .ENDPROC
 
   .PROC col_y
-
 			; return if already grounded
 		LDA motionState
 		CMP #MotionState::Grounded
 		BEQ @return
 		
 		LDX velocityY+1 ; store to find direction after zeroing
-
     	; zero velocity and fractional position
     LDA #$00
     STA velocityY
@@ -291,20 +288,41 @@ collision_index_y_high:
     STA tmpProposedPosFinal
 
 		TXA 										; sets negative flag
-		BMI @hit_head 					; branch depending on direction
+		BMI @hit_head 					; branch depending on vertical direction
 
   @land:
-			; clamp position to top of tile
+			; clamp position to top of tile (mask bottom 3 bits)
     LDA tmpProposedPosFinal+1
-    AND #%11111000  					; allign to the top of the tile
+    AND #%11111000
 		STA tmpProposedPosFinal+1
 
-			; check if the player is moving froma  sloped surface to flat ground
+		; TODO this is a test zone for starting a secondary collision check
+		INC $E1
+		
+		; if we are landing normally : check above
+		; if we are going up a slope : check above
+		; if we are going down a slope : check below
+
+
+		; set the x and y collision point to test
+		; the collision point should still be the last thing checked (lower right)
+		DEC tmpCollisionPointY ; one pixel above the feet?
+		DEC tmpCollisionPointY ; one pixel above the feet?
+		JSR find_collision
+		STA $E0
+		BEQ @reset_state
+
+		; if this check is a slope or not, no advance checking
+		; if it is a slope, jump to the relevant slope code
+		; if it is a wall, jmp to @reset_state
+
+
+
+			; check if the player is moving from a sloped surface to flat ground
 		LDA motionState
 		CMP #MotionState::SteepSlopeUp
 		BCC @reset_state
 
-			; do a second check to see what tile type is conditionally above or below the player?
 		DEC	tmpProposedPosFinal+1 
 		JMP ShallowSlope::Up::col_y	; TODO choose what slope type to actually jump to
 		RTS
