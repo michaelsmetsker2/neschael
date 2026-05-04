@@ -51,24 +51,24 @@
  </tile>
  <tile id="6">
   <properties>
-   <property name="1" type="int" value="3"/>
+   <property name="1" type="int" value="4"/>
    <property name="2" type="int" value="0"/>
    <property name="3" type="int" value="8"/>
-   <property name="4" type="int" value="3"/>
+   <property name="4" type="int" value="4"/>
   </properties>
  </tile>
  <tile id="7">
   <properties>
    <property name="1" type="int" value="0"/>
    <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="4"/>
-   <property name="4" type="int" value="4"/>
+   <property name="3" type="int" value="3"/>
+   <property name="4" type="int" value="3"/>
   </properties>
  </tile>
  <tile id="8">
   <properties>
-   <property name="1" type="int" value="4"/>
-   <property name="2" type="int" value="4"/>
+   <property name="1" type="int" value="3"/>
+   <property name="2" type="int" value="3"/>
    <property name="3" type="int" value="8"/>
    <property name="4" type="int" value="8"/>
   </properties>

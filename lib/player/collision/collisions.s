@@ -20,8 +20,8 @@ collision_index_x_low:
 	.BYTE <(Empty::col_x-1)
 	.BYTE <(LevelEnd::both-1)
 	.BYTE <(SteepSlope::Up::col_x-1)
-	.BYTE <(SteepSlope::Down::col_x-1)
 	.BYTE <(ShallowSlope::Up::col_x-1)
+	.BYTE <(SteepSlope::Down::col_x-1)
 	.BYTE <(ShallowSlope::Down::col_x-1)
 	.BYTE $FF
 	.BYTE	$FF 
@@ -31,8 +31,8 @@ collision_index_x_high:
 	.BYTE >(Empty::col_x-1)
 	.BYTE >(LevelEnd::both-1)
 	.BYTE >(SteepSlope::Up::col_x-1)
-	.BYTE >(SteepSlope::Down::col_x-1)
 	.BYTE >(ShallowSlope::Up::col_x-1)
+	.BYTE >(SteepSlope::Down::col_x-1)
 	.BYTE >(ShallowSlope::Down::col_x-1)
 	.BYTE $FF
 	.BYTE $FF
@@ -43,8 +43,8 @@ collision_index_y_low:
 	.BYTE <(Empty::col_y-1)
 	.BYTE <(LevelEnd::both-1)
 	.BYTE <(SteepSlope::Up::col_y-1)
-	.BYTE <(SteepSlope::Down::col_y-1)
 	.BYTE <(ShallowSlope::Up::col_y-1)
+	.BYTE <(SteepSlope::Down::col_y-1)
 	.BYTE <(ShallowSlope::Down::col_y-1)
 	.BYTE $FF
 	.BYTE $FF
@@ -54,8 +54,8 @@ collision_index_y_high:
 	.BYTE >(Empty::col_y-1)
 	.BYTE >(LevelEnd::both-1)
 	.BYTE >(SteepSlope::Up::col_y-1)
-	.BYTE >(SteepSlope::Down::col_y-1)
 	.BYTE >(ShallowSlope::Up::col_y-1)
+	.BYTE >(SteepSlope::Down::col_y-1)
 	.BYTE >(ShallowSlope::Down::col_y-1)
 	.BYTE $FF
 	.BYTE $FF
@@ -279,7 +279,7 @@ collision_index_y_high:
 		LDA motionState
 		CMP #MotionState::Grounded
 		BEQ @return
-		
+
 		LDX velocityY+1 ; store to find direction after zeroing
     	; zero velocity and fractional position
     LDA #$00
@@ -287,41 +287,88 @@ collision_index_y_high:
     STA velocityY+1
     STA tmpProposedPosFinal
 
-		TXA 										; sets negative flag
-		BMI @hit_head 					; branch depending on vertical direction
+	@check_rising: ; see if the player if rising of falling
+		TXA 										; sets negative flag with velocity stored in X
+		BPL @land
+
+	@hit_head:
+			; clamp to top of tile (mask bottom 3 bits)
+	  LDA tmpProposedPosFinal+1
+    AND #%11111000
+		CLC
+		ADC #$08									; move down one tile full tile
+		STA tmpProposedPosFinal+1
+		RTS
 
   @land:
+
+		INC $E0
+
 			; clamp position to top of tile (mask bottom 3 bits)
     LDA tmpProposedPosFinal+1
     AND #%11111000
 		STA tmpProposedPosFinal+1
 
-		; TODO this is a test zone for starting a secondary collision check
-		INC $E1
-		
-		; if we are landing normally : check above
-		; if we are going up a slope : check above
-		; if we are going down a slope : check below
+	@secondary_slope_check:
+			; first determing whether we should check 1px above or below the players feet for a slope
+		SEC
+		LDA motionState
+		SBC #SLOPE_STATES_START ; this will give use the index of slope we are on
+		BCC @check_above				; check above if not on a slope at all
 
+		LSR											; /2  0 if incline 1 if decline
+		ROR A
+		STA $10									; MSB is 1 if decline
 
-		; set the x and y collision point to test
-		; the collision point should still be the last thing checked (lower right)
-		DEC tmpCollisionPointY ; one pixel above the feet?
-		DEC tmpCollisionPointY ; one pixel above the feet?
+		LDA velocityX+1
+		EOR $10
+		BPL @check_below						; if the MSB differ, player is going up a slope
+
+	@check_above:
+			; check above the feet if player is going up a slope or landing for the first time
+		DEC tmpCollisionPointY
+		JMP @find_secondary_collision
+
+	@check_below:
+			; check below if the player is going down a slope
+		INC tmpCollisionPointY
+	
+	@find_secondary_collision:
+			; the current collision point is the last thing checked (lower right foot)
 		JSR find_collision
-		STA $E0
+		STA $10
+
+			; find collision at the left foot as well
+		SEC
+		LDA tmpCollisionPointX
+		SBC #PLAYER_RIGHT_FOOT_OFFSET
+		STA tmpCollisionPointX
+		BCS :+
+		DEC tmpCollisionPointX+1
+	:
+		
+		JSR find_collision
+  	CMP $10                  ; see which check has the higher prioriy collision
+  	BCS :+
+		LDA $10
+	:
+
 		BEQ @reset_state
-
-		; if this check is a slope or not, no advance checking
-		; if it is a slope, jump to the relevant slope code
-		; if it is a wall, jmp to @reset_state
-
 
 
 			; check if the player is moving from a sloped surface to flat ground
 		LDA motionState
 		CMP #MotionState::SteepSlopeUp
 		BCC @reset_state
+
+			; reset tmpCollisionPointX to the right foot as slope calculations expect that
+		CLC
+		LDA tmpCollisionPointX
+		ADC #PLAYER_RIGHT_FOOT_OFFSET
+		STA tmpCollisionPointX
+		BCS :+
+		INC tmpCollisionPointX
+		:
 
 		DEC	tmpProposedPosFinal+1 
 		JMP ShallowSlope::Up::col_y	; TODO choose what slope type to actually jump to
@@ -330,15 +377,7 @@ collision_index_y_high:
 	@reset_state: ; set the motion state to grounded and return
 	  LDA #MotionState::Grounded
     STA motionState
-		RTS
 
-	@hit_head:
-			; clamp to bottom of tile
-	  LDA tmpProposedPosFinal+1
-    AND #%11111000
-		CLC
-		ADC #$08									; move down one tile 
-		STA tmpProposedPosFinal+1
 	@return:
 		RTS
 

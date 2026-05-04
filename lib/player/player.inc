@@ -54,7 +54,9 @@
   Airborne = 0
   Grounded = 1
   SteepSlopeUp = 2
-  SteepSlopeDown = 3
-  ShallowSlopeUp = 4
+  ShallowSlopeUp = 3
+  SteepSlopeDown = 4
   ShallowSlopeDown = 5
 .ENDENUM
+
+  SLOPE_STATES_START = MotionState::SteepSlopeUp ; motionstates above this are all sloped

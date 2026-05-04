@@ -200,7 +200,6 @@
 	
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
-	PLAYER_FEET_RIGHT_OFFSET	   = $06 ; 6 pixels, the width of the player, acts as the player's right foot
 
 	tmpCollisionData						 = SCRATCH
 
@@ -233,7 +232,7 @@
 @check_collision_right: ; check the collision at the players right foot
 	CLC
 	LDA tmpCollisionPointX
-	ADC #PLAYER_FEET_RIGHT_OFFSET
+	ADC #PLAYER_RIGHT_FOOT_OFFSET
 	STA tmpCollisionPointX
 	BCC :+	
 	INC tmpCollisionPointX+1
