@@ -26,7 +26,17 @@
   shallowSlopeUp   = 3
   steepSlopeDown   = 4
   shallowSlopeDown = 5
-
-
+  ; unused
+  ; unused
   solid            = 9
 .ENDENUM
+
+.ENUM Slopes ; slope variations relative to the start of the block of slopes in CollisionType
+  steepUp = CollisionType::steepSlopeUp - SLOPE_COLL_START
+  shallowUp = CollisionType::shallowSlopeUp - SLOPE_COLL_START
+  steepDown = CollisionType::steepSlopeDown - SLOPE_COLL_START
+  shallowDown = CollisionType::shallowSlopeDown - SLOPE_COLL_START
+.ENDENUM
+
+  SLOPE_COLL_START = CollisionType::steepSlopeUp ; collisionType index where slopes start
+  SLOPE_VARIATIONS = $04 ; ammount of slope variations

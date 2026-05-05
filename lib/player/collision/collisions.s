@@ -173,8 +173,8 @@ collision_index_y_high:
 				; nudge player 1 px to set them on the slope
 			;DEC positionY+1
 
-			LDA #MotionState::SteepSlopeDown
-			STA motionState
+			;LDA #MotionState::SteepSlopeUp
+			;STA motionState
 		@done:
 			RTS	
 		.ENDPROC
@@ -301,9 +301,6 @@ collision_index_y_high:
 		RTS
 
   @land:
-
-		INC $E0
-
 			; clamp position to top of tile (mask bottom 3 bits)
     LDA tmpProposedPosFinal+1
     AND #%11111000
@@ -322,7 +319,7 @@ collision_index_y_high:
 
 		LDA velocityX+1
 		EOR $10
-		BPL @check_below						; if the MSB differ, player is going up a slope
+		BPL @check_below			  ; if the MSB differ, player is going up a slope
 
 	@check_above:
 			; check above the feet if player is going up a slope or landing for the first time
@@ -346,20 +343,16 @@ collision_index_y_high:
 		BCS :+
 		DEC tmpCollisionPointX+1
 	:
-		
+			; use the collision with the higher priority
 		JSR find_collision
-  	CMP $10                  ; see which check has the higher prioriy collision
+  	CMP $10
   	BCS :+
 		LDA $10
 	:
 
+	@determine_slope:
+			; just air above, quick return for most cases
 		BEQ @reset_state
-
-
-			; check if the player is moving from a sloped surface to flat ground
-		LDA motionState
-		CMP #MotionState::SteepSlopeUp
-		BCC @reset_state
 
 			; reset tmpCollisionPointX to the right foot as slope calculations expect that
 		CLC
@@ -367,12 +360,13 @@ collision_index_y_high:
 		ADC #PLAYER_RIGHT_FOOT_OFFSET
 		STA tmpCollisionPointX
 		BCS :+
-		INC tmpCollisionPointX
-		:
+		INC tmpCollisionPointX+1
+	:
 
 		DEC	tmpProposedPosFinal+1 
 		JMP ShallowSlope::Up::col_y	; TODO choose what slope type to actually jump to
 		RTS
+
 
 	@reset_state: ; set the motion state to grounded and return
 	  LDA #MotionState::Grounded
@@ -383,3 +377,49 @@ collision_index_y_high:
 
   .ENDPROC
 .ENDSCOPE
+
+.IF 0
+
+			; reset tmpCollisionPointX to the right foot as slope calculations expect that
+		CLC
+		LDA tmpCollisionPointX
+		ADC #PLAYER_RIGHT_FOOT_OFFSET
+		STA tmpCollisionPointX
+		BCS :+
+		INC tmpCollisionPointX+1
+	:
+
+	@determine_slope:
+		LDA $10
+		STA $E0
+		BEQ @reset_state ; only air, land normally
+		CMP CollisionType::steepSlopeUp
+		BEQ @steep_up
+		CMP CollisionType::shallowSlopeUp
+ 		BEQ @shallow_up
+		CMP CollisionType::steepSlopeDown
+		BEQ @steep_down
+		CMP CollisionType::shallowSlopeDown
+		BEQ @shallow_down
+			; no slope, fall through to reset_state and land normally
+
+	@reset_state: ; set the motion state to grounded and return
+	  LDA #MotionState::Grounded
+    STA motionState
+	@return:
+		RTS
+
+	@steep_up:
+		DEC	tmpProposedPosFinal+1 
+		JMP SteepSlope::Up::col_y
+	@shallow_up:
+		DEC	tmpProposedPosFinal+1 
+		JMP ShallowSlope::Up::col_y
+	@steep_down:
+		INC	tmpProposedPosFinal+1 
+		JMP SteepSlope::Down::col_y
+	@shallow_down:
+		INC	tmpProposedPosFinal+1 
+		JMP ShallowSlope::Down::col_y
+
+.ENDIF
