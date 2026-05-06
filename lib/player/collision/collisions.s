@@ -307,6 +307,12 @@ collision_index_y_high:
 		STA tmpProposedPosFinal+1
 
 	@secondary_slope_check:
+
+			; clamp tmp position x 
+		LDA tmpCollisionPointY
+		AND #%11111000
+		STA tmpCollisionPointY
+
 			; first determing whether we should check 1px above or below the players feet for a slope
 		SEC
 		LDA motionState
@@ -320,7 +326,6 @@ collision_index_y_high:
 		LDA velocityX+1
 		EOR $10
 		BPL @check_below			  ; if the MSB differ, player is going up a slope
-
 	@check_above:
 			; check above the feet if player is going up a slope or landing for the first time
 		DEC tmpCollisionPointY
@@ -329,11 +334,11 @@ collision_index_y_high:
 	@check_below:
 			; check below if the player is going down a slope
 		INC tmpCollisionPointY
-	
+
 	@find_secondary_collision:
 			; the current collision point is the last thing checked (lower right foot)
 		JSR find_collision
-		STA $10
+		STA $0F
 
 			; find collision at the left foot as well
 		SEC
@@ -343,17 +348,17 @@ collision_index_y_high:
 		BCS :+
 		DEC tmpCollisionPointX+1
 	:
-			; use the collision with the higher priority
+			; store the collision with the higher priority
 		JSR find_collision
-  	CMP $10
+  	CMP $0F
   	BCS :+
-		LDA $10
+		LDA $0F
 	:
 
 	@determine_slope:
 			; just air above, quick return for most cases
+		;LDA $0F
 		BEQ @reset_state
-
 			; reset tmpCollisionPointX to the right foot as slope calculations expect that
 		CLC
 		LDA tmpCollisionPointX
@@ -367,7 +372,6 @@ collision_index_y_high:
 		JMP ShallowSlope::Up::col_y	; TODO choose what slope type to actually jump to
 		RTS
 
-
 	@reset_state: ; set the motion state to grounded and return
 	  LDA #MotionState::Grounded
     STA motionState
@@ -380,18 +384,8 @@ collision_index_y_high:
 
 .IF 0
 
-			; reset tmpCollisionPointX to the right foot as slope calculations expect that
-		CLC
-		LDA tmpCollisionPointX
-		ADC #PLAYER_RIGHT_FOOT_OFFSET
-		STA tmpCollisionPointX
-		BCS :+
-		INC tmpCollisionPointX+1
-	:
-
 	@determine_slope:
 		LDA $10
-		STA $E0
 		BEQ @reset_state ; only air, land normally
 		CMP CollisionType::steepSlopeUp
 		BEQ @steep_up

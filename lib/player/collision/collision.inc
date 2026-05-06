@@ -28,7 +28,7 @@
   shallowSlopeDown = 5
   ; unused
   ; unused
-  solid            = 9
+  solid            = 8
 .ENDENUM
 
 .ENUM Slopes ; slope variations relative to the start of the block of slopes in CollisionType
