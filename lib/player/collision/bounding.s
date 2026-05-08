@@ -51,7 +51,7 @@
 	BCC @check_collision		; branch if under the threshold
 
 @midpoint_check:	; check collision halfway through the movement to prevent skipping a tile
-	; divide deltaX by two and check collision at the midpoint
+		; divide deltaX by two and check collision at the midpoint
 	LDA tmpDeltaX+1        ; high byte
 	ROL A                  ; shift sign bit into cary
 	LDA tmpDeltaX+1
