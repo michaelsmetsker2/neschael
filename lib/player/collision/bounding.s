@@ -151,7 +151,7 @@
 
 		; if on a slope, only check the top x collision point to avoid getting stopped betweens slopes
 	LDA motionState
-	CMP #MotionState::SteepSlopeUp
+	CMP #SLOPE_COLL_START
 	BCS @skip_bottom_check 
 
 @check_bottom: ; check again at a lower position

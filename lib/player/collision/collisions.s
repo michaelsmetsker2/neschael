@@ -68,22 +68,29 @@ collision_index_y_high:
   .ENDPROC
 
   .PROC col_y
-
 			; if the player is currently on a slope
 		LDA motionState
-		CMP SLOPE_STATES_START
-		;BCC @slope_check
+		CMP #SLOPE_STATES_START
+		;BCS @slope_check
 	
       ; sets the motionState, for edge case for walking off a platform
   	LDA #MotionState::Airborne
 		STA motionState
-		RTS
+		RTS ; FIXME 
 
-	@slope_check:
-		; should just be check below?
+	@slope_check:	
+		INC $E0 ; FIXME DEBUG
 
-			; check 1px below the players feet for a slope collision to snap to
+		LDA tmpCollisionPointY
+		AND #%11111000
+		STA tmpCollisionPointY
+
 		INC tmpCollisionPointY
+		
+
+		INC	tmpProposedPosFinal+1 
+		JMP ShallowSlope::Up::col_y
+
 
 		JSR find_collision
 
@@ -127,6 +134,7 @@ collision_index_y_high:
 .SCOPE LevelEnd
   .PROC both
 
+		; FIXME unfinished make it increment level not just set to 1
 		LDA #%00010000
 		ORA gameFlags
 		STA gameFlags
@@ -142,25 +150,12 @@ collision_index_y_high:
 .SCOPE SteepSlope
 	.SCOPE Up 
 		.PROC col_x
-			RTS
-		.ENDPROC
-
-		.PROC col_y
-			RTS
-		.ENDPROC
-
-	.ENDSCOPE
-
-	.SCOPE Down
-		.PROC col_x
-			RTS ; FIXME
-		@check_grounded:
+			INC $E0
+				; if we are currently grounded and colliding with a slope, set the motionState to the slope
 			LDA motionState
+			STA $E1
 			CMP #MotionState::Grounded
-			BNE @done 
-
-			; nudge player 1 px to set them on the slope
-			DEC positionY+1
+			BNE @done
 
 			LDA #MotionState::SteepSlopeDown
 			STA motionState
@@ -168,19 +163,15 @@ collision_index_y_high:
 			RTS	
 		.ENDPROC
 
-		test_offset_down:
-			.BYTE $00, $01, $02, $03, $04, $05, $06, $07, $08
+		slope_offset:
+			.BYTE $08, $07, $06, $05, $04, $03, $02, $01, $00
 
 		.PROC col_y
-
 				; find the correct y offset relative to the players current x position
-			LDY tmpCollisionPointX
-			INY
-			INY
-			TYA
+			LDA tmpCollisionPointX
 			AND #%00000111
 			TAY
-			LDA test_offset_down, Y
+			LDA slope_offset, Y
 			STA $11
 
 				; zero velocity and fractional position
@@ -192,14 +183,60 @@ collision_index_y_high:
 		@clamp:
 			LDA tmpProposedPosFinal+1
 			AND #%11111000
-			ORA $11
+			CLC
+			ADC $11
+			STA tmpProposedPosFinal+1
+				; set motion state in case of a land
+			LDA #MotionState::SteepSlopeUp
+			STA motionState
+			RTS
+		.ENDPROC
+
+	.ENDSCOPE
+
+	.SCOPE Down
+		.PROC col_x
+				; if we are currently grounded and colliding with a slope, set the motionState to the slope
+			LDA motionState
+			CMP #MotionState::Grounded
+			BNE @done
+
+			LDA #MotionState::SteepSlopeDown
+			STA motionState
+		@done:
+			RTS	
+		.ENDPROC
+
+		slope_offset:
+			.BYTE $00, $01, $02, $03, $04, $05, $06, $07, $08, $09
+
+		.PROC col_y
+				; find the correct y offset relative to the players current x position
+			LDA tmpCollisionPointX
+			SEC
+			SBC #PLAYER_RIGHT_FOOT_OFFSET
+			AND #%00000111
+			TAY
+			LDA slope_offset, Y
+			STA $11
+
+				; zero velocity and fractional position
+			LDA #$00
+			STA velocityY
+			STA velocityY+1
+			STA tmpProposedPosFinal
+
+		@clamp:
+			LDA tmpProposedPosFinal+1
+			AND #%11111000
+			CLC
+			ADC $11
 			STA tmpProposedPosFinal+1
 				; set motion state in case of a land
 			LDA #MotionState::SteepSlopeDown
 			STA motionState
 			RTS
 		.ENDPROC
-
 	.ENDSCOPE
 .ENDSCOPE
 
@@ -207,13 +244,12 @@ collision_index_y_high:
 .SCOPE ShallowSlope
 	.SCOPE Up
 		.PROC col_x
-
-		@check_grounded:
+				; if we are currently grounded and colliding with a slope, set the motionState to the slope
 			LDA motionState
 			CMP #MotionState::Grounded
 			BNE @done
 
-			LDA #MotionState::SteepSlopeUp
+			LDA #MotionState::SteepSlopeDown ; opposite direction to trigger an above check
 			STA motionState
 		@done:
 			RTS	
@@ -246,18 +282,52 @@ collision_index_y_high:
 				; set motion state in case of a land
 			LDA #MotionState::ShallowSlopeUp
 			STA motionState
-
-		@done:
 			RTS
 		.ENDPROC
 	.ENDSCOPE
 
 	.SCOPE Down
-		.PROC col_x
-			RTS
+	.PROC col_x
+				; if we are currently grounded and colliding with a slope, set the motionState to the slope
+			LDA motionState
+			CMP #MotionState::Grounded
+			BNE @done
+
+			LDA #MotionState::SteepSlopeUp ; opposite direction to trigger an above check
+			STA motionState
+		@done:
+			RTS	
 		.ENDPROC
 
+		slope_offset:
+			.BYTE $00, $01, $02, $03, $04, $05, $06, $07, $08
+
 		.PROC col_y
+				; find the correct y offset relative to the players current x position
+			LDA tmpCollisionPointX
+			SEC
+			SBC #PLAYER_RIGHT_FOOT_OFFSET
+			AND #%00001111
+			LSR A
+			;TAY
+			;LDA slope_offset, Y
+			STA $11
+
+				; zero velocity and fractional position
+			LDA #$00
+			STA velocityY
+			STA velocityY+1
+			STA tmpProposedPosFinal
+
+		@clamp:
+			LDA tmpProposedPosFinal+1
+			AND #%11111000
+			CLC
+			ADC $11
+			STA tmpProposedPosFinal+1
+				; set motion state in case of a land
+			LDA #MotionState::ShallowSlopeDown
+			STA motionState
 			RTS
 		.ENDPROC
 
@@ -326,7 +396,6 @@ collision_index_y_high:
     STA velocityY
     STA velocityY+1
     STA tmpProposedPosFinal
-
 	@check_rising: ; see if the player if rising of falling
 		TXA 										; sets negative flag with velocity stored in X
 		BPL @land
@@ -345,7 +414,6 @@ collision_index_y_high:
     LDA tmpProposedPosFinal+1
     AND #%11111000
 		STA tmpProposedPosFinal+1
-
 			; clamp tmpPositionX to match position 
 		LDA tmpCollisionPointY
 		AND #%11111000
@@ -364,7 +432,8 @@ collision_index_y_high:
 
 		LDA velocityX+1
 		EOR $10
-		BPL @check_below			  ; if the MSB differ, player is going up a slope
+		BMI @check_below			  ; if the MSB differ, player is going up a slope
+		
 	@check_above:
 			; check 1px above players feet if going up a slope or landing
 		DEC tmpCollisionPointY
