@@ -12,7 +12,10 @@ test_level_2:
 	.WORD background_index, spawn_stream
 	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $07 ; length of background, zero based
-
+	.BYTE $3F ; background color
+	.BYTE $00, $01, $02, $03 ; background palettes
+	.BYTE $00, $01, $02, $03 ; sprite palettes
+  
 background_index:
 	.WORD background_0, background_1, background_2, background_3, background_4, background_5, background_6, background_7
 spawn_stream:

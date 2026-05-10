@@ -68,16 +68,17 @@ collision_index_y_high:
   .ENDPROC
 
   .PROC col_y
+	.IF 0 ; FIXME determine if needed
 			; if the player is currently on a slope
 		LDA motionState
 		CMP #SLOPE_STATES_START
-		;BCS @slope_check
-	
+		BCS @slope_check
+	.ENDIF
       ; sets the motionState, for edge case for walking off a platform
   	LDA #MotionState::Airborne
 		STA motionState
 		RTS
-	.IF 0
+	.IF 0 ; FIXME determine if needed
 	@slope_check:
 		LDA tmpCollisionPointY
 		AND #%11111000

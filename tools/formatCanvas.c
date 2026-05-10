@@ -429,7 +429,10 @@ int main(int argc, char *argv[]) {
   // lookup table
   fprintf(out, "LEVELNAME:\n\t.WORD background_index, spawn_stream\n");
 	fprintf(out, "\t.BYTE $00, $00 ; high byte of player starting X and Y\n");
-	fprintf(out, "\t.BYTE $%02X ; length of background, zero based\n\n", nametableCount - 1);
+	fprintf(out, "\t.BYTE $%02X ; ammount of backgrounds, zero based\n", nametableCount - 1);
+	fprintf(out, "\t.BYTE $3F ; background color\n");
+	fprintf(out, "\t.BYTE $00, $01, $02, $03 ; background palettes\n");
+	fprintf(out, "\t.BYTE $00, $01, $02, $03 ; sprite palettes\n\n");
 	
 	fprintf(out, "background_index:\n\t.WORD ");
   for (int i = 0; i < nametableCount; i++) {

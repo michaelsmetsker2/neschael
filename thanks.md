@@ -8,3 +8,5 @@
 - zlago/sylvie for providing references and help with lzss encoding
 - ImachVFX for playtesting
 - zeta, gauauu, Matt Hughson for assistance with various aspects of developement 
+
+TODO add the example things i used

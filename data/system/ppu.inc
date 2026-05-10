@@ -201,6 +201,9 @@ _OAM_X    = 3
 ; - Size of an OAM sprite entry for iteration
 _OAM_SIZE = 4
 
+; - PPU address for thes start of palette RAM
+_PALETTE_RAM = $3F00
+
 .MACRO DisableVideoOutput
   LDA #%00000000
   STA _PPUCTRL    ; disable NMI
@@ -267,7 +270,7 @@ _OAM_SIZE = 4
 .ENDMACRO
 
   ; loads color and position information to RAM
-.MACRO LoadPaletteData
+.MACRO LoadPaletteData ; TODO depreciated?
   LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
   LDA #$3F
   STA _PPUADDR             ; write the high byte of the palette RAM, $3F00

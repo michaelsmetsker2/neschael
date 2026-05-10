@@ -11,7 +11,10 @@
 LEVELNAME:
 	.WORD background_index, spawn_stream
 	.BYTE $00, $00 ; high byte of player starting X and Y
-	.BYTE $01 ; length of background, zero based
+	.BYTE $01 ; ammount of backgrounds, zero based
+	.BYTE $3F ; background color
+	.BYTE $00, $01, $02, $03 ; background palettes
+	.BYTE $00, $01, $02, $03 ; sprite palettes
 
 background_index:
 	.WORD background_0, background_1

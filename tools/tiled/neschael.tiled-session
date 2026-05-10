@@ -6,10 +6,10 @@
     "activeFile": "levels/head.tmx",
     "expandedProjectPaths": [
         "levels/test_level",
-        ".",
+        "metas",
         "levels",
         "levels/testlevel",
-        "metas"
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -48,11 +48,11 @@
             "scaleInDock": 1
         },
         "levels/head.tmx": {
-            "scale": 8,
+            "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 122.6875,
-                "y": 97.3125
+                "x": 231.875,
+                "y": 122.375
             }
         },
         "levels/metas.tsx": {

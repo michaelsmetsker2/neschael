@@ -7,9 +7,8 @@
 
 .INCLUDE "data/system/cpu.inc"
 .INCLUDE "data/system/ppu.inc"
+.INCLUDE "data/levels/levelData.inc"
 .INCLUDE "lib/game/gameData.inc"
-
-.INCLUDE "data/palettes/palettes.inc" ; TODO temp until i find a better place for this
 
 .IMPORT decompress_nametable
 
@@ -21,14 +20,16 @@
 .IMPORT entities_init
 .IMPORT hud_init
 
+.IMPORT palettes
+
 .EXPORT game_init
 .EXPORT read_joypad_1
 .EXPORT level_init
 
 .PROC game_init
 
-  ; maybe here i set the fixed palletes and only set dynamic ones on level load 
- ; TODO still empty.
+  ; maybe here i set the fixed paletes and only set dynamic ones on level load 
+  ; TODO still empty.
 
   RTS
 .ENDPROC
@@ -52,7 +53,8 @@
   LDA level_index_high,Y
   STA levelPtr+1
 
- LoadPaletteData ; TODO set up palletes for current level?
+  JSR load_level_palettes
+
     ; TODO set music for current level and clear audio streams
 
 @decompress_starting_nametables:
@@ -80,6 +82,54 @@
   EnableVideoOutput
   RTS
 
+.ENDPROC
+
+  ; loads the data from the pallete tables referenced in the current level's data to the ppu
+.PROC load_level_palettes
+  LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
+  LDA #>_PALETTE_RAM
+  STA _PPUADDR             ; write the high byte of the palette RAM
+  LDA #<_PALETTE_RAM
+  STA _PPUADDR             ; write the low byte of the palette RAM
+
+  LDY #PALETTE_OFFSET ; palette loop index
+    ; loop through all 8 of the pallets
+@palette_loop:
+  LDA (levelPtr), Y ; get the index of the palette to load
+    ; multiply index by 3 to get index byte offset
+  STA $00
+  ASL A
+  CLC
+  ADC $00
+  TAX
+
+    ; store arbitrary value in the first byte
+  STA _PPUDATA
+    ; copy the palettes three bytes to the PPU
+  LDA palettes, X
+  STA _PPUDATA  
+  INX
+  LDA palettes, X
+  STA _PPUDATA  
+  INX
+  LDA palettes, X
+  STA _PPUDATA    
+  
+  INY
+  CPY #PALETTE_OFFSET+8
+  BNE @palette_loop
+
+@set_background_color:
+  LDA #>_PALETTE_RAM
+  STA _PPUADDR             ; write the high byte of the palette RAM
+  LDA #<_PALETTE_RAM
+  STA _PPUADDR             ; write the low byte of the palette RAM
+
+  LDY #BACKGROUND_COLOR_OFFSET
+  LDA (levelPtr), Y
+  STA _PPUDATA
+
+  RTS
 .ENDPROC
 
 .PROC read_joypad_1

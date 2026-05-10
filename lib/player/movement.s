@@ -162,13 +162,14 @@
 	LDA #>Jump::INITIAL_VELOCITY
 	STA velocityY+1
 
-		; FIXME add handling slope physics here?
+@slope_checking:	; FIXME add handling slope physics here?
 		; jumping from a slope sets the slopeJump flag to disable x collision for 1 frame
 	LDA motionState
 	CMP #MotionState::SteepSlopeUp
 	BCC :+
 	LDA playerFlags
-	ORA #SLOPE_JUMP_MASK
+	; AND #%11111100 this is uneeded as a jump will net be 1 frame apart from eachother
+	ORA #%00000010		; sets the slopeJump flag to 2
 	STA playerFlags
 :
 

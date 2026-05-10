@@ -3,7 +3,6 @@
 ; data/palettes/palettes.inc
 ;
 
-
 palette:
 ; background
   .BYTE $00, $07, $06, $05  

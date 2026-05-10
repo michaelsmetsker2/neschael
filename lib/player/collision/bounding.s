@@ -36,7 +36,7 @@
 
 		; check slope jump flag to conditionally skip x collision
 	LDA playerFlags
-	AND #%00010000
+	AND #SLOPE_JUMP_MASK
 	BNE @skip_collision
 
 	; see if velocity magnitude is over threshold to warent a mid check
@@ -106,10 +106,8 @@
 	RTS								; exit point
 
 @skip_collision:
-		; resets slope jump flag and jumps to add_delta_x to return
-	LDA playerFlags
-	AND #%11101111
-	STA playerFlags
+		; decrements slope jump flag and jumps to add_delta_x to return
+	DEC playerFlags
 	JMP @add_delta_x
 .ENDPROC
 

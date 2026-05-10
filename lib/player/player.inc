@@ -23,15 +23,15 @@
   chargeCounter   = PLAYER_DATA + 14  ; counter that determines how much boost is stored per tick
 
   playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
-                                        ; 0-3 unused
-                                        ; 4   slopeJump   if the player is jumping on a slope, set to 1, disables x collision to avoid snagging
+                                        ; 0-1 slopeJump   if the player is jumping on a slope, set to 2, disables x collision to avoid snagging for 2 frames
+                                        ; 2-4 unused
                                         ; 5   chargeState if player is charging boost 0 for no
                                         ; 6   heading     0 for right, 1 for left
                                         ; 7   slowJump    flag if the player has been holding A since the start of the jump
 
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
-  SLOPE_JUMP_MASK   = %00010000
+  SLOPE_JUMP_MASK   = %00000011
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
