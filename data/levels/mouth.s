@@ -14,7 +14,7 @@ mouth_level:
 	.BYTE $01 ; length of background, zero based
   .BYTE $21 ; background color
 	.BYTE $00, $01, $02, $03 ; background palettes
-	.BYTE $00, $01, $02, $03 ; sprite palettes
+	.BYTE $04, $01, $02, $03 ; sprite palettes
 
 background_index:
 	.WORD background_0, background_1

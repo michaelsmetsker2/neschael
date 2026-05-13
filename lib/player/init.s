@@ -11,11 +11,11 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/levels/levelData.inc"
 
-playerTile      = $0205 ; player's sprite in OAM buffer
-playerAttribute = $0206 ; player's attribute byte in OAM buffer
-
   ; スパイダーマン
 .EXPORT player_init
+
+playerTile      = $0205 ; player's sprite in OAM buffer
+playerAttribute = $0206 ; player's attribute byte in OAM buffer
 
 .PROC player_init
   ; load the starting position in pixels from the current level's data

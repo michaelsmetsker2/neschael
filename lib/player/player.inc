@@ -35,12 +35,19 @@
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
-  MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
-  INITIAL_VELOCITY       = $FC00 ; signed fixed point 8.8 
-  HORIZONRAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
+  INITIAL_VELOCITY_FLAT        = $FBE0 ; signed fixed point 8.8
+  INITIAL_VELOCITY_SHALLOW_INC = $FBE0
+  INITIAL_VELOCITY_SHALLOW_DEC = $FBE0
+  INITIAL_VELOCITY_STEEP_INC   = $FBE0
+  INITIAL_VELOCITY_STEEP_DEC   = $FBE0
+
+  HORIZONTAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
+
+
   SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
   BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
   DECELERATION_THRESHOLD = $FE   ; force slow falling when velocity is greater than this
+  MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
 .ENDSCOPE
 
 .SCOPE Velocities
@@ -59,4 +66,4 @@
   ShallowSlopeDown = 5
 .ENDENUM
 
-  SLOPE_STATES_START = MotionState::SteepSlopeUp ; motionstates above this are all sloped
+  SLOPE_STATES_START = MotionState::SteepSlopeUp ; this motionstate and all above are slopes

@@ -3,6 +3,7 @@
 ; lib/player/movement.s
 ;
 ; handles the players movement physics and input
+; todo this file has potential cycle saves by using tail calls
 ;
 
 .SEGMENT "CODE"
@@ -140,15 +141,16 @@
 
 	; sets the correct velocity and states for the players y movement
 .PROC update_vertical_motion
-		;branch if player is currently airborne
+		; skip to update jump velocity if player is currently airborne
 	LDA motionState  
 	CMP #MotionState::Airborne
-	BEQ @airborne
+	BNE @check_jump
+	JMP update_jump_velocity
 
-@check_jump:                 ; can only start a new jump from the ground
+@check_jump:
 	LDA btnPressed
 	AND #_BUTTON_A
-	BNE @begin_jump            ; if grounded and not jumping, break
+	BNE @begin_jump            ; grounded and not jumping, break
 	RTS
 
 @begin_jump:
@@ -156,26 +158,32 @@
 	LDA playerFlags
 	ORA #%10000000
 	STA playerFlags
-		; set vertical velocity
-	LDA #<Jump::INITIAL_VELOCITY
-	STA velocityY
-	LDA #>Jump::INITIAL_VELOCITY
-	STA velocityY+1
 
-@slope_checking:	; FIXME add handling slope physics here?
-		; jumping from a slope sets the slopeJump flag to disable x collision for 1 frame
+@slope_checking:
+		; jumping from a slope sets the slopeJump flag to disable x collision for 2 frames
 	LDA motionState
 	CMP #MotionState::SteepSlopeUp
-	BCC :+
+	BCC @set_jump_velocity
+	
+		; player is on a slope
+		; set slope flag to 2 grace frames
 	LDA playerFlags
-	; AND #%11111100 this is uneeded as a jump will net be 1 frame apart from eachother
-	ORA #%00000010		; sets the slopeJump flag to 2
+	ORA #%00000010
 	STA playerFlags
-:
 
-		; set motionstate to airborne
-	LDA #MotionState::Airborne
-	STA motionState
+	; slope inclination
+	; going up or down the slope
+	; direction moving (use heading?)
+
+
+@set_jump_velocity:
+		; set vertical velocity based on slope type and direction? 
+	LDX #$00 ; FIXME temp
+
+	LDA jump_vel_low, X
+	STA velocityY
+	LDA jump_vel_high, X
+	STA velocityY+1
 
 		; only apply the boost if the character is moving
 	LDA velocityX+1
@@ -183,17 +191,19 @@
 	CLC 
 	ADC velocityX
 	BNE @horizontal_boost
-	JMP @airborne			; skip of no velocity found
-		; add vertical velocity boost in heading direction
+	JMP @airborne			; skip if no velocity found
+
+		; add hortizontal according to heading direction
 @horizontal_boost:
-	LDA #<Jump::HORIZONRAL_BOOST
+	LDA #<Jump::HORIZONTAL_BOOST
 	STA $02
-	LDA #>Jump::HORIZONRAL_BOOST
+	LDA #>Jump::HORIZONTAL_BOOST
 	STA $03      
 
 	LDA playerFlags
 	AND	#HEADING_MASK 
 	BEQ @apply_boost ; if heading is left, invert the boost velocity
+@invert_boost:
 	LDA #$00
 	SEC
 	SBC $02					 ; unused, only carry is needed
@@ -207,19 +217,23 @@
 	STA velocityX
 	LDA velocityX+1
 	ADC $03
-	STA velocityX+1      
-	RTS
+	STA velocityX+1
+
+		; set motionstate to airborne
+	LDA #MotionState::Airborne
+	STA motionState
+
 @airborne:
-	JSR update_jump_velocity  ; this are not in update so an early exit can save cpu cycles
-	RTS
+	JMP update_jump_velocity  ; this is not in update so an early exit can save cpu cycles
+
+		; lookup tables for initial jump velocity based on slope type
+	jump_vel_low:
+		.BYTE <Jump::INITIAL_VELOCITY_FLAT
+	jump_vel_high:
+		.BYTE >Jump::INITIAL_VELOCITY_FLAT
 .ENDPROC
 
-	; small fall speed lookup table for use in update_jump_velocity
-fall_speeds_low:
-	.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
-fall_speeds_high:
-	.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
-.PROC update_jump_velocity ; this updates mid air velocity
+.PROC update_jump_velocity ; updates mid air velocity
 	; Determine if velocity decelerates slow or fest based on button hold
 	LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
 	BIT playerFlags
@@ -257,6 +271,12 @@ fall_speeds_high:
 	STA velocityY
 @done:
 	RTS
+
+		; small fall speed lookup table for use in update_jump_velocity
+fall_speeds_low:
+	.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
+fall_speeds_high:
+	.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .ENDPROC
 
 ; proccess the b button charge ability

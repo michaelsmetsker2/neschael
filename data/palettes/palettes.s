@@ -1,17 +1,12 @@
 ;
 ; neschael
 ; data/palettes/palettes.s
-;
+; 
+; background and sprite palettes ordered for ppu copying during level load
 
-.ENUM Palettes
-  meat
-  yellow
-  blue
-  hud
-  player  
-.ENDENUM
+.EXPORT palettes
 
-palletes:
+palettes:
 
   ; background
 p_meat:
@@ -21,8 +16,6 @@ p_yellow:
 p_blue:
   .BYTE $27, $17, $0F
 p_hud:
-  .BYTE $30, $00, $0F   ; HUD
+  .BYTE $30, $00, $0F
 p_player:
   .BYTE $15, $19, $27
-  
-  .BYTE $3F ; background
