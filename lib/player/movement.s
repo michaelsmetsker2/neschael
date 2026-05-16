@@ -159,25 +159,40 @@
 	ORA #%10000000
 	STA playerFlags
 
+.IF 0
 @slope_checking:
 		; jumping from a slope sets the slopeJump flag to disable x collision for 2 frames
-	LDA motionState
-	CMP #MotionState::SteepSlopeUp
+	LDX motionState
+	CPX #MotionState::SteepSlopeUp
 	BCC @set_jump_velocity
 	
 		; player is on a slope
-		; set slope flag to 2 grace frames
+		; set slope flag to 2 grace frames ; BUG can cause tunneling if a wall is at the end of a slope
 	LDA playerFlags
 	ORA #%00000010
 	STA playerFlags
 
-	; slope inclination
-	; going up or down the slope
-	; direction moving (use heading?)
+	TXA ; X register contains motionState	
+	SEC
+	SBC SLOPE_STATES_START ; slope index 0-3
+	LSR A         				 ; 0-1 incline, decline
+	STA $00
+
+	LDA velocityX+1
+	ASL
+	ROL
+	CLC
+	ADC $00
+	AND #%00000011
+	CMP #$01
+	BEQ :+
+:
+.ENDIF
 
 
 @set_jump_velocity:
-		; set vertical velocity based on slope type and direction? 
+	INC $E0
+		; set vertical velocity based on slope type and direction?
 	LDX #$00 ; FIXME temp
 
 	LDA jump_vel_low, X
