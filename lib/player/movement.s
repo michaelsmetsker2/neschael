@@ -27,7 +27,6 @@
 	JSR update_position_x				; x collision first to avoid getting stuck on walls
 	JSR update_position_y
 	RTS
-
 .ENDPROC
 
 	; sets the target velocity to accelerate to, also updates heading
@@ -159,11 +158,11 @@
 	ORA #%10000000
 	STA playerFlags
 
-.IF 0
 @slope_checking:
-		; jumping from a slope sets the slopeJump flag to disable x collision for 2 frames
-	LDX motionState
-	CPX #MotionState::SteepSlopeUp
+		; check if the player if jumping from a slope
+	LDX #$04 ; assume flat, saves jumping cycles
+	LDA motionState
+	CMP #MotionState::SteepSlopeUp
 	BCC @set_jump_velocity
 	
 		; player is on a slope
@@ -172,33 +171,37 @@
 	ORA #%00000010
 	STA playerFlags
 
-	TXA ; X register contains motionState	
+@determine_slope_direction: ; finds whether the player is going up or down a slope
+	TXA                       ; X register contains motionState	
 	SEC
-	SBC SLOPE_STATES_START ; slope index 0-3
-	LSR A         				 ; 0-1 incline, decline
+	SBC #SLOPE_STATES_START   ; slope index 0-3
+	TAY 											; store slope index for later
+	LSR A         				    ; 0-1 incline, decline
 	STA $00
-
+		; xor with direction
 	LDA velocityX+1
 	ASL
 	ROL
-	CLC
-	ADC $00
-	AND #%00000011
-	CMP #$01
-	BEQ :+
-:
-.ENDIF
+	AND #%00000001 		; 1 is left, 0 right
+	EOR $00 					; 1 for down, 0 for up
+	ASL 							; 0 for down, 2 for up
+	STA $00
 
+	TYA
+	AND #%00000001	  ; 0 steep, 1 shallow
+	ORA $00					  ; 0 steep down, 1 shallow down, 2 steep up, 3 shallow up
+	TAX
 
 @set_jump_velocity:
-	INC $E0
-		; set vertical velocity based on slope type and direction?
-	LDX #$00 ; FIXME temp
-
+		; set vertical velocity based on slope inclination and direction
 	LDA jump_vel_low, X
 	STA velocityY
 	LDA jump_vel_high, X
 	STA velocityY+1
+
+		; set motionstate to airborne
+	LDA #MotionState::Airborne
+	STA motionState
 
 		; only apply the boost if the character is moving
 	LDA velocityX+1
@@ -206,7 +209,7 @@
 	CLC 
 	ADC velocityX
 	BNE @horizontal_boost
-	JMP @airborne			; skip if no velocity found
+	JMP update_jump_velocity			; skip if no velocity found
 
 		; add hortizontal according to heading direction
 @horizontal_boost:
@@ -232,19 +235,22 @@
 	STA velocityX
 	LDA velocityX+1
 	ADC $03
-	STA velocityX+1
-
-		; set motionstate to airborne
-	LDA #MotionState::Airborne
-	STA motionState
-
-@airborne:
-	JMP update_jump_velocity  ; this is not in update so an early exit can save cpu cycles
+	STA velocityX+1      
+	RTS
 
 		; lookup tables for initial jump velocity based on slope type
+		; 0 steep down, 1 shallow down, 2 steep up, 3 shallow up, 4 flat
 	jump_vel_low:
+		.BYTE <Jump::INITIAL_VELOCITY_STEEP_DEC
+		.BYTE <Jump::INITIAL_VELOCITY_SHALLOW_DEC
+		.BYTE <Jump::INITIAL_VELOCITY_STEEP_INC
+		.BYTE <Jump::INITIAL_VELOCITY_SHALLOW_INC
 		.BYTE <Jump::INITIAL_VELOCITY_FLAT
 	jump_vel_high:
+		.BYTE >Jump::INITIAL_VELOCITY_STEEP_DEC
+		.BYTE >Jump::INITIAL_VELOCITY_SHALLOW_DEC
+		.BYTE >Jump::INITIAL_VELOCITY_STEEP_INC
+		.BYTE >Jump::INITIAL_VELOCITY_SHALLOW_INC
 		.BYTE >Jump::INITIAL_VELOCITY_FLAT
 .ENDPROC
 
