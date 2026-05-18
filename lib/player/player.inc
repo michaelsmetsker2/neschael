@@ -35,31 +35,36 @@
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
-  INITIAL_VELOCITY_FLAT        = $FC00 ; signed fixed point 8.8
-  INITIAL_VELOCITY_SHALLOW_INC = $FBE0
-  INITIAL_VELOCITY_SHALLOW_DEC = $FBE0
-  INITIAL_VELOCITY_STEEP_INC   = $FBE0
-  INITIAL_VELOCITY_STEEP_DEC   = $FBE0
+    INITIAL_VELOCITY_STEEP_INC   = $FB00 ; signed fixed point 8.8
+    INITIAL_VELOCITY_SHALLOW_INC = $FB90
+    INITIAL_VELOCITY_FLAT        = $FC00
+    INITIAL_VELOCITY_SHALLOW_DEC = $FC90
+    INITIAL_VELOCITY_STEEP_DEC   = $FD00
 
-  HORIZONTAL_BOOST       = $0080 ; amount to slightly boost movement speed when jumping
+    HORIZONTAL_BOOST_STEEP_INC   = $FF80 ; amount to slightly boost movement speed when jumping
+    HORIZONTAL_BOOST_SHALLOW_INC = $FF40
+    HORIZONTAL_BOOST_FLAT        = $0080
+    HORIZONTAL_BOOST_SHALLOW_DEC = $0100
+    HORIZONTAL_BOOST_STEEP_DEC   = $0200
 
-
-  SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
-  BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
-  DECELERATION_THRESHOLD = $FE   ; force slow falling when velocity is greater than this
-  MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
+    SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
+    BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
+    
+    DECELERATION_THRESHOLD = $FE   ; force slow falling when velocity is greater than this
+    MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
 .ENDSCOPE
 
 .SCOPE Velocities
-  RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
-  LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
+    RIGHT_WALK_TARGET = $0150 ; signed 8.8 fixed point
+    LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
 .ENDSCOPE
 
-  TEST_ACC = $0011 ; TODO temp
+  BASE_ACCELERATION = $0011 ; horizontal acceleration and deceleration when walking on the ground
 
 .ENUM MotionState
   Airborne = 0
   Grounded = 1
+    ; add new values here if needed
   SteepSlopeUp = 2
   ShallowSlopeUp = 3
   SteepSlopeDown = 4

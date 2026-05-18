@@ -90,11 +90,9 @@
 	ORA $00             ; exit if the player is at the target velocity
 	BEQ @done
 
-	; TODO here we would determing what acceleration values to actually use depending on the surface
-	;and we would load the correct accecleration bytes into memory
-	LDA #<TEST_ACC
+	LDA #<BASE_ACCELERATION
 	STA $04
-	LDA #>TEST_ACC
+	LDA #>BASE_ACCELERATION
 	STA $05
 
 	; check sign of velocity difference
@@ -161,8 +159,8 @@
 @slope_checking:
 		; check if the player if jumping from a slope
 	LDX #$04 ; assume flat, saves jumping cycles
-	LDA motionState
-	CMP #MotionState::SteepSlopeUp
+	LDY motionState
+	CPY #MotionState::SteepSlopeUp
 	BCC @set_jump_velocity
 	
 		; player is on a slope
@@ -172,7 +170,7 @@
 	STA playerFlags
 
 @determine_slope_direction: ; finds whether the player is going up or down a slope
-	TXA                       ; X register contains motionState	
+	TYA                       ; Y register contains motionState	
 	SEC
 	SBC #SLOPE_STATES_START   ; slope index 0-3
 	TAY 											; store slope index for later
@@ -186,7 +184,7 @@
 	EOR $00 					; 1 for down, 0 for up
 	ASL 							; 0 for down, 2 for up
 	STA $00
-
+	
 	TYA
 	AND #%00000001	  ; 0 steep, 1 shallow
 	ORA $00					  ; 0 steep down, 1 shallow down, 2 steep up, 3 shallow up
@@ -213,45 +211,62 @@
 
 		; add hortizontal according to heading direction
 @horizontal_boost:
-	LDA #<Jump::HORIZONTAL_BOOST
-	STA $02
-	LDA #>Jump::HORIZONTAL_BOOST
-	STA $03      
+	STX $E0
 
-	LDA playerFlags
-	AND	#HEADING_MASK 
-	BEQ @apply_boost ; if heading is left, invert the boost velocity
+	LDA jump_boost_low, X
+	STA $00
+	LDA jump_boost_high, X 
+	STA $01      
+
+	LDA velocityX+1 
+	BPL @apply_boost ; if heading is left, invert the boost velocity
 @invert_boost:
 	LDA #$00
 	SEC
-	SBC $02					 ; unused, only carry is needed
+	SBC $00
+	STA $00
 	LDA #$00
-	SBC $03
-	STA $03
+	SBC $01
+	STA $01
 @apply_boost:
-	CLC 
+	CLC
 	LDA velocityX
-	ADC $02
+	ADC $00
 	STA velocityX
 	LDA velocityX+1
-	ADC $03
+	ADC $01
 	STA velocityX+1      
 	RTS
 
-		; lookup tables for initial jump velocity based on slope type
+		; lookup tables for initial jump velocities and hor boosts based on slope type
 		; 0 steep down, 1 shallow down, 2 steep up, 3 shallow up, 4 flat
 	jump_vel_low:
-		.BYTE <Jump::INITIAL_VELOCITY_STEEP_DEC
-		.BYTE <Jump::INITIAL_VELOCITY_SHALLOW_DEC
 		.BYTE <Jump::INITIAL_VELOCITY_STEEP_INC
 		.BYTE <Jump::INITIAL_VELOCITY_SHALLOW_INC
+		.BYTE <Jump::INITIAL_VELOCITY_STEEP_DEC
+		.BYTE <Jump::INITIAL_VELOCITY_SHALLOW_DEC
 		.BYTE <Jump::INITIAL_VELOCITY_FLAT
 	jump_vel_high:
-		.BYTE >Jump::INITIAL_VELOCITY_STEEP_DEC
-		.BYTE >Jump::INITIAL_VELOCITY_SHALLOW_DEC
 		.BYTE >Jump::INITIAL_VELOCITY_STEEP_INC
 		.BYTE >Jump::INITIAL_VELOCITY_SHALLOW_INC
+		.BYTE >Jump::INITIAL_VELOCITY_STEEP_DEC
+		.BYTE >Jump::INITIAL_VELOCITY_SHALLOW_DEC
 		.BYTE >Jump::INITIAL_VELOCITY_FLAT
+
+	jump_boost_low:
+		.BYTE <Jump::HORIZONTAL_BOOST_STEEP_INC
+		.BYTE <Jump::HORIZONTAL_BOOST_SHALLOW_INC
+		.BYTE <Jump::HORIZONTAL_BOOST_STEEP_DEC
+		.BYTE <Jump::HORIZONTAL_BOOST_SHALLOW_DEC
+		.BYTE <Jump::HORIZONTAL_BOOST_FLAT
+	jump_boost_high:
+		.BYTE >Jump::HORIZONTAL_BOOST_STEEP_INC
+		.BYTE >Jump::HORIZONTAL_BOOST_SHALLOW_INC
+		.BYTE >Jump::HORIZONTAL_BOOST_STEEP_DEC
+		.BYTE >Jump::HORIZONTAL_BOOST_SHALLOW_DEC
+		.BYTE >Jump::HORIZONTAL_BOOST_FLAT
+
+
 .ENDPROC
 
 .PROC update_jump_velocity ; updates mid air velocity

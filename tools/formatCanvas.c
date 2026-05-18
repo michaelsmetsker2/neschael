@@ -363,33 +363,40 @@ int parseEntities(EntityList *spawnStream, uint8_t *spawnColumns, const uint8_t 
 }
 
 int main(int argc, char *argv[]) {
-	if (argc != 2) {
-		fprintf(stdout, "./formatCanvas <tiles.csv>\n");
-		return 0;
-	}
+
+	char givenFilename[75];
+  strncpy(givenFilename, "./tiled/exports/export_tiles.csv", sizeof(givenFilename) - 1);
+  givenFilename[sizeof(givenFilename) - 1] = '\0';
+
+  if (argc != 2) {
+    fprintf(stdout, "no file specified, using default %s\n", givenFilename);
+  } else {
+    strncpy(givenFilename, argv[1], sizeof(givenFilename) - 1);
+    givenFilename[sizeof(givenFilename) - 1] = '\0';
+  }
 	
 	// find other filenames based on the tile file name
-	char *underscore = strchr(argv[1], '_');
+	char *underscore = strchr(givenFilename, '_');
 	if (!underscore) {
 		fprintf(stdout, "invalid filename\n");
 		return 1;
 	}	
 	
-	int nameLen = underscore - argv[1];
+	int nameLen = underscore - givenFilename;
 	char attrFilename[75]; //arbitrary size
 	char spawnFilename[75];
 	
-	strncpy(attrFilename, argv[1], nameLen);
+	strncpy(attrFilename, givenFilename, nameLen);
 	attrFilename[nameLen] = '\0';
 	strcat(attrFilename, "_attribute.csv");
-	strncpy(spawnFilename, argv[1], nameLen);
+	strncpy(spawnFilename, givenFilename, nameLen);
 	spawnFilename[nameLen] = '\0';
 	strcat(spawnFilename, "_spawn.csv");
 	
-	// find ammount of nametables in the file and parse tile data
+	// find amount of nametables in the file and parse tile data
 	uint8_t nametableCount = 0;
 	uint8_t (*tileData)[META_SIZE] = NULL;
-	if (parseTiles(&tileData, &nametableCount, argv[1]) != 0) {
+	if (parseTiles(&tileData, &nametableCount, givenFilename) != 0) {
 		fprintf(stderr, "error opening or parsing tile file");
 		return 1;
 	}
