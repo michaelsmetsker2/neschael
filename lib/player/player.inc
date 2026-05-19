@@ -32,20 +32,27 @@
   lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
 
   SLOPE_JUMP_MASK   = %00000011
+  CHARGE_STATE_MASK = %00100000
   HEADING_MASK      = %01000000
 
 .SCOPE Jump
-    INITIAL_VELOCITY_STEEP_INC   = $FB00 ; signed fixed point 8.8
-    INITIAL_VELOCITY_SHALLOW_INC = $FB90
-    INITIAL_VELOCITY_FLAT        = $FC00
-    INITIAL_VELOCITY_SHALLOW_DEC = $FC90
-    INITIAL_VELOCITY_STEEP_DEC   = $FD00
 
-    HORIZONTAL_BOOST_STEEP_INC   = $FF80 ; amount to slightly boost movement speed when jumping
-    HORIZONTAL_BOOST_SHALLOW_INC = $FF40
-    HORIZONTAL_BOOST_FLAT        = $0080
-    HORIZONTAL_BOOST_SHALLOW_DEC = $0100
-    HORIZONTAL_BOOST_STEEP_DEC   = $0200
+    ; TODO do the define stuff for bost but on velocity (super simple todo snipe, leaving this for dopamine)
+
+    INITIAL_VELOCITY_STEEP_INC   = $FB38 ; signed fixed point 8.8
+    INITIAL_VELOCITY_SHALLOW_INC = $FB9C
+    INITIAL_VELOCITY_FLAT        = $FC00
+    INITIAL_VELOCITY_SHALLOW_DEC = $FC64
+    INITIAL_VELOCITY_STEEP_DEC   = $FDC8
+
+  .DEFINE BOOST_DIFFERENCE_SHALLOW $0095
+  .DEFINE BOOST_DIFFERENCE_STEEP   $0130
+
+    HORIZONTAL_BOOST_FLAT        = $005D ; amount to slightly boost movement speed when jumping
+    HORIZONTAL_BOOST_STEEP_DEC   = HORIZONTAL_BOOST_FLAT + BOOST_DIFFERENCE_STEEP
+    HORIZONTAL_BOOST_SHALLOW_DEC = HORIZONTAL_BOOST_FLAT + BOOST_DIFFERENCE_SHALLOW
+    HORIZONTAL_BOOST_STEEP_INC   = HORIZONTAL_BOOST_FLAT - BOOST_DIFFERENCE_STEEP
+    HORIZONTAL_BOOST_SHALLOW_INC = HORIZONTAL_BOOST_FLAT - BOOST_DIFFERENCE_SHALLOW
 
     SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
     BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
@@ -59,7 +66,7 @@
     LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
 .ENDSCOPE
 
-  BASE_ACCELERATION = $0011 ; horizontal acceleration and deceleration when walking on the ground
+  BASE_ACCELERATION = $000F ; horizontal acceleration and deceleration when walking on the ground
 
 .ENUM MotionState
   Airborne = 0

@@ -55,7 +55,7 @@
 	AND #%00000001
 	BNE @nt_1
 @nt_0:
-	LDY #<dbufTile1 ; TODO this can be optimized (i beleive will need to count cycles) by using a small lookup table of both addresses
+	LDY #<dbufTile1 ; TODO this can be optimized (i will need to count cycles) by using a small lookup table of both addresses
 	LDX #>dbufTile1
 	JMP @set_buf
 @nt_1:

@@ -20,7 +20,7 @@
 
 .PROC update_player_movement
 	JSR set_target_velocity_x
-	JSR update_charge
+	JSR handle_abilities
 	JSR accelerate_x
 	JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
 																; and before apply_velocity_x so the jump boost can be applied frame one
@@ -162,9 +162,14 @@
 	LDY motionState
 	CPY #MotionState::SteepSlopeUp
 	BCC @set_jump_velocity
+
+		; skip to using flat jump velocity if player is stationary
+	LDA velocityX+1
+	ORA velocityX
+	BEQ @set_jump_velocity
 	
-		; player is on a slope
-		; set slope flag to 2 grace frames ; BUG can cause tunneling if a wall is at the end of a slope
+		; player is on a slope and moving
+		; set slope flag to 2 grace frames ; BUG can cause tunneling if a wall is at the end of a slope at high speeds
 	LDA playerFlags
 	ORA #%00000010
 	STA playerFlags
@@ -176,7 +181,7 @@
 	TAY 											; store slope index for later
 	LSR A         				    ; 0-1 incline, decline
 	STA $00
-		; xor with direction
+		; XOR with X direction
 	LDA velocityX+1
 	ASL
 	ROL
@@ -203,15 +208,12 @@
 
 		; only apply the boost if the character is moving
 	LDA velocityX+1
+	ORA velocityX
 	BNE @horizontal_boost
-	CLC 
-	ADC velocityX
-	BNE @horizontal_boost
-	JMP update_jump_velocity			; skip if no velocity found
+	JMP update_jump_velocity			; skip boost if no velocity found
 
 		; add hortizontal according to heading direction
 @horizontal_boost:
-	STX $E0
 
 	LDA jump_boost_low, X
 	STA $00
@@ -270,7 +272,7 @@
 .ENDPROC
 
 .PROC update_jump_velocity ; updates mid air velocity
-	; Determine if velocity decelerates slow or fest based on button hold
+		; Determine whether to decelerate slow or fast based on button hold
 	LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
 	BIT playerFlags
 	BPL @decelerate             ; branch if held jump isn't set
@@ -308,55 +310,79 @@
 @done:
 	RTS
 
-		; small fall speed lookup table for use in update_jump_velocity
+		; fall speed lookup tables
 fall_speeds_low:
 	.BYTE <Jump::BASE_FALL_DECCEL, <Jump::SLOW_FALL_DECCEL
 fall_speeds_high:
 	.BYTE >Jump::BASE_FALL_DECCEL, >Jump::SLOW_FALL_DECCEL
 .ENDPROC
 
-; proccess the b button charge ability
-.PROC update_charge
+	; check for ability or charge button presses
+.PROC handle_abilities
 
-	; TODO pressing up or down check first then return early?
+	LDX btnDown
 
+@check_up:
+	TXA
+	AND #_BUTTON_UP
+	BEQ @check_down
+	; TODO JMP
+
+@check_down:
+	TXA
+	AND #_BUTTON_DOWN
+	BEQ @check_b
+	; TODO JMP
+
+@check_b:
 		; check input for b button
-	LDA btnDown
+	TXA
 	AND #_BUTTON_B
-	BEQ @decay_charge     ; decay if b is not pressed
+	BEQ @decay
+	JMP handle_charge
 
-@b_pressed:
-		; if targetVelocity isn't zero a direction is held, so release charge
-	LDA targetVelocityX
-	ORA targetVelocityX+1
-	BEQ @store
-
-	JSR release_charge
-	RTS
-
-@store:
-	JSR store_charge
-
-@decay_charge:
-
-	; if velocity hits zero then start the decay?
-
-	; TODO decay from a timer that is reset each b press
-	; if charge not equal zero decrement it
-
-	RTS
+@decay:	; no ability is pressed, decay charge if needed
+	JMP decay_charge
 .ENDPROC
 
 	; take velocity fromt the player and stores it
-.PROC store_charge
-		; if this is the first frame the B button has been pressed, reset the charge counter
+.PROC handle_charge
+
+	; TODO TEMP
+	LDA playerFlags
+	AND #CHARGE_STATE_MASK
+	STA $E0
+
+		; if targetVelocity isn't zero a direction is held, so enact the boost
+	LDA targetVelocityX
+	ORA targetVelocityX+1
+	BEQ @check_held
+	JMP charge_boost
+
+@check_held: ; check if this is the first frame of the b press
 	LDA btnPressed
 	AND #_BUTTON_B
-	BEQ :+
-	LDA #$50
-	STA chargeCounter
-:
+	BEQ @sustained_press
 
+@new_press:
+		; set chargestate
+	LDA playerFlags
+	ORA #CHARGE_STATE_MASK
+	STA playerFlags
+		; reset chargeCounter
+	LDA #$00
+	STA chargeCounter
+	JMP @store
+	
+@sustained_press:
+	; a sustained press with no charge state will not initiate a new charge
+		; this prevents holding the b button and eating your velocity after a boost
+	LDA playerFlags
+	AND #CHARGE_STATE_MASK
+	BNE @store 
+	RTS	; break, no need to store or release
+
+@store:
 	LDA velocityX+1
 	AND #%10000000   ; mask sign bit
 	STA $00          ; store sign bit in scratch memory for later
@@ -405,8 +431,8 @@ fall_speeds_high:
 .ENDPROC
 
 	; releases the stored charge into players velocity
-.PROC release_charge
-@get_heading:      ; branch based on boost direction
+.PROC charge_boost
+   ; branch based on boost direction
 	LDA playerFlags
 	AND #HEADING_MASK
 	BNE @boost_left
@@ -433,4 +459,30 @@ fall_speeds_high:
 	LDA #$00
 	STA storedCharge
 	STA storedCharge+1
+
+@reset_chargestate:
+	LDA playerFlags
+	AND #%11011111
+	STA playerFlags
+
+	RTS
+.ENDPROC
+
+.PROC decay_charge
+
+	LDA playerFlags
+	AND #CHARGE_STATE_MASK
+	BEQ @done
+
+
+	SEC
+	LDA storedCharge
+	SBC #$01
+	STA storedCharge
+	BCS :+
+	DEC storedCharge+1
+	:
+
+@done:
+	RTS
 .ENDPROC
