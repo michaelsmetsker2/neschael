@@ -15,6 +15,7 @@
 
 .IMPORT play_sound_frame
 .IMPORT read_joypad_1
+.IMPORT cycle_abilities
 
 .IMPORT update_player_sprite
 .IMPORT update_player_movement
@@ -44,9 +45,11 @@ game_loop:
 
     ; first thing after NMI so timing is consistant
       ; it is always consistant even when conditionally drawing due to sprite zero hit waiting
-  JSR play_sound_frame 
+  JSR play_sound_frame
   
   JSR read_joypad_1
+
+  JSR cycle_abilities
 
   JSR update_player_movement
   JSR update_camera

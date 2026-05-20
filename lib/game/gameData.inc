@@ -29,6 +29,9 @@ levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the curren
 
 spriteCount    = GAME_DATA + 10 ; ammount of unreserved sprites used by entities, determines whether to spawn more
 
+; TODO unlocked abilities flags
+; TODO currently selected abilities
+
 
 ; TODO gameState ; for main menu, game, credits?
 

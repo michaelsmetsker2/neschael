@@ -6,6 +6,9 @@
 ;
 
 .IMPORTZP PLAYER_DATA
+
+  BASE_ACCELERATION = $000F ; horizontal acceleration and deceleration when walking on the ground
+
     ; velocity
   targetVelocityX = PLAYER_DATA       ; Signed Fixed Point 8.8
   velocityX       = PLAYER_DATA + 2   ; Signed Fixed Point 8.8
@@ -28,22 +31,31 @@
                                         ; 5   chargeState if player is charging boost 0 for no
                                         ; 6   heading     0 for right, 1 for left
                                         ; 7   slowJump    flag if the player has been holding A since the start of the jump
-
-  lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
-
   SLOPE_JUMP_MASK   = %00000011
   CHARGE_STATE_MASK = %00100000
   HEADING_MASK      = %01000000
 
+  lookaheadOffset = PLAYER_DATA + 16  ; signed, cammera offset from players position in px
+
+
 .SCOPE Jump
 
-    ; TODO do the define stuff for bost but on velocity (super simple todo snipe, leaving this for dopamine)
+    ; TODO do the define stuff for bost but on velocity
+  .DEFINE JUMP_DIFFERENCE_SHALLOW  $0064
+  .DEFINE JUMP_DIFFERENCE_STEEP    $0064
 
-    INITIAL_VELOCITY_STEEP_INC   = $FB38 ; signed fixed point 8.8
+  .IF 0
+    INITIAL_VELOCITY_STEEP_DEC   = INITIAL_VELOCITY_FLAT + JUMP_DIFFERENCE_STEEP
+    INITIAL_VELOCITY_SHALLOW_DEC = INITIAL_VELOCITY_FLAT + JUMP_DIFFERENCE_SHALLOW
+    INITIAL_VELOCITY_STEEP_INC   = INITIAL_VELOCITY_FLAT - JUMP_DIFFERENCE_STEEP
+    INITIAL_VELOCITY_SHALLOW_INC = INITIAL_VELOCITY_FLAT - JUMP_DIFFERENCE_SHALLOW
+  .ENDIF
+
+    INITIAL_VELOCITY_FLAT        = $FC00 ; signed fixed point 8.8
+    INITIAL_VELOCITY_STEEP_INC   = $FB38
     INITIAL_VELOCITY_SHALLOW_INC = $FB9C
-    INITIAL_VELOCITY_FLAT        = $FC00
     INITIAL_VELOCITY_SHALLOW_DEC = $FC64
-    INITIAL_VELOCITY_STEEP_DEC   = $FDC8
+    INITIAL_VELOCITY_STEEP_DEC   = $FCC8 ; $FDC8 feels better?
 
   .DEFINE BOOST_DIFFERENCE_SHALLOW $0095
   .DEFINE BOOST_DIFFERENCE_STEEP   $0130
@@ -66,7 +78,6 @@
     LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
 .ENDSCOPE
 
-  BASE_ACCELERATION = $000F ; horizontal acceleration and deceleration when walking on the ground
 
 .ENUM MotionState
   Airborne = 0
@@ -77,5 +88,4 @@
   SteepSlopeDown = 4
   ShallowSlopeDown = 5
 .ENDENUM
-
   SLOPE_STATES_START = MotionState::SteepSlopeUp ; this motionstate and all above are slopes

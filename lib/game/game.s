@@ -141,7 +141,7 @@
   STA btnDown      ; Clear pressed buttons
   LSR              ; A = 0
   STA _JOYPAD_1    ; release button latch
-@loop:             ; Fill BTN_DOWN with all buttons down
+@loop:             ; Fill btnDown with all buttons down
   LDA _JOYPAD_1
   LSR
   ROL btnDown
@@ -149,6 +149,6 @@
   TYA
   EOR btnDown
   and btnDown
-  STA btnPressed  ; Fill BTN_PRESSED with only new presses
+  STA btnPressed  ; Fill buttonPressed with only new presses
   RTS
 .ENDPROC

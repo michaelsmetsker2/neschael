@@ -5,6 +5,7 @@
 ; handles the players movement physics and input
 ; todo this file has potential cycle saves by using tail calls
 ;
+; TODO go throgh *everything* and make use of the overflow flag
 
 .SEGMENT "CODE"
 
@@ -15,6 +16,9 @@
 .IMPORT update_position_x
 .IMPORT update_position_y
 .IMPORT update_sloped_position
+
+.IMPORT execute_ability_up
+.IMPORT execute_ability_down
 
 .EXPORT update_player_movement
 
@@ -326,13 +330,13 @@ fall_speeds_high:
 	TXA
 	AND #_BUTTON_UP
 	BEQ @check_down
-	; TODO JMP
+	JMP execute_ability_up
 
 @check_down:
 	TXA
 	AND #_BUTTON_DOWN
 	BEQ @check_b
-	; TODO JMP
+	JMP execute_ability_down
 
 @check_b:
 		; check input for b button
@@ -347,11 +351,6 @@ fall_speeds_high:
 
 	; take velocity fromt the player and stores it
 .PROC handle_charge
-
-	; TODO TEMP
-	LDA playerFlags
-	AND #CHARGE_STATE_MASK
-	STA $E0
 
 		; if targetVelocity isn't zero a direction is held, so enact the boost
 	LDA targetVelocityX
@@ -384,8 +383,6 @@ fall_speeds_high:
 
 @store:
 	LDA velocityX+1
-	AND #%10000000   ; mask sign bit
-	STA $00          ; store sign bit in scratch memory for later
 	BMI @add_vel
 
 @sub_vel:
@@ -406,13 +403,13 @@ fall_speeds_high:
 	LDA velocityX+1
 	ADC #$00				    ; add carry
 	TAY                 ; high byte in Y
+		; fall through
 
 @check_sign:
 	; high byte should still be in ACC
-	AND #%10000000 ; mask sign bit
-	CMP $00        ; compare to the velocities sign
-	BNE @done      ; sign has fliped, return
-	
+	EOR velocityX+1
+	BMI @done 			; return if sign has flipped
+
 	; sign has not flipped, apply new velocity
 	STX velocityX
 	STY velocityX+1
@@ -425,17 +422,17 @@ fall_speeds_high:
 	BCC :+
 	INC storedCharge+1
 :
-	INC chargeCounter ; increment the timer upon a succesful charge
+
+	INC chargeCounter ; increment the counter upon a succesful charge
 @done:
 	RTS
 .ENDPROC
 
 	; releases the stored charge into players velocity
 .PROC charge_boost
-   ; branch based on boost direction
-	LDA playerFlags
-	AND #HEADING_MASK
-	BNE @boost_left
+  	; branch based on boost direction
+	BIT playerFlags
+	BVS @boost_left
 
 @boost_right: ; add boost (right)
 	CLC	
@@ -469,11 +466,12 @@ fall_speeds_high:
 .ENDPROC
 
 .PROC decay_charge
+	; BUG underflows
+	RTS
 
 	LDA playerFlags
 	AND #CHARGE_STATE_MASK
 	BEQ @done
-
 
 	SEC
 	LDA storedCharge
