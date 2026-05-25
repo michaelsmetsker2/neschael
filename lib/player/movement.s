@@ -279,7 +279,8 @@
 		; Determine whether to decelerate slow or fast based on button hold
 	LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
 	BIT playerFlags
-	BPL @decelerate             ; branch if held jump isn't set
+	BPL @decelerate             ; branch if slowfall flag isn't set
+	
 	LDA btnDown
 	AND #_BUTTON_A
 	BEQ @newly_fast             ; branch if A isn't held
@@ -325,7 +326,6 @@ fall_speeds_high:
 .PROC handle_abilities
 
 	LDX btnDown
-
 @check_up:
 	TXA
 	AND #_BUTTON_UP
@@ -338,8 +338,7 @@ fall_speeds_high:
 	BEQ @check_b
 	JMP execute_ability_down
 
-@check_b:
-		; check input for b button
+@check_b: ; check input for b button
 	TXA
 	AND #_BUTTON_B
 	BEQ @decay
@@ -352,7 +351,7 @@ fall_speeds_high:
 	; take velocity fromt the player and stores it
 .PROC handle_charge
 
-		; if targetVelocity isn't zero a direction is held, so enact the boost
+		; if a directional button is pressed while holding be, release the charge in a boost
 	LDA targetVelocityX
 	ORA targetVelocityX+1
 	BEQ @check_held
@@ -466,7 +465,7 @@ fall_speeds_high:
 .ENDPROC
 
 .PROC decay_charge
-	; BUG underflows
+	; BUG underflows, temp disabled
 	RTS
 
 	LDA playerFlags

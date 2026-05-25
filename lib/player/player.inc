@@ -30,7 +30,7 @@
                                         ; 2-4 unused
                                         ; 5   chargeState if player is charging boost 0 for no
                                         ; 6   heading     0 for right, 1 for left
-                                        ; 7   slowJump    flag if the player has been holding A since the start of the jump
+                                        ; 7   slowFall    flag if the player has been holding A since the start of the jump
   SLOPE_JUMP_MASK   = %00000011
   CHARGE_STATE_MASK = %00100000
   HEADING_MASK      = %01000000
@@ -57,10 +57,10 @@
     INITIAL_VELOCITY_SHALLOW_DEC = $FC64
     INITIAL_VELOCITY_STEEP_DEC   = $FCC8 ; $FDC8 feels better?
 
-  .DEFINE BOOST_DIFFERENCE_SHALLOW $0095
-  .DEFINE BOOST_DIFFERENCE_STEEP   $0130
+  .DEFINE BOOST_DIFFERENCE_SHALLOW $0075
+  .DEFINE BOOST_DIFFERENCE_STEEP   $0110
 
-    HORIZONTAL_BOOST_FLAT        = $005D ; amount to slightly boost movement speed when jumping
+    HORIZONTAL_BOOST_FLAT        = $0063 ; amount to slightly boost movement speed when jumping
     HORIZONTAL_BOOST_STEEP_DEC   = HORIZONTAL_BOOST_FLAT + BOOST_DIFFERENCE_STEEP
     HORIZONTAL_BOOST_SHALLOW_DEC = HORIZONTAL_BOOST_FLAT + BOOST_DIFFERENCE_SHALLOW
     HORIZONTAL_BOOST_STEEP_INC   = HORIZONTAL_BOOST_FLAT - BOOST_DIFFERENCE_STEEP
@@ -83,9 +83,9 @@
   Airborne = 0
   Grounded = 1
     ; add new values here if needed
-  SteepSlopeUp = 2
-  ShallowSlopeUp = 3
-  SteepSlopeDown = 4
-  ShallowSlopeDown = 5
+  SteepSlopeUp = 3
+  ShallowSlopeUp = 4
+  SteepSlopeDown = 5
+  ShallowSlopeDown = 6
 .ENDENUM
   SLOPE_STATES_START = MotionState::SteepSlopeUp ; this motionstate and all above are slopes
