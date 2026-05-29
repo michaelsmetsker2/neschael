@@ -9,6 +9,9 @@ bin/*
 tools/formatCanvas
 tools/generateMetatiles
 
+# tool oputput
+# tools/level.s
+
 # local file system stuff
 make.bat
 make.sh

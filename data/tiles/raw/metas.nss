@@ -60,7 +60,7 @@ VarPalBank_msprBuffer=0
 VarTileViewTagBuf=0
 VarBgPalCur=0
 VarPalActive=0
-VarTileActive=10
+VarTileActive=0
 VarBankActive=4096
 VarPPUMask=0
 VarPPUMaskSet0=0
@@ -86,8 +86,8 @@ VarNameSelectionT=-1
 VarNameSelectionB=0
 VarNameCopyW=-1
 VarNameCopyH=-1
-VarCHRSelectionL=10
-VarCHRSelectionR=11
+VarCHRSelectionL=0
+VarCHRSelectionR=1
 VarCHRSelectionT=0
 VarCHRSelectionB=1
 VarCHRCopyW=-1
@@ -175,7 +175,7 @@ RadioAutoexport_UseSubDir_NEXXT=0
 CheckAutoexport_MetatileAsBMP=0
 
 
-VarCHRSelected=00[a]0100[f5]
+VarCHRSelected=0100[ff]
 
 
 Palette=0f2710300f0c21320f0516270f0b1a290f1c21320f1122330f1223340f1324350f1324360f1526370f1627370f1928380f1829380f1b2a390f1b2b3c0f1c2c3b
@@ -193,13 +193,13 @@ CHRUndo=00[10]3c745480003800[3]083ebf3d38aa6c3c745480003800[3]083ebf3db8ea0c3c74
 CHRCopy=00[4000]
 
 
-NameTable=00[2]010200[2]030004[2]00141500[3]1617181900[2]03[2]00[2]0a[2]00[6]111203[3]0004[2]140a[2]1516170a[4]181905[4]0a[4]00[382]
+NameTable=00[2]010200[2]030004[2]00141500[3]1617181900[2]03[2]00[2]0a[2]00[6]111203[3]0004[2]140a[2]1516170a[4]181905[4]0a[4]00[2]03[2]000300[1f]0300[35c]
 
 
 NameCopy=00[3c0]
 
 
-NameUndo=00[2]010200[2]030004[2]00141500[3]1617181900[2]03[2]00[2]0a[2]00[6]111203[3]0004[2]140a[2]1516170a[4]181905[4]0a[2]00[384]
+NameUndo=00[2]010200[2]030004[2]00141500[3]1617181900[2]03[2]00[2]0a[2]00[6]111203[3]0004[2]140a[2]1516170a[4]181905[4]0a[4]00[2]03[2]00[37e]
 
 
 AttrTable=00[16]0800[29]
@@ -357,14 +357,14 @@ MetatileSet_8x8_props=00[2000]
 MetatileSet_8x8_propsUndo=00[2000]
 
 
-MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-MetatileSetLabels_8x8=Unlabeled,Unlabeled
-MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
+MetatileSetLabels_8x8=Unlabeled,Unlabeled
+MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
 
 CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
@@ -538,18 +538,18 @@ Checkpoint_MetatileSet_8x8_props=00[2000]
 Checkpoint_MetatileSet_8x8_propsUndo=00[2000]
 
 
-Checkpoint_MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_2x2=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_2x2Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_4x4=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_4x4Undo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_MetatileSetLabels_8x8=Unlabeled,Unlabeled
-Checkpoint_MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_8x8=Unlabeled,Unlabeled
+Checkpoint_MetatileSetLabels_8x8Undo=Unlabeled,Unlabeled
 
-Checkpoint_CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_CHRBankLabels=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
-Checkpoint_CHRBankLabelsUndo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
+Checkpoint_CHRBankLabelsUndo=Unlabeled,Unlabeled,Unlabeled,Unlabeled
 
 
 Checkpoint_32_NTSC_MsprDuration=00000006[100]

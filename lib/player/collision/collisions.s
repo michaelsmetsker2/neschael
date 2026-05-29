@@ -128,15 +128,21 @@ collision_index_y_high:
   ; ID: 1, ; triggers the end of the level
 .SCOPE LevelEnd
   .PROC both
+			; since there are multiple collision checks this can run multiple times in a single frame
+			; skip if the load level flag is already set to avoid incrementing the level multiple times
+		LDA gameFlags
+		AND #%00010000
+		BNE @done
 
-		; FIXME unfinished make it increment level not just set to 1
-		LDA #%00010000
-		ORA gameFlags
+			; set the levelFlag
+		LDA gameFlags
+		ORA #%00010000
 		STA gameFlags
 
-		LDA #$01
-		STA levelId
+			; load the next level in the index
+		INC levelId
 
+	@done:
 		RTS
   .ENDPROC
 .ENDSCOPE

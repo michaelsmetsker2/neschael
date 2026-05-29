@@ -268,19 +268,3 @@ _PALETTE_RAM = $3F00
   DEX
   BNE @page
 .ENDMACRO
-
-  ; loads color and position information to RAM
-.MACRO LoadPaletteData ; TODO depreciated?
-  LDA _PPUSTATUS           ; read PPU status to reset the high/low latch
-  LDA #$3F
-  STA _PPUADDR             ; write the high byte of the palette RAM, $3F00
-  LDA #$00
-  STA _PPUADDR             ; write the low byte of the palette RAM, $3F00
-  LDX #$00
-@load_palettes_loop:
-  LDA palette, x
-  STA _PPUDATA            ; Write to PPU
-  INX
-  CPX #$20
-  BNE @load_palettes_loop ; break if all 32 bytes are copied
-.ENDMACRO 
