@@ -348,7 +348,7 @@ fall_speeds_high:
 	JMP decay_charge
 .ENDPROC
 
-	; take velocity fromt the player and stores it
+	; take velocity from the player and stores it
 .PROC handle_charge
 
 		; if a directional button is pressed while holding be, release the charge in a boost
@@ -464,21 +464,37 @@ fall_speeds_high:
 	RTS
 .ENDPROC
 
+; when a charge is active and not baing added to, slowly decrease the charge stored
 .PROC decay_charge
-	; BUG underflows, temp disabled
-	RTS
-
+		; dont decay if no charge is active
 	LDA playerFlags
 	AND #CHARGE_STATE_MASK
 	BEQ @done
 
+		; if the charge counter is zero, lower charge
+	LDA chargeCounter
+	BEQ @lower_charge
+		; else, lower charge counter and return
+	DEC chargeCounter
+	RTS
+
+@lower_charge:
 	SEC
 	LDA storedCharge
 	SBC #$01
 	STA storedCharge
-	BCS :+
+	BCS @done
 	DEC storedCharge+1
-	:
+	BPL @done
+	
+		;stored charge is now negative, end the current charge
+	LDA #$00
+	STA storedCharge
+	STA storedCharge+1
+@reset_chargestate:
+	LDA playerFlags
+	AND #%11011111
+	STA playerFlags
 
 @done:
 	RTS

@@ -74,4 +74,4 @@
 
 ; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory
 .SEGMENT "ENTITY_POOL"
-  entityPool:  .RES 256
+  entityPool:  .RES 105 ;256

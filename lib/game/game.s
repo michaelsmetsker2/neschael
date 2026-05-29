@@ -28,8 +28,9 @@
 
 .PROC game_init
 
+  ; TODO
   ; maybe here i set the fixed paletes and only set dynamic ones on level load 
-  ; TODO still empty.
+  ; by default set all abilities to unlocked for testing? 
 
   RTS
 .ENDPROC

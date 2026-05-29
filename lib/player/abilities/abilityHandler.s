@@ -37,7 +37,7 @@
 
 .PROC execute_ability_up
 
-  JMP vertical_boost
+  JMP vertical_boost ; TODO temp
   RTS
 .ENDPROC
 
