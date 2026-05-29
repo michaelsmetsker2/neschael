@@ -74,15 +74,9 @@ collision_index_y_high:
 		CMP #SLOPE_STATES_START
 		BCS @slope_check
 	.ENDIF
-
-		LDA motionState
-		CMP MotionState::Grounded
-		BCC :+
       ; sets the motionState, for edge case for walking off a platform
   	LDA #MotionState::Airborne
 		STA motionState
-	
-	:
 		RTS
 		
 	.IF 0 ; FIXME determine if needed
