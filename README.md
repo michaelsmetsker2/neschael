@@ -5,7 +5,7 @@ has not been tested on real hardware
 tools used:
   [yy-chr.net](https://www.romhacking.net/utilities/958/)
   [Tiled](https://www.mapeditor.org/)
-  NEXXT studio
+  [NEXXT studio](https://frankengraphics.itch.io/nexxt)
   mesen
   vscode
 

@@ -84,6 +84,7 @@ collision_index_y_high:
 	
 	:
 		RTS
+		
 	.IF 0 ; FIXME determine if needed
 	@slope_check:
 		LDA tmpCollisionPointY
