@@ -54,7 +54,7 @@ int main() {
 	}
   fclose(fptr);  
 
-  // get collision date from tiled file
+  // get collision data from tiled file
   FILE *collptr = fopen("./tiled/metas.tsx", "r");
 
   if (!collptr) {

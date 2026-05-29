@@ -5,11 +5,11 @@
     },
     "activeFile": "levels/testLv3.tmx",
     "expandedProjectPaths": [
-        "levels",
-        "metas",
-        "levels/testlevel",
         "levels/test_level",
-        "."
+        ".",
+        "levels/testlevel",
+        "metas",
+        "levels"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -49,10 +49,10 @@
         },
         "levels/head.tmx": {
             "scale": 4,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 256.125,
-                "y": 95.875
+                "x": 207.125,
+                "y": 104.375
             }
         },
         "levels/metas.tsx": {
@@ -62,11 +62,11 @@
             "scaleInDock": 1
         },
         "levels/testLv3.tmx": {
-            "scale": 4,
-            "selectedLayer": 0,
+            "scale": 3,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1228.875,
-                "y": 145.875
+                "x": 318.49999999999994,
+                "y": 83.5
             }
         },
         "levels/testLvl.tmx": {
@@ -186,20 +186,19 @@
     "map.tileWidth": 16,
     "map.width": 128,
     "openFiles": [
-        "levels/testLv3.tmx",
         "numbers.tsx",
-        "metas.tsx",
+        "attributes.tsx",
         "levels/head.tmx",
-        "attributes.tsx"
+        "levels/testLv3.tmx"
     ],
     "project": "neschael.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "numbers.tsx",
         "attributes.tsx",
         "levels/head.tmx",
-        "metas.tsx",
-        "numbers.tsx",
         "levels/testLv3.tmx",
+        "metas.tsx",
         "levels/testLvl2.tmx",
         "levels/testLvl.tmx",
         "levels/testlevel/testLvl2.tmx",
