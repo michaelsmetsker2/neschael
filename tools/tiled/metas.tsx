@@ -115,18 +115,18 @@
  </tile>
  <tile id="14">
   <properties>
-   <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
-   <property name="3" type="int" value="8"/>
-   <property name="4" type="int" value="8"/>
+   <property name="1" type="int" value="8"/>
+   <property name="2" type="int" value="8"/>
+   <property name="3" type="int" value="0"/>
+   <property name="4" type="int" value="0"/>
   </properties>
  </tile>
  <tile id="15">
   <properties>
    <property name="1" type="int" value="0"/>
-   <property name="2" type="int" value="0"/>
+   <property name="2" type="int" value="8"/>
    <property name="3" type="int" value="0"/>
-   <property name="4" type="int" value="0"/>
+   <property name="4" type="int" value="8"/>
   </properties>
  </tile>
  <tile id="16">

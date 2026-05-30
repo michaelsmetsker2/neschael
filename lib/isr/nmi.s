@@ -56,6 +56,6 @@
   ORA nametable
   STA _PPUCTRL
 
-  UnsetRenderFlag
+  ClearRenderFlag
   RTI              ; Return from interrupt 
 .ENDPROC

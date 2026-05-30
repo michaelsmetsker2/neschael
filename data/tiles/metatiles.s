@@ -11,9 +11,9 @@
 .EXPORT metatile_index_high
 
 metatile_index_low:
-	.BYTE <tile_0, <tile_1, <tile_2, <tile_3, <tile_4, <tile_5, <tile_6, <tile_7, <tile_8, <tile_9, <tile_10, <tile_11, <tile_12, <tile_13, <tile_14
+	.BYTE <tile_0, <tile_1, <tile_2, <tile_3, <tile_4, <tile_5, <tile_6, <tile_7, <tile_8, <tile_9, <tile_10, <tile_11, <tile_12, <tile_13, <tile_14, <tile_15
 metatile_index_high:
-	.BYTE >tile_0, >tile_1, >tile_2, >tile_3, >tile_4, >tile_5, >tile_6, >tile_7, >tile_8, >tile_9, >tile_10, >tile_11, >tile_12, >tile_13, >tile_14
+	.BYTE >tile_0, >tile_1, >tile_2, >tile_3, >tile_4, >tile_5, >tile_6, >tile_7, >tile_8, >tile_9, >tile_10, >tile_11, >tile_12, >tile_13, >tile_14, >tile_15
 
 tile_0:
 	.BYTE $00, $00, $00, $00 
@@ -68,9 +68,13 @@ tile_12:
 	.BYTE $00, $00, $08, $08 
 
 tile_13:
-	.BYTE $0A, $0A, $0A, $0A 
+	.BYTE $0F, $0F, $1F, $1F 
 	.BYTE $08, $08, $08, $08 
 
 tile_14:
-	.BYTE $00, $00, $0A, $0A 
-	.BYTE $00, $00, $08, $08 
+	.BYTE $03, $03, $00, $00 
+	.BYTE $08, $08, $00, $00 
+
+tile_15:
+	.BYTE $00, $03, $00, $03 
+	.BYTE $00, $08, $00, $08 

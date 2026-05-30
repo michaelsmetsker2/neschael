@@ -10,7 +10,7 @@ tools/formatCanvas
 tools/generateMetatiles
 
 # tool oputput
-# tools/level.s
+tools/level.s
 
 # local file system stuff
 make.bat

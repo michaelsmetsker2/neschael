@@ -17,7 +17,7 @@ tools used:
 2. New tiles are made by directly editing data/tiles/neschael.chr in [yychr.net](https://www.romhacking.net/utilities/958/) (my prefered way) or in NEXXT studio
 
 3. New metatiles can be assembled in NEXXT studio by opening the session data/tiles/raw/meta.nss and saved by with:
- File > Export > Tileset as image > Full tileset, and overwriting data/tiles/raw/metas.bmp
+ File > Export > Nametable / map as image, and overwriting data/tiles/raw/metas.bmp
  AND
  File > Canvas > Save as ASM, overwrite data/tiles/raw/metas.asm
   ​

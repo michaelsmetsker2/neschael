@@ -61,7 +61,7 @@ game_loop:
 
   JSR buffer_hud
 
-  ; conditionally load a new level based on the levelFlag
+    ; conditionally load a new level based on the levelFlag
   LDA gameFlags
   AND #%00010000        ; mask levelFlag
   BNE load_level

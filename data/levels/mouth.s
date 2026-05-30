@@ -13,7 +13,7 @@ mouth_level:
 	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $01 ; length of background, zero based
   .BYTE $21 ; background color
-	.BYTE $00, $01, $02, $03 ; background palettes
+	.BYTE $05, $01, $02, $03 ; background palettes
 	.BYTE $04, $01, $02, $03 ; sprite palettes
 
 background_index:
@@ -23,19 +23,19 @@ spawn_stream:
 
 background_0:
   .BYTE $FF, $01, $0B, $00, $FF, $00, $07, $0C, $FF, $06, $0B, $09, $04, $13, $09, $18 
-  .BYTE $FF, $00, $60, $22, $FF, $00, $32, $83, $FD, $F0, $FF, $0F, $03, $BC, $FD, $30 
-  .BYTE $33, $03, $08, $B7, $FC, $55, $55, $55, $05, $06, $D0, $FE, $C0, $0C, $04, $D8 
-  .BYTE $FE, $F0, $0F, $04, $DE, $FE, $30, $03, $06, $D2, $FE, $00, $00, $00 
+  .BYTE $FE, $00, $0D, $5F, $23, $FE, $06, $0D, $0A, $84, $FF, $00, $30, $8F, $27, $CA 
+	.BYTE $00
 
 stream_0:
 
 background_1:
-  .BYTE $FF, $00, $0A, $00, $FF, $01, $0B, $01, $0B, $0B, $FF, $02, $17, $17, $FF, $08 
-  .BYTE $0A, $2F, $FF, $07, $0B, $16, $FF, $02, $0B, $0A, $07, $51, $05, $46, $04, $5D 
-  .BYTE $FF, $01, $05, $6D, $03, $67, $FF, $02, $04, $70, $05, $76, $06, $6C, $05, $7F 
-  .BYTE $0E, $7F, $FF, $0B, $06, $6D, $03, $9F, $FD, $04, $04, $0C, $15, $9A, $04, $94 
-  .BYTE $FC, $01, $11, $11, $11, $0B, $2F, $07, $CD, $FD, $44, $44, $44, $03, $D2, $FD 
-  .BYTE $55, $55, $55, $09, $D8, $FE, $15, $51, $04, $E3, $03, $EC, $FE, $28, $08, $00 
+  .BYTE $FF, $00, $0A, $00, $FF, $0D, $0A, $01, $FF, $0F, $0B, $0B, $FF, $02, $0B, $17 
+  .BYTE $FF, $0E, $0A, $23, $FF, $02, $0B, $0A, $FF, $08, $0B, $3A, $FF, $0E, $12, $46 
+  .BYTE $FE, $01, $01, $07, $5A, $FF, $01, $05, $6D, $05, $67, $03, $71, $FF, $02, $04 
+  .BYTE $70, $03, $7B, $04, $77, $04, $6C, $FD, $00, $00, $0B, $06, $6F, $0A, $88, $05 
+  .BYTE $9D, $FE, $04, $04, $16, $99, $07, $6E, $FC, $00, $00, $40, $04, $04, $C0, $FE 
+  .BYTE $54, $05, $03, $C7, $FE, $50, $55, $03, $CB, $FB, $50, $55, $55, $05, $55, $04 
+  .BYTE $D8, $06, $D7, $FF, $45, $05, $DE, $07, $E8, $FE, $28, $08, $00 
 
 stream_1:
 	.BYTE $93, $00, $00 ; X: 03, Y: 09

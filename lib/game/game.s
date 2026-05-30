@@ -28,7 +28,7 @@
 
 .PROC game_init
 
-  ; TODO
+  ; TODO this is currently unused
   ; maybe here i set the fixed paletes and only set dynamic ones on level load 
   ; by default set all abilities to unlocked for testing? 
 

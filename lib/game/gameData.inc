@@ -42,7 +42,7 @@ spriteCount    = GAME_DATA + 10 ; ammount of unreserved sprites used by entities
   STA gameFlags
 .ENDMACRO
 
-.MACRO UnsetRenderFlag
+.MACRO ClearRenderFlag
   LDA gameFlags
   AND #%01111111
   STA gameFlags

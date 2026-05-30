@@ -2,7 +2,7 @@
 	script to generates the metatiles file based on the collision from tiled and map from nexxt,
   build with 
   gcc -Wall -o generateMetatiles generateMetatiles.c
-  TODO make the end of stream flag a -1 (empty) for compatibility with an empty metatile with different collision
+  BUG adding a full blank metatile with seperate collision will still cause this to think its an end of stream
   */
 
 #include <stdio.h>
@@ -12,6 +12,7 @@
 
 #define MAX_METATILES 256
 #define LINE_SIZE 16
+  // canvas sizes in tiles
 #define WIDTH 32
 #define HEIGHT 32
 #define SIZE (WIDTH * HEIGHT)
@@ -30,10 +31,11 @@ int main() {
 
   Metatile mTiles[MAX_METATILES];
   
-  char line[1024];            // max line size when reading from file
+  // max line size when reading from file
+  char line[1024];            
 	
+  // get tile data from file
   FILE *fptr = fopen("../data/tiles/raw/metas.asm", "r");
-	
 	if (!fptr) {
     fprintf(stderr, "couldn't find/open metas.asm\n");
 		return 1;
@@ -56,7 +58,6 @@ int main() {
 
   // get collision data from tiled file
   FILE *collptr = fopen("./tiled/metas.tsx", "r");
-
   if (!collptr) {
     fprintf(stderr, "couldn't find/open metas.tsx\n");
     return 1;
@@ -133,8 +134,6 @@ int main() {
     }
     fprintf(out, ">tile_%i", i);
   }
-
-
 
 
   // print tile

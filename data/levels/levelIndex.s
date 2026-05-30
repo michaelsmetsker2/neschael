@@ -13,7 +13,7 @@
 .IMPORT intestines_1
 
 level_index_low:
-  .BYTE <mouth_level, <intestines_1, <test_level_2
+  .BYTE <mouth_level, <test_level_2, <intestines_1
 
 level_index_high:
-  .BYTE >mouth_level, >intestines_1, >test_level_2
+  .BYTE >mouth_level, >test_level_2, >intestines_1

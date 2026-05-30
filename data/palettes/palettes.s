@@ -19,3 +19,5 @@ p_hud:
   .BYTE $30, $00, $0F
 p_player:
   .BYTE $15, $19, $27
+p_grass:
+  .BYTE $17, $19, $2A

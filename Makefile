@@ -53,6 +53,11 @@ tools:
 	cd tools && gcc -Wall -o generateMetatiles generateMetatiles.c
 	cd tools && gcc -Wall -o formatCanvas formatCanvas.c
 
+# runs the tools scripts
+run-tools:
+	cd tools && ./generateMetatiles
+	cd tools && ./formatCanvas
+
 # updates the metatile file using the generateMetatiles sscript
 tiles:
 	cd tools && ./generateMetatiles
