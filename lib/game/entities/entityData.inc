@@ -52,7 +52,6 @@
   oamOffset           = $05          ; FIXME
 
   SAFE_SCRATCH        = $06          ; start of scratch memory address unreserved from functions calling this one
-
 .ENDSCOPE
 
 .SCOPE InitParams

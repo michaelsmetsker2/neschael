@@ -39,29 +39,30 @@
   ; loops through all entity slts and runs the update function on active entities
 .PROC update_entities
 
-  tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
+  UNRESERVED_OAM_OFFSET  = $10 ; offset to skip the reserverd entries in OAM (16, first 4 sprites)
 
-  UNRESERVED_OAM_OFFSET  = $10 ; offset to skip the reserverd entries in OAM (16, first 4)
+  tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
 
   tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
   tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
 
-  oamOffset              = SCRATCH + 5 ; FIXME
+  oamOffset              = SCRATCH + 5 ; FIXME the idea was to use this for oam shuffling
 
-@clear_oam: ; TODO find a way to only clear the filled stuff
-    ; clear non reserved OAM memory
+@clear_oam: ; clears stale unreserved oam memory
+    ; TODO find a way to only clear the filled stuff
   LDX #UNRESERVED_OAM_OFFSET ; start at unreserved
-  LDA #$FE
+  LDA #$FE                   ; %11111110 sets active flags to false and clears data
 :
-  .REPEAT 2 ; unrolled loop for 92 saved cycles/frame
+.REPEAT 2 ; unrolled loop for 92 saved cycles/frame
   STA shadowOam, X
   INX
   INX
   INX
   INX
-  .ENDREPEAT
+.ENDREPEAT
   BNE :-
-  
+
+@check_pool_for_active:
     ; set the high byte of the pointer as it doesn't change
   LDA #>entityPool
   STA tmpEntityMemoryPointer+1
@@ -69,9 +70,7 @@
   LDX #$00
   STX oamOffset ; clear oamOffset
 
-    ; loop through entity pool
-@entity_loop:
-
+@entity_loop: ; loop through entity pool
     ; test bit 7 for an active entity
   LDA entityPool, X
   BPL @next_entity  ; bit 7 = 0, skip
@@ -112,7 +111,6 @@
   PHA
   
   RTS  ; rts to update function
-
 @ret:
     ; restore index
   LDX tmpEntityOffset
@@ -132,7 +130,7 @@
 .PROC create_entity
 
   roMetatileIndex       = $01 ; read only, index of the metacolumn index of the entity relative to the background, inhereted from check_entities
-  roEntityData          = $04 ; ready only, 16 bit, pointer to the start of the entities rom params, inhereted from check_entities
+  roEntityData          = $04 ; read only, 16 bit, pointer to the start of the entities rom params, inhereted from check_entities
 
   tmpSlotPtr            = $06 ; 16 bit, points to the memory chunk in the entity pool alocated for the entity
   tmpEntityTypePointer  = $08 ; 16 bit, points to the entity types definition in rom

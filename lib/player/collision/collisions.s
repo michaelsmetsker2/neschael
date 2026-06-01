@@ -16,51 +16,6 @@
 .EXPORT collision_index_y_low
 .EXPORT collision_index_y_high
 
-collision_index_x_low:
-	.BYTE <(Empty::col_x-1)
-	.BYTE <(LevelEnd::both-1)
-	.BYTE <(SteepSlope::Up::col_x-1)
-	.BYTE <(ShallowSlope::Up::col_x-1)
-	.BYTE <(SteepSlope::Down::col_x-1)
-	.BYTE <(ShallowSlope::Down::col_x-1)
-	.BYTE $FF
-	.BYTE	$FF 
-	.BYTE <(Solid::col_x-1)
-
-collision_index_x_high:
-	.BYTE >(Empty::col_x-1)
-	.BYTE >(LevelEnd::both-1)
-	.BYTE >(SteepSlope::Up::col_x-1)
-	.BYTE >(ShallowSlope::Up::col_x-1)
-	.BYTE >(SteepSlope::Down::col_x-1)
-	.BYTE >(ShallowSlope::Down::col_x-1)
-	.BYTE $FF
-	.BYTE $FF
-	.BYTE >(Solid::col_x-1)
-
-
-collision_index_y_low:
-	.BYTE <(Empty::col_y-1)
-	.BYTE <(LevelEnd::both-1)
-	.BYTE <(SteepSlope::Up::col_y-1)
-	.BYTE <(ShallowSlope::Up::col_y-1)
-	.BYTE <(SteepSlope::Down::col_y-1)
-	.BYTE <(ShallowSlope::Down::col_y-1)
-	.BYTE $FF
-	.BYTE $FF
-	.BYTE <(Solid::col_y-1)
-
-collision_index_y_high:
-	.BYTE >(Empty::col_y-1)
-	.BYTE >(LevelEnd::both-1)
-	.BYTE >(SteepSlope::Up::col_y-1)
-	.BYTE >(ShallowSlope::Up::col_y-1)
-	.BYTE >(SteepSlope::Down::col_y-1)
-	.BYTE >(ShallowSlope::Down::col_y-1)
-	.BYTE $FF
-	.BYTE $FF
-	.BYTE >(Solid::col_y-1)
-
   ; ID: 0, no collision
 .SCOPE Empty
   .PROC col_x
@@ -471,3 +426,48 @@ collision_index_y_high:
 
   .ENDPROC
 .ENDSCOPE
+
+collision_index_x_low:
+	.BYTE <(Empty::col_x-1)
+	.BYTE <(LevelEnd::both-1)
+	.BYTE <(SteepSlope::Up::col_x-1)
+	.BYTE <(ShallowSlope::Up::col_x-1)
+	.BYTE <(SteepSlope::Down::col_x-1)
+	.BYTE <(ShallowSlope::Down::col_x-1)
+	.BYTE $FF
+	.BYTE	$FF 
+	.BYTE <(Solid::col_x-1)
+
+collision_index_x_high:
+	.BYTE >(Empty::col_x-1)
+	.BYTE >(LevelEnd::both-1)
+	.BYTE >(SteepSlope::Up::col_x-1)
+	.BYTE >(ShallowSlope::Up::col_x-1)
+	.BYTE >(SteepSlope::Down::col_x-1)
+	.BYTE >(ShallowSlope::Down::col_x-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE >(Solid::col_x-1)
+
+
+collision_index_y_low:
+	.BYTE <(Empty::col_y-1)
+	.BYTE <(LevelEnd::both-1)
+	.BYTE <(SteepSlope::Up::col_y-1)
+	.BYTE <(ShallowSlope::Up::col_y-1)
+	.BYTE <(SteepSlope::Down::col_y-1)
+	.BYTE <(ShallowSlope::Down::col_y-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE <(Solid::col_y-1)
+
+collision_index_y_high:
+	.BYTE >(Empty::col_y-1)
+	.BYTE >(LevelEnd::both-1)
+	.BYTE >(SteepSlope::Up::col_y-1)
+	.BYTE >(ShallowSlope::Up::col_y-1)
+	.BYTE >(SteepSlope::Down::col_y-1)
+	.BYTE >(ShallowSlope::Down::col_y-1)
+	.BYTE $FF
+	.BYTE $FF
+	.BYTE >(Solid::col_y-1)
