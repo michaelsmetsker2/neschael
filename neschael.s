@@ -9,7 +9,6 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT game_init
-.IMPORT audio_init
 
 .IMPORT level_init
 
@@ -33,9 +32,7 @@
 
   ; main entry point after the system from reset interrupt
 .PROC main
-    ; initialize basic systems and variables
   JSR game_init
-  JSR audio_init
 
 load_level: ; loads the level in levelId
   JSR level_init

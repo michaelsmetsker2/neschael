@@ -16,7 +16,7 @@
   ; bit 0-3: unused
 gameFlags      = GAME_DATA
 
-  ; use buttom masks to see what is held
+  ; use button masks in cpu.inc to see what is held
 btnPressed     = GAME_DATA + 1  ; New button presses this frame
 btnDown        = GAME_DATA + 2  ; All buttons currently being pressed
 
@@ -27,7 +27,9 @@ scrollAmount   = GAME_DATA + 6  ; signed, the ammount to scroll the screen by th
 levelId        = GAME_DATA + 7  ; level to load, corolates to index of the level_index lookup table
 levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the current level
 
-spriteCount    = GAME_DATA + 10 ; ammount of unreserved sprites used by entities, determines whether to spawn more
+spriteCount    = GAME_DATA + 10 ; ammount of sprites used by entities, determines whether to spawn more
+
+oamOffset      = GAME_DATA + 11 ; offset to start drawing sprites in OAM, persists between frames for shuffling
 
 ; TODO unlocked abilities flags
 ; TODO currently selected abilities

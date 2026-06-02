@@ -12,7 +12,7 @@
 
 .IMPORT populate_slot
 
-SPRITE_COUNT = $04 ; how sprites to allocate in oam for this
+SPRITE_COUNT = $02 ; how sprites to allocate in oam for this
 
 test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
@@ -25,7 +25,7 @@ test_entity:
   tmpSpriteY    = UpdateParams::SAFE_SCRATCH+2
 
 @bound_entity:
-    ; calculate relative screen position
+    ; calculate relative screen position, subtract the screen scroll from the entities position
   SEC
   LDY #Slot::X_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
@@ -79,7 +79,6 @@ test_entity:
   STA (UpdateParams::slotPtr), Y
 
 @fill_oam:
-
   LDA tmpSpriteX+1
   BNE @done ; FIXME this should be changed to "next row" not rts
 

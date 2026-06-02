@@ -10,6 +10,8 @@
 .INCLUDE "data/levels/levelData.inc"
 .INCLUDE "lib/game/gameData.inc"
 
+.IMPORT audio_init
+
 .IMPORT decompress_nametable
 
 .IMPORT level_index_low
@@ -28,8 +30,7 @@
 
 .PROC game_init
 
-  ; TODO this is currently unused
-  ; maybe here i set the fixed paletes and only set dynamic ones on level load 
+  JSR audio_init
   ; by default set all abilities to unlocked for testing? 
 
   RTS
