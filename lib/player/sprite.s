@@ -9,6 +9,7 @@
 
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/player/player.inc"
+.INCLUDE "lib/game/gameData.inc"
 
 .IMPORTZP SCRATCH
 .IMPORT shadowOam
@@ -22,22 +23,14 @@
 	RISING_SPRITE     = $04
 	FALLING_SPRITE    = $05
 
+	; store heading in scratch memory to avoid recalculating it
+	tmpHeading 		    = SCRATCH
+	
 	PLAYER_OAM_ADDRESS = shadowOam + 4 ; first reserved sprite after sprite zero
 
-	; stores heading in scratch memory to avoid recalculating it
-	tmpHeading = SCRATCH
-
 .PROC update_player_sprite
-			; FIXME could do tail calls to save many cycles
-    JSR update_animation_frame
-    JSR update_heading
-    JSR update_sprite_position
-    RTS
-.ENDPROC
-
-; update the currently displayed player sprite based on motion_state and time
-.PROC update_animation_frame
-	; check if grounded
+	; update the currently displayed player sprite based on motion_state and time and tail call remaining proccesses
+		; check if grounded
 	LDA motionState
 	CMP #MotionState::Airborne
 	BNE @grounded
@@ -58,7 +51,7 @@
 	JMP @write
 
 @grounded:
-	; increment animation timer
+		; increment animation timer for walk animation
 	INC animationTimer
 	LDA animationTimer
 	LSR A
@@ -69,34 +62,43 @@
 	TAY
 	LDA walk_frames, Y
 @write:
-	STA PLAYER_OAM_ADDRESS + _OAM_TILE 
-	RTS
-walk_frames:
+	STA PLAYER_OAM_ADDRESS + _OAM_TILE
+	
+	JMP update_heading ; tail call to save cycles
+
+walk_frames: ; sprites in the walk animation
 	.BYTE STANDING_SPRITE, LEFT_WALK_SPRITE, STANDING_SPRITE, RIGHT_WALK_SPRITE
 .ENDPROC
 
-; changed the direction the player sprite is facing based on heading
+	; changed the direction the player sprite is facing based on heading
 .PROC update_heading
-    ; heading is already set during x movement
-    LDA playerFlags
-    AND #%01000000
-    STA tmpHeading
-    LDA PLAYER_OAM_ADDRESS + _OAM_ATTR
-    AND #%10111111
-    ORA tmpHeading
-    STA PLAYER_OAM_ADDRESS + _OAM_ATTR
+
+		; heading is already set during x movement
+	LDA playerFlags
+	AND #%01000000
+	STA tmpHeading
+	STA PLAYER_OAM_ADDRESS + _OAM_ATTR
+
+	JMP update_sprite_position ; tail call for saved cycles
 .ENDPROC
 
-; copies the sprite x and y variables to the players data
+	; copies the sprite x and y variables to the players data
 .PROC update_sprite_position
-    LDY positionX+1
-		LDA tmpHeading
-		BEQ :+
-		DEY		          				; decrement the sprites position if facing left as the sprite is asymetrical
-		:
-    STY PLAYER_OAM_ADDRESS + _OAM_X
-    LDY positionY+1
-    DEY                     ; NES displays sprites one pixel lower than they should, this counteracts that
-    STY PLAYER_OAM_ADDRESS + _OAM_Y
-    RTS
+
+@update_player_x:
+	LDX positionX+1
+	LDA tmpHeading
+	BEQ :+
+	DEX		          				; decrement the sprites position if facing left as the sprite is asymetrical
+	:
+	TXA
+	STA PLAYER_OAM_ADDRESS + _OAM_X
+
+@update_player_y:
+	LDX positionY+1
+	DEX 										; NES displays sprites one pixel lower than they should, this counteracts that
+	TXA
+	LDY #_OAM_Y
+	STA PLAYER_OAM_ADDRESS + _OAM_Y
+	RTS
 .ENDPROC

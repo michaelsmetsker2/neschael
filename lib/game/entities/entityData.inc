@@ -24,7 +24,7 @@
 
 .IMPORT shadowOam
 
-  SPRITE_CAP         = $3E           ; 63 maximum allowed unreserved sprites before they will stop spawning
+  SPRITE_CAP         = $3E           ; 62 maximum allowed unreserved sprites before they will stop spawning
 
     ; lengths for the entity pool, a section of ram that stores values for active entities
   ENTITY_POOL_SIZE   = $16                       ; amount of entity slots in the pool
@@ -34,7 +34,7 @@
   INIT_FUNC_OFFSET   = $02           ; offset to the initialization function from an entities definition
   NUM_SPRITES_OFFSET = $06           ; offset to the sprite ammount
 
-  unreservedOam      = shadowOam + 4 ; addres to the start of unreserved oam
+  unreservedOam      = shadowOam + 8 ; addres to the start of unreserved oam
 
   ENTITY_SPAWN_LEFT  = $F0           ; low byte of the x position when it rolls over to the left of the screen
 
@@ -47,7 +47,6 @@
 
 .SCOPE UpdateParams
   slotPtr             = $00          ; 16 bit, points to the first byte of the slot owned by the current entity
-  oamOffset           = $05          ; FIXME
 
   SAFE_SCRATCH        = $06          ; start of scratch memory address unreserved from functions calling this one
 .ENDSCOPE

@@ -12,7 +12,7 @@
 
 .IMPORT populate_slot
 
-SPRITE_COUNT = $02 ; how sprites to allocate in oam for this
+SPRITE_COUNT = $01 ; how sprites to allocate in oam for this
 
 test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
@@ -59,7 +59,7 @@ test_entity:
   BNE @remove       ; entity is not new
   RTS               ; entity has just spawned, don't remove it
 
-@remove: ; TODO relocate this labels code
+@remove: ; TODO relocate this labels code?
     ; subtract the sprite ammount from the count
   SEC
   LDA spriteCount
@@ -85,10 +85,8 @@ test_entity:
     ; draw the test sprite
   LDY #Slot::Y_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
-  STA tmpSpriteY
 
-  LDA tmpSpriteY
-  LDY UpdateParams::oamOffset
+  LDY oamOffset
   STA unreservedOam, Y
   INY
 
@@ -103,7 +101,17 @@ test_entity:
   TXA
   STA unreservedOam, Y
   INY
-  STY UpdateParams::oamOffset
+  STY oamOffset
+
+
+  ; TODO temp safe increment of oamOffset
+  LDA oamOffset
+  CMP #SPRITE_CAP * 4
+  BCC @done
+
+  LDA #$00
+  STA oamOffset
+
 
   @done:
   RTS

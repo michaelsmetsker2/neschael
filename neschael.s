@@ -16,11 +16,13 @@
 .IMPORT read_joypad_1
 .IMPORT cycle_abilities
 
-.IMPORT update_player_sprite
 .IMPORT update_player_movement
 .IMPORT update_camera
 
 .IMPORT scroll_screen
+
+.IMPORT clear_oam
+.IMPORT update_player_sprite
 .IMPORT update_entities
 
 .IMPORT buffer_hud
@@ -40,20 +42,19 @@ load_level: ; loads the level in levelId
   ; the main game loop, runs after each NMI
 game_loop:
 
-    ; first thing after NMI so timing is consistant
-      ; it is always consistant even when conditionally drawing due to sprite zero hit waiting
+    ; first thing after NMI (and zero hit) so timing is consistant
   JSR play_sound_frame
   
   JSR read_joypad_1
-
   JSR cycle_abilities
 
   JSR update_player_movement
   JSR update_camera
-  JSR update_player_sprite
 
   JSR scroll_screen
   
+  JSR clear_oam
+  JSR update_player_sprite
   JSR update_entities
 
   JSR buffer_hud

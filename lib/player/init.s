@@ -38,10 +38,5 @@ playerAttribute = $0206 ; player's attribute byte in OAM buffer
   STA positionX
   STA positionY
 
-  ; set the player's OAM sprite data
-  STA playerAttribute
-  LDA #$01
-  STA playerTile
-
   RTS
 .ENDPROC

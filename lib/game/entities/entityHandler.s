@@ -19,6 +19,7 @@
 .EXPORT entities_init
 .EXPORT update_entities
 .EXPORT create_entity
+.EXPORT clear_oam
 
 
   ; loop through entity pool and set all to inactive
@@ -36,24 +37,14 @@
   RTS
 .ENDPROC
 
-  ; loops through all entity slts and runs the update function on active entities
-.PROC update_entities
-
-  UNRESERVED_OAM_OFFSET  = $10 ; offset to skip the reserverd entries in OAM (16, first 4 sprites)
-
-  tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
-
-  tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
-  tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
-
-  oamOffset              = SCRATCH + 5 ; FIXME the idea was to use this for oam shuffling
-
-@clear_oam: ; clears stale unreserved oam memory
-    ; TODO find a way to only clear the filled stuff
-  LDX #UNRESERVED_OAM_OFFSET ; start at unreserved
+    ; clears stale unreserved oam memory
+      ; TODO inneficient to clear all?
+.PROC clear_oam
+  ;LDX #<unreservedOam ; start at unreserved
+  LDX #$04
   LDA #$FE                   ; %11111110 sets active flags to false and clears data
 :
-.REPEAT 2 ; unrolled loop for 92 saved cycles/frame
+.REPEAT 3 ; unrolled loop for saved cycles
   STA shadowOam, X
   INX
   INX
@@ -62,13 +53,25 @@
 .ENDREPEAT
   BNE :-
 
+  RTS
+.ENDPROC
+
+  ; loops through all entity slots and runs the update function on active entities
+.PROC update_entities
+
+  tmpEntityMemoryPointer = SCRATCH     ; 16 bit, points to the first byte of the current entities ram
+
+  tmpEntityOffset        = SCRATCH + 2 ; loop index/offset of current entity, stored during updates
+  tmpEntityPointer       = SCRATCH + 3 ; 16 bit, points to the deffinition of the found entity
+
+  oamOffset              = SCRATCH + 5 ; copy of oamBase that doesn't persist, offset from shadowOAM to copy sprite data
+
 @check_pool_for_active:
     ; set the high byte of the pointer as it doesn't change
   LDA #>entityPool
   STA tmpEntityMemoryPointer+1
 
-  LDX #$00
-  STX oamOffset ; clear oamOffset
+  LDX #$00      ; loop index
 
 @entity_loop: ; loop through entity pool
     ; test bit 7 for an active entity
