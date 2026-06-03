@@ -55,6 +55,5 @@
   LDA #$00
   STA (InitParams::slotPtr), Y
 
-
   RTS
 .ENDPROC

@@ -31,10 +31,8 @@ test_entity:
   LDA (UpdateParams::slotPtr), y
   STA tmpSpriteY
 
-  LDA $0205
+  LDA #$20
   STA tmpSpriteTile
-  LDA $0206
-  STA tmpSpriteAttr
 
     ; calculate relative screen position, subtract the screen scroll from the entities position
   LDY #Slot::X_POS_OFFSET
@@ -48,8 +46,6 @@ test_entity:
   LDA (UpdateParams::slotPtr), Y
   SBC screenPosX+1
   STA tmpSpriteX+1 ; high byte (nametable)
-
-
 
 @check_valid: ; see if the sprite has moved far enough to be removed
 
@@ -85,6 +81,10 @@ test_entity:
   ORA (UpdateParams::slotPtr), Y
   STA (UpdateParams::slotPtr), Y
 
+    ; set attr
+  LDA #%00000000
+  STA tmpSpriteAttr
+
   JSR draw
 
     ; increment y position to the next row
@@ -92,6 +92,10 @@ test_entity:
   LDA tmpSpriteY
   ADC #$08
   STA tmpSpriteY
+
+    ; set attr
+  LDA #%10000000
+  STA tmpSpriteAttr
 
   JSR draw
 
@@ -109,6 +113,10 @@ test_entity:
   INC tmpSpriteX+1
 :
 
+    ; set attr
+  LDA #%01000000
+  STA tmpSpriteAttr
+
   JSR draw
 
     ; increment y position again
@@ -117,8 +125,11 @@ test_entity:
   ADC #$08
   STA tmpSpriteY
 
-  JSR draw
+    ; set attr
+  LDA #%11000000
+  STA tmpSpriteAttr
 
+  JSR draw
 
   RTS
 .ENDPROC
