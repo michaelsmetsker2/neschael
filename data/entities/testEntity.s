@@ -12,7 +12,12 @@
 
 .IMPORT populate_slot
 
-SPRITE_COUNT = $01 ; how sprites to allocate in oam for this
+  tmpSpriteX    = UpdateParams::SAFE_SCRATCH    ; 16 bit, relative x position to the screen scroll
+  tmpSpriteY    = UpdateParams::SAFE_SCRATCH+2
+  tmpSpriteAttr = UpdateParams::SAFE_SCRATCH+3
+  tmpSpriteTile = UpdateParams::SAFE_SCRATCH+4
+
+SPRITE_COUNT = $04 ; how sprites to allocate in oam for this
 
 test_entity:
   .WORD update_func-1, init_func-1, remove_func-1
@@ -21,99 +26,100 @@ test_entity:
   ; this proccess should only be called from the entityHandler, The memory it inherites is in the UpdateParams scope
 .PROC update_func
 
-  tmpSpriteX    = UpdateParams::SAFE_SCRATCH    ; 16 bit, relative x position to the screen scroll
-  tmpSpriteY    = UpdateParams::SAFE_SCRATCH+2
+    ; populate sprite values
+  LDY #Slot::Y_POS_OFFSET
+  LDA (UpdateParams::slotPtr), y
+  STA tmpSpriteY
 
-@bound_entity:
+  LDA $0205
+  STA tmpSpriteTile
+  LDA $0206
+  STA tmpSpriteAttr
+
     ; calculate relative screen position, subtract the screen scroll from the entities position
-  SEC
   LDY #Slot::X_POS_OFFSET
   LDA (UpdateParams::slotPtr), Y
+  SEC
   SBC screenPosX
   STA tmpSpriteX ; low byte (pixel)
-  TAX
+  TAX            ; store for easy access
 
-  INY
+  INY ; increments to the high byte
   LDA (UpdateParams::slotPtr), Y
   SBC screenPosX+1
   STA tmpSpriteX+1 ; high byte (nametable)
-  BEQ @draw        ; drawable if on the same screen as the player
 
-    ; if not on the same screen it must fall within the threshhold not to be removed 
-  TXA
+
+
+@check_valid: ; see if the sprite has moved far enough to be removed
+
+  BEQ @valid ; always valid if on the same screen as the player
+
+    ; the sprite must fall within the spawn point threshold to not be removed
+  LDA tmpSpriteX
   CMP #ENTITY_SPAWN_LEFT+1   ; Spawn point when scrolling left
-  BCS @draw  ; still sent to draw as following columns may be on screen
+  BCS @valid 
 
     ; check if position is on a spawnPoint
-  TXA                        ; reset cpu flags
+  TXA                        ; = LDA tmpSpriteX, resets cpu flags
   BEQ @check_fresh           ; entity lies on right spawnpoint
   CMP #ENTITY_SPAWN_LEFT 
   BEQ @check_fresh           ; entity lies on left spawnpoint
-  JMP @remove                ; entity is to far offscreen, remove it
+  JMP remove_func            ; entity is to far offscreen, remove it
 
 @check_fresh:
     ; see if the entity has just spawned in
   LDY #Slot::PARAM_2_OFFSET
   LDA (UpdateParams::slotPtr), Y
   AND #%10000000    ; mask the drawnFlag
-  BNE @remove       ; entity is not new
-  RTS               ; entity has just spawned, don't remove it
+  BEQ :+
+  JMP remove_func       ; entity is not new, remove it
+:
+  RTS               ; entity has just spawned, don't remove it, but don't draw either
 
-@remove: ; TODO relocate this labels code?
-    ; subtract the sprite ammount from the count
-  SEC
-  LDA spriteCount
-  SBC #SPRITE_COUNT
-  STA spriteCount
-    ; set the entity slot to inactive
-  LDA #$00
-  TAY
-  STA (UpdateParams::slotPtr), Y
-  RTS
+@valid:
 
-@draw:
     ; set the fresh flag
   LDY #Slot::PARAM_2_OFFSET
   LDA #%10000000
   ORA (UpdateParams::slotPtr), Y
   STA (UpdateParams::slotPtr), Y
 
-@fill_oam:
-  LDA tmpSpriteX+1
-  BNE @done ; FIXME this should be changed to "next row" not rts
+  JSR draw
 
-    ; draw the test sprite
+    ; increment y position to the next row
+  CLC
+  LDA tmpSpriteY
+  ADC #$08
+  STA tmpSpriteY
+
+  JSR draw
+
+    ; return Y position to original
   LDY #Slot::Y_POS_OFFSET
-  LDA (UpdateParams::slotPtr), Y
+  LDA (UpdateParams::slotPtr), y
+  STA tmpSpriteY
 
-  LDY oamOffset
-  STA unreservedOam, Y
-  INY
+    ; increment x position to the next column
+  CLC
+  LDA tmpSpriteX
+  ADC #$08
+  STA tmpSpriteX
+  BCC :+
+  INC tmpSpriteX+1
+:
 
-  LDA $0205
-  STA unreservedOam, Y
-  INY
+  JSR draw
 
-  LDA $0206
-  STA unreservedOam, Y
-  INY
+    ; increment y position again
+  CLC
+  LDA tmpSpriteY
+  ADC #$08
+  STA tmpSpriteY
 
-  TXA
-  STA unreservedOam, Y
-  INY
-  STY oamOffset
-
-
-  ; TODO temp safe increment of oamOffset
-  LDA oamOffset
-  CMP #SPRITE_CAP * 4
-  BCC @done
-
-  LDA #$00
-  STA oamOffset
+  JSR draw
 
 
-  @done:
   RTS
 .ENDPROC
 
@@ -123,8 +129,52 @@ test_entity:
 .ENDPROC
 
 .PROC remove_func
+    ; subtract the sprite ammount from the count
+  SEC
+  LDA spriteCount
+  SBC #SPRITE_COUNT
+  STA spriteCount
+    ; set the entity slot to inactive
+  LDA #$00
+  TAY
+  STA (UpdateParams::slotPtr), Y
 
-  ; TODO defunct? maybe this should only be removed from the update function and 
   RTS
 .ENDPROC
 
+.PROC draw
+    ; offscreen, return early
+  LDA tmpSpriteX+1
+  BNE @done
+
+  LDY oamOffset
+
+  LDA tmpSpriteY
+  STA unreservedOam, Y
+  INY
+
+  LDA tmpSpriteTile
+  STA unreservedOam, Y
+  INY
+
+  LDA tmpSpriteAttr
+  STA unreservedOam, Y
+  INY
+
+  LDA tmpSpriteX
+  STA unreservedOam, Y
+  INY
+  STY oamOffset
+
+
+    ; temp safe increment of oamOffset
+  LDA oamOffset
+  CMP #SPRITE_CAP * 4
+  BCC @done
+
+  LDA #$00
+  STA oamOffset
+
+@done:
+  RTS
+.ENDPROC

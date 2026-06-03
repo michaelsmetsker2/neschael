@@ -3,13 +3,13 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "levels/head.tmx",
+    "activeFile": "levels/testLv3.tmx",
     "expandedProjectPaths": [
+        ".",
         "levels",
-        "levels/testlevel",
-        "metas",
         "levels/test_level",
-        "."
+        "levels/testlevel",
+        "metas"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -73,8 +73,8 @@
             "scale": 5.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 365.1818181818182,
-                "y": 124.27272727272727
+                "x": 665.909090909091,
+                "y": 108.09090909090908
             }
         },
         "levels/testLvl.tmx": {
@@ -194,20 +194,17 @@
     "map.tileWidth": 16,
     "map.width": 128,
     "openFiles": [
-        "levels/head.tmx",
-        "levels/testLv3.tmx",
-        "levels/intestine.tmx",
-        "metas.tsx"
+        "levels/testLv3.tmx"
     ],
     "project": "neschael.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "levels/testLv3.tmx",
         "attributes.tsx",
         "metas.tsx",
         "levels/intestine.tmx",
         "levels/head.tmx",
         "numbers.tsx",
-        "levels/testLv3.tmx",
         "levels/testLvl2.tmx",
         "levels/testLvl.tmx",
         "levels/testlevel/testLvl2.tmx",
