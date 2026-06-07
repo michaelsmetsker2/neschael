@@ -40,11 +40,10 @@
     ; clears stale unreserved oam memory
       ; TODO inneficient to clear all?
 .PROC clear_oam
-  ;LDX #<unreservedOam ; start at unreserved
-  LDX #$04
+  LDX #<unreservedOam ; start at unreserved
   LDA #$FE                   ; %11111110 sets active flags to false and clears data
 :
-.REPEAT 3 ; unrolled loop for saved cycles
+.REPEAT 2 ; unrolled loop for saved cycles
   STA shadowOam, X
   INX
   INX

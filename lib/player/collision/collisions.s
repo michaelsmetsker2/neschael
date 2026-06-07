@@ -34,7 +34,7 @@
 		STA motionState
 		RTS
 		
-	.IF 0 ; FIXME determine if needed
+	.IF 0
 	@slope_check:
 		LDA tmpCollisionPointY
 		AND #%11111000

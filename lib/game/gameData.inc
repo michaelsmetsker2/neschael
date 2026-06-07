@@ -28,10 +28,11 @@ levelId        = GAME_DATA + 7  ; level to load, corolates to index of the level
 levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the current level
 
 spriteCount    = GAME_DATA + 10 ; ammount of sprites used by entities, determines whether to spawn more
-
 oamOffset      = GAME_DATA + 11 ; offset to start drawing sprites in OAM, persists between frames for shuffling
 
-; TODO unlocked abilities flags
+  ; bit 0-7:  unused
+unlockFlags    = GAME_DATA + 12 ; currently unlocked abilities
+
 ; TODO currently selected abilities
 
 
