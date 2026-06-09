@@ -5,6 +5,27 @@
 ; lookup table of notes
 ;
 
+.ENUM Audio_channels
+  SQUARE_1 = 0
+  SQUARE_2 = 1
+  TRIANGLE = 2
+  NOISE    = 3
+  DCPM     = 4 ; unused
+.ENDENUM
+
+.ENUM Audio_streams
+  MUSIC_SQ1   = 0
+  MUSIC_SQ2   = 1
+  MUSIC_TRI   = 2
+  MUSIC_NOISE = 3
+  SFX_1       = 4
+  SFX_2       = 5
+.ENDENUM
+
+  ; sound header
+SOUND_STREAM_OFFSET = $00 ; offset to byte holding the ammount of streams in the sound
+
+
 periodTableLo:
   .BYTE $f1,$7f,$13,$ad,$4d,$f3,$9d,$4c,$00,$b8,$74,$34
   .BYTE $f8,$bf,$89,$56,$26,$f9,$ce,$a6,$80,$5c,$3a,$1a
