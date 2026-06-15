@@ -12,10 +12,11 @@ mouth_level:
 	.WORD background_index, spawn_stream
 	.BYTE $30, $8F ; high byte of player starting X and Y
 	.BYTE $01 ; length of background, zero based
-  .BYTE $21 ; background color
+ 	.BYTE $21 ; background color
 	.BYTE $05, $01, $02, $03 ; background palettes
 	.BYTE $04, $01, $02, $03 ; sprite palettes
-
+	.BYTE $00 ; music ID
+  
 background_index:
 	.WORD background_0, background_1
 spawn_stream:
