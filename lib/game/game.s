@@ -11,6 +11,7 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT audio_init
+.IMPORT load_sound
 
 .IMPORT decompress_nametable
 
@@ -48,16 +49,20 @@
   ClearOamMemory ; remove all current sprites
   JSR entities_init
   
-  ; set the level pointer to the id of levelID
+    ; set the level pointer to the id of levelID
   LDY levelId
   LDA level_index_low,Y
   STA levelPtr
   LDA level_index_high,Y
   STA levelPtr+1
 
+    ; set the corect palettes
   JSR load_level_palettes
 
-    ; TODO set music for current level and clear audio streams
+    ; start the correct music
+  LDY #MUSIC_OFFSET
+  LDA (levelPtr), Y
+  JSR load_sound
 
 @decompress_starting_nametables:
     ; reset scroll variables so the correct backgrounds load

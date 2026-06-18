@@ -22,7 +22,7 @@
 _SND_CHN    = $4015        ; Reference: https://wiki.nesdev.com/w/index.php/APU#Status_.28.244015.29
 
 ; APU Square wave channels 1 and 2
-; Reference: https://wiki.nesdev.com/w/index.php/APU_Pulse
+; Reference: https://www.nesdev.org/wiki/APU_Pulse
 _SQ1_VOL    = $4000
 _SQ1_SWEEP  = $4001
 _SQ1_LO     = $4002

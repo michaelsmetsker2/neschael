@@ -130,6 +130,7 @@ mult_6:  ; multiples of six, used for offsetting attribute buffer pointer
 @loop:
     ; set the location of tmpTilePointer to the correct metatile
   LDA (tmpColumnPointer), Y
+  AND #$3F
   TAX
   LDA metatile_index_low, X
   STA tmpTilePointer

@@ -11,12 +11,21 @@
 .EXPORT HUD_BUFFER
 
 .EXPORT AUDIO_DATA
-.EXPORT AUDIO_STREAM_SOUND_ID
-.EXPORT AUDIO_STREAM_STATUS
-.EXPORT AUDIO_STREAM_CHANNEL
-.EXPORT AUDIO_STREAM_VOL_DUTY
-.EXPORT AUDIO_STREAM_NOTE_HI
-.EXPORT AUDIO_STREAM_NOTE_LOW
+
+.EXPORT audioStreamTicker
+.EXPORT audioStreamTempo
+.EXPORT audioStreamSoundId
+.EXPORT audioStreamStatus
+.EXPORT audioStreamChannel
+.EXPORT audioStreamVolume
+.EXPORT audioStreamAddrHigh
+.EXPORT audioStreamAddrLow
+.EXPORT audioStreamNoteLow
+.EXPORT audioStreamNoteHigh
+.EXPORT audioStreamNoteTimer
+.EXPORT audioStreamNoteDuration
+
+.EXPORT shadowApuPorts
 
 .EXPORT shadowOam
 
@@ -44,20 +53,38 @@
 ; $20-$3F:      Player data, states and animation, see lib/player/init.s      
   PLAYER_DATA:  .RES 32
 
-; $40-$BE :     Game data, see lib/player/game.inc
-  GAME_DATA:    .RES 127
+; $40-$BE :     Game data, see lib/player/game.inc ; TODO update $40 - ?? it is out of date
+  GAME_DATA:    .RES 48
 
 ; $BF-$D7:      Tile data to be drawn in the hud during vblank
   HUD_BUFFER:   .RES 25
 
-; $D8-$FF:      Audio data and streams
-  AUDIO_DATA:            .RES 4
-  AUDIO_STREAM_SOUND_ID: .RES 6
-  AUDIO_STREAM_STATUS:   .RES 6
-  AUDIO_STREAM_CHANNEL:  .RES 6
-  AUDIO_STREAM_VOL_DUTY: .RES 6
-  AUDIO_STREAM_NOTE_HI:  .RES 6
-  AUDIO_STREAM_NOTE_LOW: .RES 6
+; $D8-$FF:      Memory reserved for the sound engine
+  AUDIO_DATA:               .RES 16
+
+    ; buffer for $4000 - $400F
+  shadowApuPorts:           .RES 16
+
+; TODO organize
+    ; 6 streams, 4 for music 2 for sfx, one byte for each stream
+  audioStreamTicker:        .RES 6
+  
+  audioStreamNoteTimer:     .RES 6 ; how many ticks the current note has left
+  audioStreamNoteDuration:  .RES 6 ; length of the notes in ticks
+
+    ; periods for the current notes
+  audioStreamNoteLow:       .RES 6
+  audioStreamNoteHigh:      .RES 6
+
+  audioStreamVolume:        .RES 6
+  audioStreamStatus:        .RES 6
+
+    ; these do not change nearly as much and can be removed from zeropage
+  audioStreamTempo:         .RES 6
+  audioStreamSoundId:       .RES 6
+  audioStreamChannel:       .RES 6
+  audioStreamAddrHigh:      .RES 6
+  audioStreamAddrLow:       .RES 6
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack

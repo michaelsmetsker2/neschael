@@ -2,7 +2,7 @@
 ; neschael
 ; lib/sound/sound.inc
 ;
-; lookup table of notes
+; enums and definitions relating to the sound engine
 ;
 
 .ENUM Audio_channels
@@ -22,23 +22,9 @@
   SFX_2       = 5
 .ENDENUM
 
-  ; sound header
-SOUND_STREAM_OFFSET = $00 ; offset to byte holding the ammount of streams in the sound
+  NUM_STREAMS = $06 ; number of audio streams
 
+  OPCODE_THRESHOLD = $A0 ; threshold in witch a byte read from an audio stream is determined to be an opcode
 
-periodTableLo:
-  .BYTE $f1,$7f,$13,$ad,$4d,$f3,$9d,$4c,$00,$b8,$74,$34
-  .BYTE $f8,$bf,$89,$56,$26,$f9,$ce,$a6,$80,$5c,$3a,$1a
-  .BYTE $fb,$df,$c4,$ab,$93,$7c,$67,$52,$3f,$2d,$1c,$0c
-  .BYTE $fd,$ef,$e1,$d5,$c9,$bd,$b3,$a9,$9f,$96,$8e,$86
-  .BYTE $7e,$77,$70,$6a,$64,$5e,$59,$54,$4f,$4b,$46,$42
-  .BYTE $3f,$3b,$38,$34,$31,$2f,$2c,$29,$27,$25,$23,$21
-  .BYTE $1f,$1d,$1b,$1a,$18,$17,$15,$14
-periodTableHi:
-  .BYTE $07,$07,$07,$06,$06,$05,$05,$05,$05,$04,$04,$04
-  .BYTE $03,$03,$03,$03,$03,$02,$02,$02,$02,$02,$02,$02
-  .BYTE $01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
-  .BYTE $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-  .BYTE $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-  .BYTE $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-  .BYTE $00,$00,$00,$00,$00,$00,$00,$00
+    ; sound header
+  SOUND_STREAM_OFFSET = $00 ; offset to byte holding the ammount of streams in the sound
