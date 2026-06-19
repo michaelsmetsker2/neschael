@@ -72,19 +72,19 @@
   audioStreamNoteTimer:     .RES 6 ; how many ticks the current note has left
   audioStreamNoteDuration:  .RES 6 ; length of the notes in ticks
 
+  audioStreamAddrHigh:      .RES 6
+  audioStreamAddrLow:       .RES 6
+
     ; periods for the current notes
   audioStreamNoteLow:       .RES 6
   audioStreamNoteHigh:      .RES 6
-
-  audioStreamVolume:        .RES 6
-  audioStreamStatus:        .RES 6
 
     ; these do not change nearly as much and can be removed from zeropage
   audioStreamTempo:         .RES 6
   audioStreamSoundId:       .RES 6
   audioStreamChannel:       .RES 6
-  audioStreamAddrHigh:      .RES 6
-  audioStreamAddrLow:       .RES 6
+  audioStreamVolume:        .RES 6
+  audioStreamStatus:        .RES 6
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack

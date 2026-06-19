@@ -215,6 +215,7 @@
 @read:
   LDA (streamPtr), Y
 
+
   BPL @note ; byte is a note if <#$80
 
   CMP #OPCODE_THRESHOLD ; test if the byte is an opcode or a note length 
@@ -237,17 +238,15 @@
 @note:
 
   STY tmpStorage ; preserve advancement amount
-  ; FIXME
+
   TAY
+
   LDA periodTableLo, Y
   STA audioStreamNoteLow, X
   LDA periodTableHi, Y
   STA audioStreamNoteHigh, X
 
   LDY tmpStorage ; restore Y
-
-
-
 
 
   ; fallthrough to update_pointers
@@ -257,10 +256,10 @@
   INY
   TYA
   CLC
-  ADC streamPtr, X
-  STA streamPtr, X
+  ADC audioStreamAddrLow, X
+  STA audioStreamAddrLow, X
   BCC :+
-  INC streamPtr+1, X
+  INC audioStreamAddrHigh, X
 :
 
   RTS
