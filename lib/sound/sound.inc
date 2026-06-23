@@ -5,6 +5,14 @@
 ; enums and definitions relating to the sound engine
 ;
 
+
+.IMPORTZP AUDIO_DATA
+
+    ; the last value written to the square channels 4th APU port
+      ; only writing when the value changes prevents a scratchy noise
+  sound_sq1_old = AUDIO_DATA
+  sound_sq2_old = AUDIO_DATA + 1
+
 .ENUM Audio_channels
   SQUARE_1 = 0
   SQUARE_2 = 1

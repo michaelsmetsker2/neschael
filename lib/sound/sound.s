@@ -14,7 +14,6 @@
 .INCLUDE "lib/sound/sound.inc"
 
 .IMPORTZP SCRATCH
-
 .IMPORTZP AUDIO_DATA
 .IMPORTZP audioStreamTempo
 .IMPORTZP audioStreamTicker
@@ -44,18 +43,28 @@
 .EXPORT load_sound
 .EXPORT play_sound_frame
 
-  ; initializes the sound system
+  ; initializes the sound engine
 .PROC audio_init
-    ; enable channels
+
+  LDA #%01000000
+  STA _FR_COUNTER       ; Disable APU frame IRQ
+  STA _DMC_FREQ         ; Disable digital sound IRQs
+
+    ; enable sound channels
   EnableAudioOutput
   
-    ; silence all channels
+    ; initialize shadowAPU
   LDA #$30 ; all zero exept for length counter halt
-  STA _SQ1_VOL
-  STA _SQ2_VOL
-  STA _NOISE_VOL
+  STA shadowApuPorts     ; square 1 volume to 0
+  STA shadowApuPorts+4   ; square 2 volume
+  STA shadowApuPorts+12  ; Noise volume
   LDA #%10000000
-  STA _TRI_LINEAR
+  STA shadowApuPorts+8   ; triangle volume
+
+    ; makes sure that the square sounds will be written two on the first frame
+  LDA #$FF
+  STA sound_sq1_old
+  STA sound_sq2_old
 
     ; set audioFlag
   LDA gameFlags
@@ -64,6 +73,7 @@
   RTS
 .ENDPROC
 
+  ; pauses all sound ; TODO update?
 .PROC stop_sound
     ; disable all channels
   DisableAudioOutput
@@ -223,7 +233,7 @@
 
 @opcode:
   ; TODO
-  ;JMP @increment_pointer
+  JMP @increment_pointer
 
 @length: ; the byte denotes how long to hold the next note(s)
   
@@ -249,6 +259,9 @@
   LDY tmpStorage ; restore Y
 
 
+  ; TODO check if note is a rest?
+
+
   ; fallthrough to update_pointers
 
 @increment_pointer:
@@ -265,7 +278,7 @@
   RTS
 .ENDPROC
 
-  ; buffers streawm data in shadowApuPorts
+  ; buffers stream data in shadowApuPorts
     ; INPUT: X: stream number 
 .PROC buffer_stream_data
   
@@ -293,7 +306,7 @@
   RTS
 .ENDPROC
 
-  ; copies the buffered data in shadowApuPorts to the correct locations
+  ; copies buffered data in shadowApuPorts to the correct apu port
 .PROC set_apu_ports
 @square_1:
   LDA shadowApuPorts
@@ -303,7 +316,10 @@
   LDA shadowApuPorts+2
   STA _SQ1_LO
   LDA shadowApuPorts+3
+  CMP sound_sq1_old    ; only write to this port if value is updated, prevents static
+  BEQ @square_2
   STA _SQ1_HI
+  STA sound_sq1_old
 @square_2:
   LDA shadowApuPorts+4
   STA _SQ2_VOL 
@@ -312,11 +328,10 @@
   LDA shadowApuPorts+6
   STA _SQ2_LO
   LDA shadowApuPorts+7
+  CMP sound_sq2_old    ; only write to this port if value is updated, prevents static
+  BEQ @triangle
   STA _SQ2_HI
-
-  RTS 
-
-
+  STA sound_sq2_old
 @triangle:
   LDA shadowApuPorts+8
   STA _TRI_LINEAR

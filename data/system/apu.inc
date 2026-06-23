@@ -54,20 +54,14 @@ _DMC_LEN    = $4013
 ; APU Frame counter
 _FR_COUNTER	= $4017               ; Reference: https://wiki.nesdev.com/w/index.php/APU_Frame_Counter
 
+  ; disables all apu sound channels
 .MACRO DisableAudioOutput
-    LDA #%01000000
-    STA _FR_COUNTER       ; Disable APU frame IRQ
-    STA _DMC_FREQ         ; Disable digital sound IRQs
-
-    LDA #$00
-    STA _SND_CHN          ; disable all sound channels
+  LDA #$00
+  STA _SND_CHN
 .ENDMACRO
 
-    ; enables APU channels and 
+    ; enables all APU channels except DPCM
 .MACRO EnableAudioOutput
-    LDA #$00
-    STA _FR_COUNTER      ; Enable APU frame IRQ
-    ; STA _DMC_FREQ      ; Enable DMC IRQs, unused
-    LDA #%00001111
-    STA _SND_CHN ; enable all channels except DMC
+  LDA #$0F
+  STA _SND_CHN
 .ENDMACRO
