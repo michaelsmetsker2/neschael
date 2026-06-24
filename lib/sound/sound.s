@@ -18,7 +18,7 @@
 .IMPORTZP audioStreamTempo
 .IMPORTZP audioStreamTicker
 .IMPORTZP audioStreamSoundId
-.IMPORTZP audioStreamStatus
+.IMPORTZP audioStreamFlags
 .IMPORTZP audioStreamChannel
 .IMPORTZP audioStreamVolume
 .IMPORTZP audioStreamAddrHigh
@@ -53,13 +53,15 @@
     ; enable sound channels
   EnableAudioOutput
   
-    ; initialize shadowAPU
+@initialize_shadow_apu:
   LDA #$30 ; all zero exept for length counter halt
   STA shadowApuPorts     ; square 1 volume to 0
   STA shadowApuPorts+4   ; square 2 volume
   STA shadowApuPorts+12  ; Noise volume
   LDA #%10000000
   STA shadowApuPorts+8   ; triangle volume
+  LDA #$08
+  STA shadowApuPorts+5   ; negate square 2 sweep unit
 
     ; makes sure that the square sounds will be written two on the first frame
   LDA #$FF
@@ -126,7 +128,7 @@
 
   INY
   LDA (soundPointer), Y ; status byte 
-  STA audioStreamStatus, X
+  STA audioStreamFlags, X
 
   INY
   LDA (soundPointer), Y ; channel byte
@@ -159,27 +161,42 @@
 .ENDPROC
 
 .PROC play_sound_frame
-    ; don'y play a frame if audio is disabled
+    ; don't play a frame if audio is disabled
   LDA gameFlags
   AND #%00100000
   BEQ @done
 
-  ; TODO silence all channles? (turns off inactive ones?)
-
   LDX #$00       ; loop index
 @loop:           ; update all audio streams
 
-    ; skip stream if it's disabled flag is set
-  LDA audioStreamStatus
-  AND #$01       ; mask enabled flag ; TODO formalize
+    ; skip if stream is disabled
+  LDA audioStreamFlags, X
+  AND #STREAM_ENABLED_MASK
   BEQ @next
+
+  JSR update_stream
+
+@next:
+  INX
+  CPX #NUM_STREAMS
+  BNE @loop
+
+  JMP set_apu_ports ; sends buffered data to apu ports
+
+@done:
+  RTS
+.ENDPROC
+
+  ; updates an audio stream
+    ; input: X contains the stream number
+.PROC update_stream
 
     ; add tempo to ticker
   LDA audioStreamTicker, X
   CLC
   ADC audioStreamTempo, X  
   STA audioStreamTicker, X
-  BCC @next      ; skip if ticker didnt overflow
+  BCC @done      ; skip if ticker didnt overflow
 
     ; check if the current note has finished playing
   DEC audioStreamNoteTimer, X
@@ -194,13 +211,6 @@
 
 @buffer:
   JSR buffer_stream_data
-
-@next:
-  INX
-  CPX #NUM_STREAMS
-  BNE @loop
-
-  JMP set_apu_ports ; sends buffered data to apu ports
 
 @done:
   RTS

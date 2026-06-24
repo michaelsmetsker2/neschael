@@ -15,7 +15,7 @@
 .EXPORT audioStreamTicker
 .EXPORT audioStreamTempo
 .EXPORT audioStreamSoundId
-.EXPORT audioStreamStatus
+.EXPORT audioStreamFlags
 .EXPORT audioStreamChannel
 .EXPORT audioStreamVolume
 .EXPORT audioStreamAddrHigh
@@ -84,7 +84,7 @@
   audioStreamSoundId:       .RES 6
   audioStreamChannel:       .RES 6
   audioStreamVolume:        .RES 6
-  audioStreamStatus:        .RES 6
+  audioStreamFlags:        .RES 6
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack

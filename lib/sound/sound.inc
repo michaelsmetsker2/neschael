@@ -36,3 +36,5 @@
 
     ; sound header
   SOUND_STREAM_OFFSET = $00 ; offset to byte holding the ammount of streams in the sound
+
+  STREAM_ENABLED_MASK = $01
