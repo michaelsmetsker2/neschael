@@ -4,8 +4,8 @@
 ;
 ; main sound engine, and subproccesses to interface with it
 ; TODO figure out:
-;  The sweep units can silence the square channels in certain situations 
-;  (Periods >= $400, our lowest notes), even when disabled.  We'll have to take a quick look at the sweep unit ports to solve this problem. 
+;  The sweep units can silence the square channels in certain situations
+;  (Periods >= $400, our lowest notes), even when disabled.  We'll have to take a quick look at the sweep unit ports to solve this problem.
 ;
 
 .INCLUDE "data/system/apu.inc"
@@ -27,6 +27,7 @@
 .IMPORTZP audioStreamNoteHigh
 .IMPORTZP audioStreamNoteTimer
 .IMPORTZP audioStreamNoteDuration
+.IMPORTZP audioStreamInstrument
 
 .IMPORTZP shadowApuPorts
 
@@ -52,7 +53,7 @@
 
     ; enable sound channels
   EnableAudioOutput
-  
+
 @initialize_shadow_apu:
   LDA #$30 ; all zero exept for length counter halt
   STA shadowApuPorts     ; square 1 volume to 0
@@ -93,7 +94,7 @@
 
   ; TODO add to seperate audio scratch? (or do stuff on the stack)
   soundPointer   = SCRATCH   ; pointer to sound to parse
-  channelCounter = SCRATCH+2 ; loop index for parsing channels  
+  channelCounter = SCRATCH+2 ; loop index for parsing channels
   soundId        = SCRATCH+3 ; id of the sound being loaded
 
   STA soundId ; store fore later
@@ -127,7 +128,7 @@
   STA audioStreamTicker, X
 
   INY
-  LDA (soundPointer), Y ; status byte 
+  LDA (soundPointer), Y ; status byte
   STA audioStreamFlags, X
 
   INY
@@ -175,13 +176,16 @@
   BEQ @next
 
   JSR update_stream
+  JSR buffer_stream_data
 
 @next:
   INX
-  CPX #NUM_STREAMS
+  CPX #NUM_STREAMS_MUSIC
   BNE @loop
 
   JMP set_apu_ports ; sends buffered data to apu ports
+
+  ; TODO add sfx handling
 
 @done:
   RTS
@@ -191,128 +195,112 @@
     ; input: X contains the stream number
 .PROC update_stream
 
-    ; add tempo to ticker
-  LDA audioStreamTicker, X
-  CLC
-  ADC audioStreamTempo, X  
-  STA audioStreamTicker, X
-  BCC @done      ; skip if ticker didnt overflow
-
-    ; check if the current note has finished playing
-  DEC audioStreamNoteTimer, X
-  BNE @buffer
-
-@note_finished:
-    ; reset the note's timer
-  LDA audioStreamNoteDuration, X
-  STA audioStreamNoteTimer, X
-
-  JSR read_stream ; proccess next byte(s) from the stream
-
-@buffer:
-  JSR buffer_stream_data
-
-@done:
-  RTS
-.ENDPROC
-
-  ; read and proccess data from an audio stream
-    ; input:
-    ;     X: stream number
-.PROC read_stream
-
+  ; pointer to the next byte in the stream
   streamPtr = SCRATCH
-  tmpStorage = SCRATCH+2 ; used to keep registers from being clobbered
+  ; pointer to the proccess the stream executes
+  callbackAddress = SCRATCH+2
 
-    ; set stream pointer to the correct address
+@read:
+  ; load the stream's read address
   LDA audioStreamAddrLow, X
   STA streamPtr
   LDA audioStreamAddrHigh, X
   STA streamPtr+1
   
-    ; read byte from the stream
+  ; read next byte in the stream
   LDY #$00
-@read:
   LDA (streamPtr), Y
 
-
-  BPL @note ; byte is a note if <#$80
-
-  CMP #OPCODE_THRESHOLD ; test if the byte is an opcode or a note length 
+  ; byte is a note if <#$80
+  BPL @note
+  ; test if the byte is an opcode or a note length
+  CMP #OPCODE_THRESHOLD
   BCC @length
 
 @opcode:
-  ; TODO
-  JMP @increment_pointer
+  ; get raw opcode offset 
+  SEC
+  SBC #OPCODE_THRESHOLD
+  TAY
+
+  LDA opcode_table_low, Y
+  STA callbackAddress
+  LDA opcode_table_high, Y
+  STA callbackAddress+1
+  ; sets a return address and jumps to the opcodes proccess
+  JSR indirect_jsr_helper
+
+  IncrementStreamReadAddr
+  JMP @read
 
 @length: ; the byte denotes how long to hold the next note(s)
-  
-    ; mask bit 7 to get raw note duration
+
+  ; mask bit 7 to get raw note duration
   AND #%01111111
-  STA audioStreamNoteDuration, Y  
-    
-    ; read the next byte as well
-  INY
+  STA audioStreamNoteDuration, X
+
+  ; read the next byte as well
+  IncrementStreamReadAddr
   JMP @read
 
 @note:
 
-  STY tmpStorage ; preserve advancement amount
-
   TAY
 
+    ; add tempo to ticker
+  LDA audioStreamTicker, X
+  CLC
+  ADC audioStreamTempo, X
+  STA audioStreamTicker, X
+  BCC @done
+
+  ; check if the current note has finished playing
+  DEC audioStreamNoteTimer, X
+  BNE @done
+@note_finished:
+  ; reset the note's timer
+  LDA audioStreamNoteDuration, X
+  STA audioStreamNoteTimer, X
+
+  ; set the note to the corosponding period
   LDA periodTableLo, Y
   STA audioStreamNoteLow, X
   LDA periodTableHi, Y
   STA audioStreamNoteHigh, X
 
-  LDY tmpStorage ; restore Y
+  IncrementStreamReadAddr
 
-
-  ; TODO check if note is a rest?
-
-
-  ; fallthrough to update_pointers
-
-@increment_pointer:
-    ; add the ammount of bytes we read to the pointer
-  INY
-  TYA
-  CLC
-  ADC audioStreamAddrLow, X
-  STA audioStreamAddrLow, X
-  BCC :+
-  INC audioStreamAddrHigh, X
-:
-
+@done:
   RTS
+
+  .PROC indirect_jsr_helper
+    JMP (callbackAddress)
+  .ENDPROC
 .ENDPROC
 
   ; buffers stream data in shadowApuPorts
-    ; INPUT: X: stream number 
+    ; INPUT: X: stream number
 .PROC buffer_stream_data
-  
-    ; find the offset of the correct channels data in the shadowApuPorts,
+
+  ; load channel number
   LDA audioStreamChannel, X
+  ; *4 to get offset in shadowApuPorts
   ASL
-  ASL         ; *4 as 4 bytes per channel
+  ASL
   TAY
 
-    ; volume and duty
+  ; volume and duty
   LDA audioStreamVolume, X
   STA shadowApuPorts, Y
-
-    ; sweep
-  LDA #$08 ; FIXME temp sweep
+  ; negate sweep
+  LDA #$08
   STA shadowApuPorts+1, Y
-
-    ; period low and high
+  ; period low and high
   LDA audioStreamNoteLow, X
   STA shadowApuPorts+2, Y
-
   LDA audioStreamNoteHigh, X
   STA shadowApuPorts+3, Y
-  
+
   RTS
 .ENDPROC
 
@@ -332,7 +320,7 @@
   STA sound_sq1_old
 @square_2:
   LDA shadowApuPorts+4
-  STA _SQ2_VOL 
+  STA _SQ2_VOL
   LDA shadowApuPorts+5
   STA _SQ2_SWEEP
   LDA shadowApuPorts+6
@@ -357,5 +345,41 @@
   LDA shadowApuPorts+15
   STA _NOISE_HI
 
+  RTS
+.ENDPROC
+
+  ; callback table for opcode subproccesses
+opcode_table_low:
+  .BYTE <set_instrument
+
+opcode_table_high:
+  .BYTE >set_instrument
+
+.PROC set_instrument
+
+  RTS
+.ENDPROC
+
+  ; callback table for channel subproccesses
+channel_table_low:
+  .BYTE <square_play_note
+  .BYTE <square_play_note
+  .BYTE <triangle_play_note
+  .BYTE <noise_play_note
+channel_table_high:
+  .BYTE >square_play_note
+  .BYTE >square_play_note
+  .BYTE >triangle_play_note
+  .BYTE >noise_play_note
+
+.PROC square_play_note
+  RTS
+.ENDPROC
+
+.PROC triangle_play_note
+  RTS
+.ENDPROC
+
+.PROC noise_play_note
   RTS
 .ENDPROC

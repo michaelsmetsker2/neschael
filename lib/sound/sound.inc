@@ -30,7 +30,8 @@
   SFX_2       = 5
 .ENDENUM
 
-  NUM_STREAMS = $06 ; number of audio streams
+  NUM_STREAMS = $06 ; number of audio streams including sfx
+  NUM_STREAMS_MUSIC = $04 ; number of audio streams not counting sfx
 
   OPCODE_THRESHOLD = $A0 ; threshold in witch a byte read from an audio stream is determined to be an opcode
 
@@ -38,3 +39,11 @@
   SOUND_STREAM_OFFSET = $00 ; offset to byte holding the ammount of streams in the sound
 
   STREAM_ENABLED_MASK = $01
+
+  ; simple macro to increment the pointer when reading from an audio stream
+.MACRO IncrementStreamReadAddr
+  INC audioStreamAddrLow, X
+  BNE :+
+  INC audioStreamAddrHigh, X
+:
+.ENDMACRO

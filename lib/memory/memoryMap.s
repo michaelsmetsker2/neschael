@@ -24,6 +24,7 @@
 .EXPORT audioStreamNoteHigh
 .EXPORT audioStreamNoteTimer
 .EXPORT audioStreamNoteDuration
+.EXPORT audioStreamInstrument
 
 .EXPORT shadowApuPorts
 
@@ -60,7 +61,7 @@
   HUD_BUFFER:   .RES 25
 
 ; $D8-$FF:      Memory reserved for the sound engine
-  AUDIO_DATA:               .RES 16
+  AUDIO_DATA:               .RES 8
 
     ; buffer for $4000 - $400F
   shadowApuPorts:           .RES 16
@@ -79,12 +80,13 @@
   audioStreamNoteLow:       .RES 6
   audioStreamNoteHigh:      .RES 6
 
-    ; these do not change nearly as much and can be removed from zeropage
   audioStreamTempo:         .RES 6
   audioStreamSoundId:       .RES 6
   audioStreamChannel:       .RES 6
   audioStreamVolume:        .RES 6
-  audioStreamFlags:        .RES 6
+  audioStreamFlags:         .RES 6
+  
+  audioStreamInstrument:    .RES 6
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack
