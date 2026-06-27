@@ -8,6 +8,7 @@ bin/*
 
 tools/formatCanvas
 tools/generateMetatiles
+tools/formatSong
 
 # tool oputput
 tools/level.s
