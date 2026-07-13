@@ -11,7 +11,7 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT audio_init
-.IMPORT load_sound
+.IMPORT load_song
 
 .IMPORT decompress_nametable
 
@@ -62,7 +62,7 @@
     ; start the correct music
   LDY #MUSIC_OFFSET
   LDA (levelPtr), Y
-  JSR load_sound
+  JSR load_song
 
 @decompress_starting_nametables:
     ; reset scroll variables so the correct backgrounds load

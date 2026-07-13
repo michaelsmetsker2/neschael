@@ -11,22 +11,7 @@
 .EXPORT HUD_BUFFER
 
 .EXPORT AUDIO_DATA
-
-.EXPORT audioStreamTicker
-.EXPORT audioStreamTempo
-.EXPORT audioStreamSoundId
-.EXPORT audioStreamFlags
-.EXPORT audioStreamChannel
-.EXPORT audioStreamVolume
-.EXPORT audioStreamAddrHigh
-.EXPORT audioStreamAddrLow
-.EXPORT audioStreamNoteLow
-.EXPORT audioStreamNoteHigh
-.EXPORT audioStreamNoteTimer
-.EXPORT audioStreamNoteDuration
-.EXPORT audioStreamInstrument
-
-.EXPORT shadowApuPorts
+.EXPORT AUDIO_DATA_ZP
 
 .EXPORT shadowOam
 
@@ -49,44 +34,19 @@
 ;-------------------------------------------------------------------------------
 .SEGMENT "ZEROPAGE" ; first page of memory, faster I/O
 ; $00-$1F:      General use Subroutine Scratch Memory
-  SCRATCH:      .RES 32
+  SCRATCH:       .RES 32
 
 ; $20-$3F:      Player data, states and animation, see lib/player/init.s      
-  PLAYER_DATA:  .RES 32
+  PLAYER_DATA:   .RES 32
 
 ; $40-$BE :     Game data, see lib/player/game.inc ; TODO update $40 - ?? it is out of date
-  GAME_DATA:    .RES 48
+  GAME_DATA:     .RES 48
 
 ; $BF-$D7:      Tile data to be drawn in the hud during vblank
-  HUD_BUFFER:   .RES 25
+  HUD_BUFFER:    .RES 25
 
 ; $D8-$FF:      Memory reserved for the sound engine
-  AUDIO_DATA:               .RES 8
-
-    ; buffer for $4000 - $400F
-  shadowApuPorts:           .RES 16
-
-; TODO organize
-    ; 6 streams, 4 for music 2 for sfx, one byte for each stream
-  audioStreamTicker:        .RES 6
-  
-  audioStreamNoteTimer:     .RES 6 ; how many ticks the current note has left
-  audioStreamNoteDuration:  .RES 6 ; length of the notes in ticks
-
-  audioStreamAddrHigh:      .RES 6
-  audioStreamAddrLow:       .RES 6
-
-    ; periods for the current notes
-  audioStreamNoteLow:       .RES 6
-  audioStreamNoteHigh:      .RES 6
-
-  audioStreamTempo:         .RES 6
-  audioStreamSoundId:       .RES 6
-  audioStreamChannel:       .RES 6
-  audioStreamVolume:        .RES 6
-  audioStreamFlags:         .RES 6
-  
-  audioStreamInstrument:    .RES 6
+  AUDIO_DATA_ZP: .RES 55
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack
@@ -102,17 +62,19 @@
   scrollBuffAttr:  .RES 6   ; address data to be drawn
 ;-------------------------------------------------------------------------------
 ; $033E-$051C: decompressed draw buffers for tile, attribute, and entity data See. lib/decompression/decompress.s
-  dbufTile1:   .RES 192
-  dbufAttr1:   .RES 48
-  dbufEnt1:    .RES 2
-  entStream1:  .RES 2  ; memory address of the entity spawn streams that corrolate to the backgrounds.
+  dbufTile1:    .RES 192
+  dbufAttr1:    .RES 48
+  dbufEnt1:     .RES 2
+  entStream1:   .RES 2  ; memory address of the entity spawn streams that corrolate to the backgrounds.
   
-  dbufTile2:   .RES 192
-  dbufAttr2:   .RES 48
-  dbufEnt2:    .RES 2 
-  entStream2:  .RES 2
+  dbufTile2:    .RES 192
+  dbufAttr2:    .RES 48
+  dbufEnt2:     .RES 2 
+  entStream2:   .RES 2
 ;-------------------------------------------------------------------------------
 ; $051D-$06FF:  General Purpose RAM
+
+  AUDIO_DATA: .RES 164
 
 ; $0700 - Undetermined ; TODO all 256 bytes are not needed, this should be all within one page of memory
 .SEGMENT "ENTITY_POOL"
