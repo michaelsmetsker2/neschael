@@ -12,11 +12,6 @@
 
 .IMPORTZP SCRATCH
 
-  ; period table
-.IMPORT periodTableLo
-.IMPORT periodTableHi
-
-  ; sound index lookup tables
 .IMPORT song_list_low
 .IMPORT song_list_high
 .IMPORT sfx_list_low
@@ -24,8 +19,12 @@
 .IMPORT instrument_list_low
 .IMPORT instrument_list_high
 
+.IMPORT channel_table_low
+.IMPORT channel_table_high
 .IMPORT opcode_table_low
 .IMPORT opcode_table_high
+.IMPORT arpeggio_table_low
+.IMPORT arpeggio_table_high
 
 .EXPORT audio_init
 .EXPORT load_song
@@ -125,6 +124,8 @@
 	CPX #NUM_STREAMS
 	BNE @stream_loop
 
+	; upload to the apu
+	JSR set_apu_ports
 @done:
 	RTS
 .ENDPROC
@@ -438,6 +439,7 @@ no_more_sfx_streams_available:
 
 	streamPtr = audio_scratch
 	callbackAddr = audio_scratch+2
+	instPtr = audio_scratch+4
 	
 	;Load current read address of stream.
 	LDA streamReadAddrLow, X
@@ -447,200 +449,158 @@ no_more_sfx_streams_available:
 	
 	;Load next byte from stream data.
 	LDA streamFlags, x
-	and #STREAM_PITCH_LOADED_TEST
-	bne skip1
-	ldy #0
-	lda (read_address),y
-	sta stream_note,x
-skip1:
+	AND #STREAM_PITCH_LOADED_MASK
+	BNE :+
+	LDY #$00
+	LDA (streamPtr), Y
+	STA streamNote, X
+:
+	; BUG wierd fallthrough behaviorm it compares the flag with opcode base
 
-	;Is this byte a note or a stream opcode?
-	cmp #OPCODES_BASE
-	bcc process_note
-process_opcode:
+	; check if value is an opcode or a note
+	CMP #OPCODE_THRESHOLD
+	BCC @note
+@opcode:
 
-	;Look up the opcode in the stream callbacks table.
-	sec
-	sbc #OPCODES_BASE
-	tay
-	;Get the address.
-	lda stream_callback_table_lo,y
-	sta callback_address
-	lda stream_callback_table_hi,y
-	sta callback_address+1
-	;Call the callback!
-	jsr indirect_jsr_callback_address
+	; get the opcodes offset in the callbacktable
+	SEC
+	SBC #OPCODE_THRESHOLD
+	TAY
+	; Get the address of the corrospoding opcode function
+	LDA opcode_table_low, Y
+	STA callbackAddr
+	LDA opcode_table_high, Y
+	STA callbackAddr+1
+
+	JSR indirect_jsr_helper
 
 	;Advance the stream's read address.
 	IncrementStreamReadAddr
 
-	;Immediately process the next opcode or note. The idea here is that
-	;all stream control opcodes will execute during the current frame as "setup"
-	;for the next note. All notes will execute once per frame and will always
-	;return from this routine. This leaves the problem, how would the stream
-	;control opcode "terminate" work? It works by pulling the current return
-	;address off the stack and then performing an rts, effectively returning
-	;from its caller, this routine.
-	jmp stream_update
+	; process the next opcode or note.
+	JMP update_stream
+@note:
 
-process_note:
+	; Determine which channel callback to use.
+	LDA streamChannel, X
+	TAY
 
-	;Determine which channel callback to use.
-	lda stream_channel,x
-	tay
-	lda channel_callback_table_lo,y
-	sta callback_address
-	lda channel_callback_table_hi,y
-	sta callback_address+1
+	LDA channel_table_low, Y
+	STA callbackAddr
+	LDA channel_table_high, Y
+	STA callbackAddr+1
 
-	;Call the channel callback!
-	jsr indirect_jsr_callback_address
+	; Call the channel callback!
+	JSR indirect_jsr_helper
 
-	sec
-	lda stream_tempo_counter_lo,x
-	sbc #<256
-	sta stream_tempo_counter_lo,x
-	lda stream_tempo_counter_hi,x
-	sbc #>256
-	sta stream_tempo_counter_hi,x
-	bcs do_not_advance_note_length_counter
+	; see if a tick has occured.
+	LDA streamTickerHigh, X
+	SEC
+	SBC #$01
+	STA streamTickerHigh, X
+	BCS @done
 
-	;Reset tempo counter when we cross 0 by adding original tempo back on.
-	;This way we have a wrap-around value that does not get lost when we count
-	;down to the next note.
-	clc
-	lda stream_tempo_counter_lo,x
-	adc stream_tempo_lo,x
-	sta stream_tempo_counter_lo,x
-	lda stream_tempo_counter_hi,x
-	adc stream_tempo_hi,x
-	sta stream_tempo_counter_hi,x
+	; add tempo to counter when we wrap
+	CLC
+	LDA streamTickerLow, X
+	ADC streamTempoLow, X
+	STA streamTickerLow, X
+	LDA streamTickerHigh, X
+	ADC streamTempoHigh, X
+	STA streamTickerHigh, X
 
-	;Decrement the note length counter.. On zero, advance the stream's read address.
-	sec
-	lda stream_note_length_counter_lo,x
-	sbc #<1
-	sta stream_note_length_counter_lo,x
-	lda stream_note_length_counter_hi,x
-	sbc #>1
-	sta stream_note_length_counter_hi,x
+	; decrement the note length counter, advance on zero
+	DEC streamNoteCounter
+	BNE @done
 
-	lda stream_note_length_counter_lo,x
-	ora stream_note_length_counter_hi,x
+	; reset the note's duration
+	LDA streamNoteLength, X
+	STA streamNoteCounter, X
 
-	bne note_length_counter_not_zero
+	; reset instrument
+	LDY streamInstrumentIndex, X
+	LDA instrument_list_low, Y
+	STA instPtr
+	LDA instrument_list_high, Y
+	STA instPtr+1
 
-	;Reset the note length counter.
-	lda stream_note_length_lo,x
-	sta stream_note_length_counter_lo,x
-	lda stream_note_length_hi,x
-	sta stream_note_length_counter_hi,x
+	LDY #$00
+	LDA (instPtr), Y
+	STA streamVolumeOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamPitchOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamDutyOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamArpeggioOffset, X
 
-	ldy stream_instrument_index,x
-	lda instrument_list,y
-	sta sound_local_word_0
-	iny
-	lda instrument_list,y
-	sta sound_local_word_0+1
-	ldy #0
-	lda (sound_local_word_0),y
-	sta stream_volume_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_pitch_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_duty_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_arpeggio_offset,x
-
-	;Reset silence until note and pitch loaded flags.
-	lda stream_flags,x
+	; Reset silence until note and pitch loaded flags.
+	LDA streamFlags, X
 	and #STREAM_SILENCE_CLEAR
 	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
+	STA streamFlags, X
 
-	;Advance the stream's read address.
+	; advance stream's read address.
 	IncrementStreamReadAddr
-do_not_advance_note_length_counter:
-note_length_counter_not_zero:
 
-	rts
+@done:
 
-.proc indirect_jsr_callback_address
-	jmp (callback_address)
-	rts
-.endproc
+	RTS
 
-.endproc
+.PROC indirect_jsr_helper
+	JMP (callbackAddr)
+	RTS
+.ENDPROC
 
-.proc sound_upload
+.ENDPROC
 
-	lda apu_data_ready
-	beq apu_data_not_ready
-
-	jsr sound_upload_apu_register_sets
-
-apu_data_not_ready:
-
-	rts
-.endproc
-
-.proc sound_upload_apu_register_sets
-square1:
-	lda apu_register_sets+0
-	sta $4000
-	lda apu_register_sets+1
-	sta $4001
-	lda apu_register_sets+2
-	sta $4002
-	lda apu_register_sets+3
-	;Compare to last write.
-	cmp apu_square_1_old
-	;Don't write this frame if they were equal.
-	beq square2
-	sta $4003
-	;Save the value we just wrote to $4003.
-	sta apu_square_1_old
-square2:
-	lda apu_register_sets+4
-	sta $4004
-	lda apu_register_sets+5
-	sta $4005
-	lda apu_register_sets+6
-	sta $4006
-	lda apu_register_sets+7
-	cmp apu_square_2_old
-	beq triangle
-	sta $4007
-	;Save the value we just wrote to $4007.
-	sta apu_square_2_old
-triangle:
-	lda apu_register_sets+8
-	sta $4008
-	lda apu_register_sets+10
-	sta $400A
-	lda apu_register_sets+11
-	sta $400B
-noise:
-	lda apu_register_sets+12
-	sta $400C
-	lda apu_register_sets+14
+.proc set_apu_ports
+@square_1:
+	LDA shadowApuPorts
+	STA _SQ1_VOL
+	LDA shadowApuPorts+1
+	STA _SQ1_SWEEP
+	LDA shadowApuPorts+2
+	STA _SQ1_LO
+	LDA shadowApuPorts+3
+	CMP sound_sq1_old    ; only write to this port if value is updated, prevents static
+	BEQ @square_2
+	STA _SQ1_HI
+	STA sound_sq1_old
+@square_2:
+	LDA shadowApuPorts+4
+	STA _SQ2_VOL
+	LDA shadowApuPorts+5
+	STA _SQ2_SWEEP
+	LDA shadowApuPorts+6
+	STA _SQ2_LO
+	LDA shadowApuPorts+7
+	CMP sound_sq2_old    ; only write to this port if value is updated, prevents static
+	BEQ @triangle
+	STA _SQ2_HI
+	STA sound_sq2_old
+@triangle:
+	LDA shadowApuPorts+8
+	STA _TRI_LINEAR
+	LDA shadowApuPorts+10
+	STA _TRI_LO
+	LDA shadowApuPorts+11
+	STA _TRI_HI
+@noise:
+	LDA shadowApuPorts+12
+	STA _NOISE_VOL
+	LDA shadowApuPorts+14
 	;Our notes go from 0 to 15 (low to high)
 	;but noise channel's low to high is 15 to 0.
-	eor #$0f
-	sta $400E
-	lda apu_register_sets+15
-	sta $400F
+	EOR #$0F
+	STA _NOISE_LO
+	LDA shadowApuPorts+15
+	STA _NOISE_HI
 
-	;Clear out all volume values from this frame in case a sound effect is killed suddenly.
-	lda #%00110000
-	sta apu_register_sets
-	sta apu_register_sets+4
-	sta apu_register_sets+12
-	lda #%10000000
-	sta apu_register_sets+8
-
-	rts
+	; TODO? Clear out all volume values from this frame in case a sound effect is killed suddenly.
+	
+	RTS
 .endproc

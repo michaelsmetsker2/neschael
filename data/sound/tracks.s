@@ -6,6 +6,8 @@
 ; music and sfx data
 ;
 
+.INCLUDE "lib/sound/sound.inc"
+
 .EXPORT song_list_low
 .EXPORT song_list_high
 .EXPORT sfx_list_low
@@ -105,7 +107,7 @@ _emegamahb_square1_loop:
 	.BYTE CAL,<(_emegamahb_square1_12),>(_emegamahb_square1_12)
 	.BYTE CAL,<(_emegamahb_square1_13),>(_emegamahb_square1_13)
 	.BYTE GOT
-	.WORD_emegamahb_square1_loop
+	.WORD _emegamahb_square1_loop
 
 _emegamahb_square2:
 _emegamahb_square2_loop:
@@ -124,7 +126,7 @@ _emegamahb_square2_loop:
 	.BYTE CAL,<(_emegamahb_square2_12),>(_emegamahb_square2_12)
 	.BYTE CAL,<(_emegamahb_square2_13),>(_emegamahb_square2_13)
 	.BYTE GOT
-	.WORD_emegamahb_square2_loop
+	.WORD _emegamahb_square2_loop
 
 _emegamahb_triangle:
 _emegamahb_triangle_loop:
@@ -143,7 +145,7 @@ _emegamahb_triangle_loop:
 	.BYTE CAL,<(_emegamahb_triangle_9),>(_emegamahb_triangle_9)
 	.BYTE CAL,<(_emegamahb_triangle_10),>(_emegamahb_triangle_10)
 	.BYTE GOT
-	.WORD_emegamahb_triangle_loop
+	.WORD _emegamahb_triangle_loop
 
 _emegamahb_noise:
 _emegamahb_noise_loop:
@@ -162,7 +164,7 @@ _emegamahb_noise_loop:
 	.BYTE CAL,<(_emegamahb_noise_4),>(_emegamahb_noise_4)
 	.BYTE CAL,<(_emegamahb_noise_5),>(_emegamahb_noise_5)
 	.BYTE GOT
-	.WORD_emegamahb_noise_loop
+	.WORD _emegamahb_noise_loop
 
 _emegamahb_square1_0:
 	.BYTE STI, $00, SL0, AS3, SLA, B3, SL6, CS4, SL0, AS3, SLA, B3
@@ -511,28 +513,28 @@ _Newsong3_square1_loop:
 	.BYTE CAL,<(_Newsong3_square1_0),>(_Newsong3_square1_0)
 	.BYTE CAL,<(_Newsong3_square1_1),>(_Newsong3_square1_1)
 	.BYTE GOT
-	.WORD_Newsong3_square1_loop
+	.WORD _Newsong3_square1_loop
 
 _Newsong3_square2:
 _Newsong3_square2_loop:
 	.BYTE CAL,<(_Newsong3_square2_0),>(_Newsong3_square2_0)
 	.BYTE CAL,<(_Newsong3_square2_1),>(_Newsong3_square2_1)
 	.BYTE GOT
-	.WORD_Newsong3_square2_loop
+	.WORD _Newsong3_square2_loop
 
 _Newsong3_triangle:
 _Newsong3_triangle_loop:
 	.BYTE CAL,<(_Newsong3_triangle_0),>(_Newsong3_triangle_0)
 	.BYTE CAL,<(_Newsong3_triangle_1),>(_Newsong3_triangle_1)
 	.BYTE GOT
-	.WORD_Newsong3_triangle_loop
+	.WORD _Newsong3_triangle_loop
 
 _Newsong3_noise:
 _Newsong3_noise_loop:
 	.BYTE CAL,<(_Newsong3_noise_0),>(_Newsong3_noise_0)
 	.BYTE CAL,<(_Newsong3_noise_1),>(_Newsong3_noise_1)
 	.BYTE GOT
-	.WORD_Newsong3_noise_loop
+	.WORD _Newsong3_noise_loop
 
 _Newsong3_square1_0:
 	.BYTE STI, $00, SL1, DS4, CS4, CS4, DS4, F4, CS4, DS4, FS4, CS4

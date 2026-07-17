@@ -593,7 +593,7 @@ def main():
                         master_stream.append(end_stream_opcode)
                     else:
                         master_stream_loop = "%s_loop" % master_stream_header
-                        end_stream_opcode = "\t.BYTE GOT\n\t.WORD%s\n\n" % (master_stream_loop)
+                        end_stream_opcode = "\t.BYTE GOT\n\t.WORD %s\n\n" % (master_stream_loop)
                         master_stream.insert(loop_index + jump_frame, "%s:\n" % master_stream_loop)
                         master_stream.append(end_stream_opcode)
                 else:

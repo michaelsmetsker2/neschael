@@ -4,11 +4,11 @@
 ;
 ; contains NTSC period tables for music and sfx 
 
-.EXPORT periodTableLo
-.EXPORT periodTableHi
+.EXPORT period_table_low
+.EXPORT period_table_high
 
 ; Note table borrowed from periods.s provided by FamiTracker's NSF driver.
-periodTableLo:
+period_table_low:
 	.byte <$0D5B, <$0C9C, <$0BE6, <$0B3B, <$0A9A, <$0A01, <$0972, <$08EA, <$086A, <$07F1, <$077F, <$0713
 	.byte <$06AD, <$064D, <$05F3, <$059D, <$054C, <$0500, <$04B8, <$0474, <$0434, <$03F8, <$03BF, <$0389
 	.byte <$0356, <$0326, <$02F9, <$02CE, <$02A6, <$0280, <$025C, <$023A, <$021A, <$01FB, <$01DF, <$01C4
@@ -18,7 +18,7 @@ periodTableLo:
 	.byte <$0034, <$0031, <$002F, <$002C, <$0029, <$0027, <$0025, <$0023, <$0021, <$001F, <$001D, <$001B
 	.byte <$001A, <$0018, <$0017, <$0015, <$0014, <$0013, <$0012, <$0011, <$0010, <$000F, <$000E, <$000D
 
-periodTableHi:
+period_table_high:
 	.byte >$0D5B, >$0C9C, >$0BE6, >$0B3B, >$0A9A, >$0A01, >$0972, >$08EA, >$086A, >$07F1, >$077F, >$0713
 	.byte >$06AD, >$064D, >$05F3, >$059D, >$054C, >$0500, >$04B8, >$0474, >$0434, >$03F8, >$03BF, >$0389
 	.byte >$0356, >$0326, >$02F9, >$02CE, >$02A6, >$0280, >$025C, >$023A, >$021A, >$01FB, >$01DF, >$01C4

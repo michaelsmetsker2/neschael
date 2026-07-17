@@ -4,8 +4,19 @@
 ;
 ; contains jump tables and proccesses for all callbacks in the sound engine, these are for processing opcodes, playing notes, and arpeggios
 ;
-.IF 0 ; FIXME
+
 .INCLUDE "lib/sound/sound.inc"
+
+.IMPORT instrument_list_low
+.IMPORT instrument_list_high
+
+.IMPORTZP SCRATCH
+
+.IMPORT period_table_low
+.IMPORT period_table_high
+
+.IMPORT instrument_list_low
+.IMPORT instrument_list_high
 
 .EXPORT channel_table_low
 .EXPORT channel_table_high
@@ -60,796 +71,708 @@ opcode_table_high:
   .BYTE >stream_return
   .BYTE >stream_terminate
 
-;****************************************************************
-;These callbacks are all note playback and only execute once per
-;frame.
-;****************************************************************
+	; note callbacks
 
-.proc square_play_note
+	; x contains stream offset
+.PROC square_play_note
+	instPtr = SCRATCH
 
 	;Load instrument index.
-	ldy stream_instrument_index,x
+	LDY streamInstrumentIndex, X
 	;Load instrument address.
-	lda instrument_list,y
-	sta sound_local_word_0
-	iny
-	lda instrument_list,y
-	sta sound_local_word_0+1
+	LDA instrument_list_low, Y
+	STA instPtr 
+	LDA instrument_list_high, Y
+	STA instPtr+1
 
 	;Set negate flag for sweep unit.
-	lda #$08
-	sta stream_channel_register_2,x
+	LDA #$08
+	STA streamRegister_2, X
 
-	.ifdef FEATURE_ARPEGGIOS
+	; get arpeggio type.
+	LDY #INSTRUMENT_HEADER_ARP_TYPE_OFFSET
+	LDA (instPtr), Y
+	TAY
 
-	;Get arpeggio type.
-	ldy #instrument_header_arpeggio_type
-	lda (sound_local_word_0),y
-	tay
+	; push return address for arpeggio rts trick
+	LDA #>(@return_from_arpeggio_callback-1)
+	PHA
+	LDA #<(@return_from_arpeggio_callback-1)
+	PHA
+	LDA arpeggio_table_high, Y
+	PHA
+	LDA arpeggio_table_low, Y
+	PHA
+	RTS
+@return_from_arpeggio_callback:
 
-	;Get the address.
-	lda #>(return_from_arpeggio_callback-1)
-	pha
-	lda #<(return_from_arpeggio_callback-1)
-	pha
-	lda arpeggio_callback_table_hi,y
-	pha
-	lda arpeggio_callback_table_lo,y
-	pha
-	rts
-return_from_arpeggio_callback:
+	; load pitch if it isn't already
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_MASK
+	BNE @pitch_loaded
+	
+	LDA streamFlags, X
+	ORA #STREAM_PITCH_LOADED_MASK
+	STA streamFlags, X
 
-	.else
-
-	ldy stream_note,x
-
-	.endif
-
-	;Skip loading note pitch if already loaded, to allow envelopes
-	;to modify the pitch.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_TEST
-	bne pitch_already_loaded
-	lda stream_flags,x
-	ora #STREAM_PITCH_LOADED_SET
-	sta stream_flags,x
 	;Load low byte of note.
-	lda ntsc_note_table_lo,y
+	LDA period_table_low, Y
 	;Store in low 8 bits of pitch.
-	sta stream_channel_register_3,x
+	STA streamRegister_3, X
 	;Load high byte of note.
-	lda ntsc_note_table_hi,y
-	sta stream_channel_register_4,x
-pitch_already_loaded:
+	LDA period_table_high, Y
+	STA streamRegister_4, X
 
-	.scope
-	lda stream_flags,x
-	and #STREAM_SILENCE_TEST
-	bne silence_until_note
-note_not_silenced:
+@pitch_loaded:
 
-	;Load volume offset.
-	ldy stream_volume_offset,x
+	; check and branch if stream is silenced
+	LDA streamFlags, X
+	AND #STREAM_SILENCE_MASK
+	BNE @silence_until_note
 
-	;Load volume value for this frame, branch if opcode.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq volume_stop
-	cmp #ENV_LOOP
-	bne skip_volume_loop
+	; Load volume offset.
+	LDY streamVolumeOffset, X
+	; Load volume value for this frame, branch if loop or stop.
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ @volume_stop
+	CMP #ENV_LOOP
+	BNE @volume_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_volume_offset,x
-	tay
+@vol_loop_opcode:
+	; advance envelope index and load loop point as offset.
+	INY
+	LDA (instPtr), Y
+	STA streamVolumeOffset, X
+	TAY
 
-skip_volume_loop:
+@volume_value:
 
-	;Initialize channel control register with envelope decay and
-	;length counter disabled but preserving current duty cycle.
-	lda stream_channel_register_1,x
-	and #%11000000
-	ora #%00110000
+	; set vol
+	LDA streamRegister_1, X
+	; keeps old duty cycle bits
+	AND #%11000000
+	; length counter disable
+	ORA #%00110000
 
 	;Load current volume value.
-	ora (sound_local_word_0),y
-	sta stream_channel_register_1,x
+	ORA (instPtr), Y
+	STA streamRegister_1, X
 
-	inc stream_volume_offset,x
+	; increment offset
+	INC streamVolumeOffset, X
+@volume_stop:
 
-volume_stop:
+	JMP @pitch
+@silence_until_note:
+	LDA streamRegister_1, X
+	; keep old duty cycle bits
+	AND #%11000000
+	; length counter disable
+	ORA #%00110000
+	; volume is zero
+	STA streamRegister_1, X
 
-	jmp done
-silence_until_note:
-	lda stream_channel_register_1,x
-	and #%11000000
-	ora #%00110000
-	sta stream_channel_register_1,x
-
-done:
-	.endscope
-
+@pitch:
 	;Load pitch offset.
-	ldy stream_pitch_offset,x
+	LDY streamPitchOffset, X
 
 	;Load pitch value.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq pitch_stop
-	cmp #ENV_LOOP
-	bne skip_pitch_loop
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ @duty
+	CMP #ENV_LOOP
+	BNE @pitch_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_pitch_offset,x
-	tay
+@pitch_loop_opcode: 
+	; advance envelope index and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamPitchOffset, X
+	TAY
 
-skip_pitch_loop:
+@pitch_value:
+	; Test sign
+	LDA (instPtr), Y
+	BMI @pitch_neg
 
-	;Test sign.
-	lda (sound_local_word_0),y
-	bmi pitch_delta_negative
-pitch_delta_positive:
+@pitch_pos:
+	CLC
+	LDA streamRegister_3, X
+	ADC (instPtr), Y
+	STA streamRegister_3, X
+	BCC :+
+	INC streamRegister_4, X
+	:
+	
+	JMP @inc_pitch_offset
 
-	clc
-	lda stream_channel_register_3,x
-	adc (sound_local_word_0),y
-	sta stream_channel_register_3,x
-	lda stream_channel_register_4,x
-	adc #0
-	sta stream_channel_register_4,x
+@pitch_neg:
+	CLC
+	LDA streamRegister_3, X
+	ADC (instPtr), Y
+	STA streamRegister_3, X
+	BCS :+
+	DEC streamRegister_4, X
+	:
 
-	jmp pitch_delta_test_done
+@inc_pitch_offset:
+	INC streamPitchOffset, X
 
-pitch_delta_negative:
-
-	clc
-	lda stream_channel_register_3,x
-	adc (sound_local_word_0),y
-	sta stream_channel_register_3,x
-	lda stream_channel_register_4,x
-	adc #$ff
-	sta stream_channel_register_4,x
-
-pitch_delta_test_done:
-
-	;Move pitch offset along.
-	inc stream_pitch_offset,x
-
-pitch_stop:
-
-duty_code:
-
-	ldy stream_duty_offset,x
+@duty:
+	LDY streamDutyOffset, X
 
 	;Load duty value for this frame, but hard code flags and duty for now.
-	lda (sound_local_word_0),y
-	cmp #DUTY_ENV_STOP
-	beq duty_stop
-	cmp #DUTY_ENV_LOOP
-	bne skip_duty_loop
+	LDA (instPtr), Y
+	CMP #DUTY_ENV_STOP
+	BEQ @done
+	CMP #DUTY_ENV_LOOP
+	BNE @duty_value
 
 	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_duty_offset,x
-	tay
+	INY
+	LDA (instPtr), Y
+	STA streamDutyOffset, X
+	TAY
 
-skip_duty_loop:
-
+@duty_value:
 	;Or the duty value into the register.
-	lda stream_channel_register_1,x
-	and #%00111111
-	ora (sound_local_word_0),y
-	sta stream_channel_register_1,x
+	LDA streamRegister_1, X
+	AND #%00111111
+	ORA (instPtr), Y
+	STA streamRegister_1, X
 
-	;Move duty offset along.
-	inc stream_duty_offset,x
+	; increment offset
+	INC streamDutyOffset, X
 
-duty_stop:
+@done:
+	RTS
+.ENDPROC
 
-	rts
-
-.endproc
-
-.proc triangle_play_note
+.PROC triangle_play_note
+	instPtr = SCRATCH
 
 	;Load instrument index.
-	ldy stream_instrument_index,x
+	LDY streamInstrumentIndex, X
 	;Load instrument address.
-	lda instrument_list,y
-	sta sound_local_word_0
-	iny
-	lda instrument_list,y
-	sta sound_local_word_0+1
+	LDA instrument_list_low, Y
+	STA instPtr 
+	LDA instrument_list_high, Y
+	STA instPtr+1
 
-	.ifdef FEATURE_ARPEGGIOS
-	;Get arpeggio type.
-	ldy #instrument_header_arpeggio_type
-	lda (sound_local_word_0),y
-	tay
+	; get arpeggio type.
+	LDY #INSTRUMENT_HEADER_ARP_TYPE_OFFSET
+	LDA (instPtr), Y
+	TAY
 
-	;Get the address.
-	lda #>(return_from_arpeggio_callback-1)
-	pha
-	lda #<(return_from_arpeggio_callback-1)
-	pha
-	lda arpeggio_callback_table_hi,y
-	pha
-	lda arpeggio_callback_table_lo,y
-	pha
-	rts
-return_from_arpeggio_callback:
+	; push return address for arpeggio rts trick
+	LDA #>(@return_from_arpeggio_callback-1)
+	PHA
+	LDA #<(@return_from_arpeggio_callback-1)
+	PHA
+	LDA arpeggio_table_high, Y
+	PHA
+	LDA arpeggio_table_low, Y
+	PHA
+	RTS
+@return_from_arpeggio_callback:
 
-	.else
+	; load pitch if it isn't already
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_MASK
+	BNE @pitch_loaded
+	
+	LDA streamFlags, X
+	ORA #STREAM_PITCH_LOADED_MASK
+	STA streamFlags, X
 
-	ldy stream_note,x
-
-	.endif
-
-	;Skip loading note pitch if already loaded, to allow envelopes
-	;to modify the pitch.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_TEST
-	bne pitch_already_loaded
-	lda stream_flags,x
-	ora #STREAM_PITCH_LOADED_SET
-	sta stream_flags,x
 	;Load low byte of note.
-	lda ntsc_note_table_lo,y
+	LDA period_table_low, Y
 	;Store in low 8 bits of pitch.
-	sta stream_channel_register_3,x
+	STA streamRegister_3, X
 	;Load high byte of note.
-	lda ntsc_note_table_hi,y
-	sta stream_channel_register_4,x
-pitch_already_loaded:
+	LDA period_table_high, Y
+	STA streamRegister_4, X
+
+@pitch_loaded:
 
 	;Load volume offset.
-	ldy stream_volume_offset,x
+	LDY streamVolumeOffset, X
 
 	;Load volume value for this frame, but hard code flags and duty for now.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq volume_stop
-	cmp #ENV_LOOP
-	bne skip_volume_loop
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ @pitch
+	CMP #ENV_LOOP
+	BNE @vol_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_volume_offset,x
-	tay
+@vol_loop_opcode:
+	; advance envelope and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamVolumeOffset, X
+	TAY
 
-skip_volume_loop:
+@vol_value:
 
-	lda #%10000000
-	ora (sound_local_word_0),y
-	sta stream_channel_register_1,x
+	LDA #%10000000
+	ORA (instPtr), Y
+	STA streamRegister_1, X
 
-	inc stream_volume_offset,x
+	INC streamVolumeOffset, X
 
-volume_stop:
-
+@pitch:
 	;Load pitch offset.
-	ldy stream_pitch_offset,x
+	LDY streamPitchOffset, X
 
 	;Load pitch value.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq pitch_stop
-	cmp #ENV_LOOP
-	bne skip_pitch_loop
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ @done
+	CMP #ENV_LOOP
+	BNE @pitch_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_pitch_offset,x
-	tay
+@pitch_loop_opcode:
+	; advance envelope index and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamPitchOffset, X
+	TAY
 
-skip_pitch_loop:
+@pitch_value:
+	; Test sign
+	LDA (instPtr), Y
+	BMI @pitch_neg
 
-	;Test sign.
-	lda (sound_local_word_0),y
-	bmi pitch_delta_negative
-pitch_delta_positive:
+@pitch_pos:
+	CLC
+	LDA streamRegister_3, X
+	ADC (instPtr), Y
+	STA streamRegister_3, X
+	BCC :+
+	INC streamRegister_4, X
+	:
+	
+	JMP @inc_pitch_offset
 
-	clc
-	lda stream_channel_register_3,x
-	adc (sound_local_word_0),y
-	sta stream_channel_register_3,x
-	lda stream_channel_register_4,x
-	adc #0
-	sta stream_channel_register_4,x
+@pitch_neg:
+	CLC
+	LDA streamRegister_3, X
+	ADC (instPtr), Y
+	STA streamRegister_3, X
+	BCS :+
+	DEC streamRegister_4, X
+	:
 
-	jmp pitch_delta_test_done
+@inc_pitch_offset:
+	inc streamPitchOffset, X
 
-pitch_delta_negative:
+@done:
+	RTS
 
-	clc
-	lda stream_channel_register_3,x
-	adc (sound_local_word_0),y
-	sta stream_channel_register_3,x
-	lda stream_channel_register_4,x
-	adc #$ff
-	sta stream_channel_register_4,x
+.ENDPROC
 
-pitch_delta_test_done:
-
-	;Move pitch offset along.
-	inc stream_pitch_offset,x
-
-pitch_stop:
-
-	rts
-
-.endproc
-
-.proc noise_play_note
+.PROC noise_play_note
+	instPtr = SCRATCH
+	tempStorage = SCRATCH+2
 
 	;Load instrument index.
-	ldy stream_instrument_index,x
+	LDY streamInstrumentIndex, X
 	;Load instrument address.
-	lda instrument_list,y
-	sta sound_local_word_0
-	iny
-	lda instrument_list,y
-	sta sound_local_word_0+1
+	LDA instrument_list_low, Y
+	STA instPtr 
+	LDA instrument_list_high, Y
+	STA instPtr+1
 
-	.ifdef FEATURE_ARPEGGIOS
-	;Get arpeggio type.
-	ldy #instrument_header_arpeggio_type
-	lda (sound_local_word_0),y
-	tay
+	; get arpeggio type.
+	LDY #INSTRUMENT_HEADER_ARP_TYPE_OFFSET
+	LDA (instPtr), Y
+	TAY
 
-	;Get the address.
-	lda #>(return_from_arpeggio_callback-1)
-	pha
-	lda #<(return_from_arpeggio_callback-1)
-	pha
-	lda arpeggio_callback_table_hi,y
-	pha
-	lda arpeggio_callback_table_lo,y
-	pha
-	rts
-return_from_arpeggio_callback:
+	; push return address for arpeggio rts trick
+	LDA #>(@return_from_arpeggio_callback-1)
+	PHA
+	LDA #<(@return_from_arpeggio_callback-1)
+	PHA
+	LDA arpeggio_table_high, Y
+	PHA
+	LDA arpeggio_table_low, Y
+	PHA
+	RTS
+@return_from_arpeggio_callback:
 
-	.else
+	TYA
+	AND #%01111111
+	STA tempStorage
 
-	ldy stream_note,x
+	; load pitch if it isn't already
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_MASK
+	BNE @pitch_loaded
+	
+	LDA streamFlags, X
+	ORA #STREAM_PITCH_LOADED_MASK
+	STA streamFlags, X
+	STA streamRegister_3, X
+	AND #%10000000
+	ORA tempStorage
+	STA streamRegister_3, X
+@pitch_loaded:
+	; Load volume offset.
+	LDY streamVolumeOffset, X
 
-	.endif
+	; Load volume value for this frame, branch if loop or stop.
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ @pitch
+	CMP #ENV_LOOP
+	BNE @volume_value
 
-	tya
-	and #%01111111
-	sta sound_local_byte_0
+@vol_loop_opcode:
+	; advance envelope index and load loop point as offset.
+	INY
+	LDA (instPtr), Y
+	STA streamVolumeOffset, X
+	TAY
 
-	;Skip loading note pitch if already loaded, to allow envelopes
-	;to modify the pitch.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_TEST
-	bne pitch_already_loaded
-	lda stream_flags,x
-	ora #STREAM_PITCH_LOADED_SET
-	sta stream_flags,x
-	lda stream_channel_register_3,x
-	and #%10000000
-	ora sound_local_byte_0
-	sta stream_channel_register_3,x
-pitch_already_loaded:
+@volume_value:
 
-	;Load volume offset.
-	ldy stream_volume_offset,x
-
-	;Load volume value for this frame, hard code disable flags.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq volume_stop
-	cmp #ENV_LOOP
-	bne skip_volume_loop
-
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_volume_offset,x
-	tay
-
-skip_volume_loop:
-
-	lda #%00110000
-	ora (sound_local_word_0),y
-	sta stream_channel_register_1,x
+	LDA #%00110000
+	ORA (instPtr), Y
+	STA streamRegister_1, X
 
 	;Move volume offset along.
-	inc stream_volume_offset,x
-volume_stop:
+	INC streamVolumeOffset, X
+@pitch:
 
 	;Load pitch offset.
-	ldy stream_pitch_offset,x
+	LDY streamPitchOffset, X
 
 	;Load pitch value.
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq pitch_stop
-	cmp #ENV_LOOP
-	bne skip_pitch_loop
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ duty
+	CMP #ENV_LOOP
+	BNE pitch_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_pitch_offset,x
-	tay
+pitch_loop_opcode:
+	; advance envelope index and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamPitchOffset, X
+	TAY
 
-skip_pitch_loop:
-
-	;Save off current duty bit.
-	lda stream_channel_register_3,x
-	and #%10000000
-	sta sound_local_byte_0
+pitch_value:
+	; Save off current duty bit.
+	LDA streamRegister_3, X
+	AND #%10000000
+	STA tempStorage
 
 	;Advance pitch regardless of duty bit.
-	clc
-	lda stream_channel_register_3,x
-	adc (sound_local_word_0),y
-	and #%00001111
+	CLC
+	LDA streamRegister_3, X
+	ADC (instPtr), Y
+	AND #%00001111
 	;Get duty bit back in.
-	ora sound_local_byte_0
-	sta stream_channel_register_3,x
+	ORA tempStorage
+	STA streamRegister_3, X
 
 	;Move pitch offset along.
-	inc stream_pitch_offset,x
+	INC streamPitchOffset, X
 
-pitch_stop:
+duty:
 
-duty_code:
 	;Load duty offset.
-	ldy stream_duty_offset,x
+	LDY streamDutyOffset, X
 
 	;Load duty value for this frame, but hard code flags and duty for now.
-	lda (sound_local_word_0),y
-	cmp #DUTY_ENV_STOP
-	beq duty_stop
-	cmp #DUTY_ENV_LOOP
-	bne skip_duty_loop
+	LDA (instPtr), Y
+	CMP #DUTY_ENV_STOP
+	BEQ @done
+	CMP #DUTY_ENV_LOOP
+	BNE @duty_value
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_duty_offset,x
-	tay
+@duty_loop_opcode:
+	; advance envelope index and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamDutyOffset, X
+	TAY
 
-skip_duty_loop:
+@duty_value:
 
 	;We only care about bit 6 for noise, and we want it in bit 7 position.
-	lda (sound_local_word_0),y
-	asl
-	sta sound_local_byte_0
+	LDA (instPtr), Y
+	ASL
+	STA tempStorage
 
-	lda stream_channel_register_3,x
-	and #%01111111
-	ora sound_local_byte_0
-	sta stream_channel_register_3,x
+	LDA streamRegister_3, X
+	AND #%01111111
+	ORA tempStorage
+	STA streamRegister_3, X
 
 	;Move duty offset along.
-	inc stream_duty_offset,x
+	INC streamDutyOffset, X
 
-duty_stop:
+@done:
+	RTS
+.ENDPROC
 
-	rts
+.PROC arpeggio_absolute
+	instPtr = SCRATCH
 
-.endproc
+	LDY streamArpeggioOffset, X
 
-.proc arpeggio_absolute
-
-	ldy stream_arpeggio_offset,x
-
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq arpeggio_stop
-	cmp #ENV_LOOP
-	beq arpeggio_loop
-arpeggio_play:
-
-	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
-
-	;Load the current arpeggio value and add it to current note.
-	clc
-	lda (sound_local_word_0),y
-	adc stream_note,x
-	tay
-	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
-
-	jmp done
-arpeggio_stop:
-
-	;Just load the current note.
-	ldy stream_note,x
-
-	jmp done
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ arpeggio_stop
+	CMP #ENV_LOOP
+	BNE arpeggio_play
 arpeggio_loop:
 
 	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_arpeggio_offset,x
-	tay
+	INY
+	LDA (instPtr), Y
+	STA streamArpeggioOffset, X
+	TAY
 
-	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
-
-	;Load the current arpeggio value and add it to current note.
-	clc
-	lda (sound_local_word_0),y
-	adc stream_note,x
-	tay
-	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
-done:
-
-	rts
-
-.endproc
-
-.proc arpeggio_fixed
-
-	ldy stream_arpeggio_offset,x
-
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq arpeggio_stop
-	cmp #ENV_LOOP
-	beq arpeggio_loop
 arpeggio_play:
 
 	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_CLEAR
+	STA streamFlags, X
+
+	;Load the current arpeggio value and add it to current note.
+	CLC
+	LDA (instPtr), Y
+	ADC streamNote, X
+	TAY
+	;Advance arpeggio offset.
+	INC streamArpeggioOffset, X
+
+	RTS
+
+arpeggio_stop:
+	;Just load the current note.
+	LDY streamNote, X
+	RTS
+.ENDPROC
+
+.PROC arpeggio_fixed
+	instPtr = SCRATCH
+
+	LDY streamArpeggioOffset, X
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ arpeggio_stop
+	CMP #ENV_LOOP
+	BNE arpeggio_play
+
+arpeggio_loop:
+
+	; advance envelope index and load loop point.
+	INY
+	LDA (instPtr), Y
+	STA streamArpeggioOffset, X
+	TAY
+
+arpeggio_play:
+
+	;We're changing notes.
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_CLEAR
+	STA streamFlags, X
 
 	;Load the current arpeggio value and use it as the current note.
-	lda (sound_local_word_0),y
-	;sta stream_note,x
-	tay
+	LDA (instPtr), Y
+	TAY
 	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
+	INC streamArpeggioOffset, X
 
-	jmp done
+	RTS
 arpeggio_stop:
 
 	;When a fixed arpeggio is done, we're changing notes to the
 	;currently playing note. (This is FamiTracker's behavior)
 	;However, we only do this if we're stopping at any point other
 	;than one, which indicates an arpeggio did in fact execute.
-	lda stream_arpeggio_offset,x
-	cmp #1
-	beq skip_clear_pitch_loaded
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
+	LDA streamArpeggioOffset, X
+	CMP #$01
+	BEQ skip_clear_pitch_loaded
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_CLEAR
+	STA streamFlags, X
 skip_clear_pitch_loaded:
 
 	;Just load the current note.
-	ldy stream_note,x
+	LDY streamNote, X
 
-	jmp done
+	RTS
+
+.ENDPROC
+
+.PROC arpeggio_relative
+
+	instPtr = SCRATCH
+
+	LDY streamArpeggioOffset, X
+
+	LDA (instPtr), Y
+	CMP #ENV_STOP
+	BEQ arpeggio_stop
+	CMP #ENV_LOOP
+	BNE arpeggio_play
+
 arpeggio_loop:
 
 	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_arpeggio_offset,x
-	tay
-
-	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
-
-	;Load the current arpeggio value and use it as the current note.
-	lda (sound_local_word_0),y
-	tay
-	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
-done:
-
-	rts
-
-.endproc
-
-.proc arpeggio_relative
-
-	ldy stream_arpeggio_offset,x
-
-	lda (sound_local_word_0),y
-	cmp #ENV_STOP
-	beq arpeggio_stop
-	cmp #ENV_LOOP
-	beq arpeggio_loop
+	INY
+	LDA (instPtr), Y
+	STA streamArpeggioOffset, X
+	TAY
+	
 arpeggio_play:
 
 	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
+	LDA streamFlags, X
+	AND #STREAM_PITCH_LOADED_CLEAR
+	STA streamFlags, X
 
 	;Load the current arpeggio value and add it to current note.
-	clc
-	lda (sound_local_word_0),y
-	adc stream_note,x
-	cmp #HIGHEST_NOTE
-	bmi skip
-	lda #HIGHEST_NOTE
-skip:
-	sta stream_note,x
-	tay
+	CLC
+	LDA (instPtr), Y
+	ADC streamNote, X
+	CMP #HIGHEST_NOTE
+	BMI @skip
+	LDA #HIGHEST_NOTE
+@skip:
+	STA streamNote, X
+	TAY
 	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
+	INC streamArpeggioOffset, X
 
-	jmp done
+	RTS
+
 arpeggio_stop:
-
 	;Just load the current note.
-	ldy stream_note,x
+	LDY streamNote, X
+	RTS
+.ENDPROC
 
-	jmp done
-arpeggio_loop:
+	; opcode callbacks
 
-	;We hit a loop opcode, advance envelope index and load loop point.
-	iny
-	lda (sound_local_word_0),y
-	sta stream_arpeggio_offset,x
-	tay
-
-	;We're changing notes.
-	lda stream_flags,x
-	and #STREAM_PITCH_LOADED_CLEAR
-	sta stream_flags,x
-
-	;Load the current arpeggio value and add it to current note.
-	clc
-	lda (sound_local_word_0),y
-	adc stream_note,x
-	tay
-	;Advance arpeggio offset.
-	inc stream_arpeggio_offset,x
-done:
-
-	rts
-
-.endproc
-
-;****************************************************************
-;These callbacks are all stream control and execute in sequence
-;until exhausted.
-;****************************************************************
-
-.proc set_instrument
+.PROC set_instrument
+	streamPtr = audio_scratch
+	callbackAddr = audio_scratch+2
+	instPtr = audio_scratch+4
 
 	IncrementStreamReadAddr
-	;Load byte at read address.
-	lda stream_read_address_lo,x
-	sta sound_local_word_0
-	lda stream_read_address_hi,x
-	sta sound_local_word_0+1
-	ldy #0
-	lda (sound_local_word_0),y
-	asl
-	sta stream_instrument_index,x
-	tay
+	; Load next byte in data stream.
+	LDA streamReadAddrLow, X
+	STA streamPtr
+	LDA streamReadAddrHigh, X
+	STA streamPtr+1
 
-	lda instrument_list,y
-	sta sound_local_word_0
-	iny
-	lda instrument_list,y
-	sta sound_local_word_0+1
+	LDY #$00
+	LDA (streamPtr), Y
+	STA streamInstrumentIndex, X
+	TAY
 
-	ldy #0
-	lda (sound_local_word_0),y
-	sta stream_volume_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_pitch_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_duty_offset,x
-	iny
-	lda (sound_local_word_0),y
-	sta stream_arpeggio_offset,x
+	LDA instrument_list_low, Y
+	STA instPtr
+	LDA instrument_list_high, Y
+	STA instPtr+1
 
-	rts
-.endproc
+	LDY #$00
+	LDA (instPtr), Y
+	STA streamVolumeOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamPitchOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamDutyOffset, X
+	INY
+	LDA (instPtr), Y
+	STA streamArpeggioOffset, X
 
-;Set a standard note length. This callback works for a set
+	RTS
+.ENDPROC
+
+; This callback works for a set
 ;of opcodes which can set the note length for values 1 through 16.
 ;This helps reduce ROM space required by songs.
-.proc set_length
+.PROC set_length
 
 	;determine note length from opcode
-	sec
-	lda stream_note,x
-	sbc #OPCODES_BASE
-	clc
-	adc #1
-	sta stream_note_length_lo,x
-	sta stream_note_length_counter_lo,x
-	lda #0
-	sta stream_note_length_hi,x
-	sta stream_note_length_counter_hi,x
+	SEC
+	LDA streamNote, X
+	SBC #OPCODE_THRESHOLD
+	CLC
+	ADC #$01
+	STA streamNoteLength, X
+	STA streamNoteCounter, X
+	RTS
 
-	rts
+.ENDPROC
 
-.endproc
-
-.proc set_length_low
-
-	IncrementStreamReadAddr
-	;Load byte at read address.
-	lda stream_read_address_lo,x
-	sta sound_local_word_0
-	lda stream_read_address_hi,x
-	sta sound_local_word_0+1
-	ldy #0
-	lda (sound_local_word_0),y
-	sta stream_note_length_lo,x
-	sta stream_note_length_counter_lo,x
-	lda #0
-	sta stream_note_length_hi,x
-	sta stream_note_length_counter_hi,x
-
-	rts
-.endproc
-
-.proc set_length_high
+.PROC set_length_low
+	streamPtr = audio_scratch
+	callbackAddr = audio_scratch+2
+	instPtr = audio_scratch+4
 
 	IncrementStreamReadAddr
-	;Load byte at read address.
-	lda stream_read_address_lo,x
-	sta sound_local_word_0
-	lda stream_read_address_hi,x
-	sta sound_local_word_0+1
-	ldy #0
-	lda (sound_local_word_0),y
-	sta stream_note_length_hi,x
-	sta stream_note_length_counter_hi,x
+	; Load next byte in data stream.
+	LDA streamReadAddrLow, X
+	STA streamPtr
+	LDA streamReadAddrHigh, X
+	STA streamPtr+1
 
-	rts
-.endproc
+	LDY #$00
+	LDA (streamPtr), Y
+	STA streamNoteLength, X
+	STA streamNoteCounter, X
+	
+	RTS
+.ENDPROC
+
+.PROC set_length_high
+
+	; Uh oh, this feature was removed
+	RTS
+.ENDPROC
 
 ;This opcode loops to the beginning of the stream. It expects the two
 ;following bytes to contain the address to loop to.
-.proc stream_goto
+.PROC stream_goto
+	streamPtr = audio_scratch
+	callbackAddr = audio_scratch+2
+	instPtr = audio_scratch+4
 
 	IncrementStreamReadAddr
-	;Load byte at read address.
-	lda stream_read_address_lo,x
-	sta sound_local_word_0
-	lda stream_read_address_hi,x
-	sta sound_local_word_0+1
-	ldy #0
-	lda (sound_local_word_0),y
-	sta stream_read_address_lo,x
-	ldy #1
-	lda (sound_local_word_0),y
-	sta stream_read_address_hi,x
+	; Load next byte in data stream.
+	LDA streamReadAddrLow, X
+	STA streamPtr
+	LDA streamReadAddrHigh, X
+	STA streamPtr+1
+	
+	LDY #$00
+	LDA (streamPtr), Y
+	STA streamReadAddrLow, X
+	LDY #$01
+	LDA (streamPtr), Y
+	STA streamReadAddrHigh, X
 
-	sec
-	lda stream_read_address_lo,x
-	sbc #1
-	sta stream_read_address_lo,x
-	lda stream_read_address_hi,x
-	sbc #0
-	sta stream_read_address_hi,x
+	LDA streamReadAddrLow, X
+	BNE :+
+	DEC streamReadAddrHigh, X
+	:
+	DEC streamReadAddrLow, X
 
-	rts
+	RTS
 
-.endproc
+.ENDPROC
 
 ;This opcode stores the current stream read address in
 ;return_stream_read_address (lo and hi) and then reads the
@@ -858,83 +781,84 @@ done:
 ;is being called, which will restore the return stream read address.
 ;This is how the engine can allow repeated chunks of a song.
 .proc stream_call
+	streamPtr = audio_scratch
+	callbackAddr = audio_scratch+2
+	instPtr = audio_scratch+4
+
+	tempPtr = SCRATCH
 
 	IncrementStreamReadAddr
-	lda stream_read_address_lo,x
-	sta sound_local_word_0
-	lda stream_read_address_hi,x
-	sta sound_local_word_0+1
+	; Load next byte in data stream.
+	LDA streamReadAddrLow, X
+	STA streamPtr
+	LDA streamReadAddrHigh, X
+	STA streamPtr+1
 
 	;Retrieve lo byte of destination address from first CAL parameter.
-	ldy #0
-	lda (sound_local_word_0),y
-	sta sound_local_word_1
-	iny
+	LDY #$00
+	LDA (streamPtr), Y
+	STA tempPtr
+	INY
 	;Retrieve hi byte of destination address from second CAL parameter.
-	lda (sound_local_word_0),y
-	sta sound_local_word_1+1
+	LDA (streamPtr), Y
+	STA tempPtr+1
 
 	IncrementStreamReadAddr
 
 	;Now store current stream read address in stream's return address.
-	lda stream_read_address_lo,x
-	sta stream_return_address_lo,x
-	lda stream_read_address_hi,x
-	sta stream_return_address_hi,x
+	LDA streamReadAddrLow, X
+	STA streamReturnAddrLow, X
+	LDA streamReadAddrHigh, X
+	STA streamReturnAddrHigh, X
 
 	;Finally, transfer address we are calling to current read address.
-	sec
-	lda sound_local_word_1
-	sbc #<1
-	sta stream_read_address_lo,x
-	lda sound_local_word_1+1
-	sbc #>1
-	sta stream_read_address_hi,x
-
-	rts
-
-.endproc
+	SEC
+	LDA tempPtr
+	SBC #$01
+	STA streamReadAddrLow, X
+	LDA tempPtr+1
+	SBC #$00
+	STA streamReadAddrHigh, X
+	
+	RTS
+.ENDPROC
 
 ;This opcode restores the stream_return_address to the stream_read_address
 ;and continues where it left off.
-.proc stream_return
+.PROC stream_return
 
-	lda stream_return_address_lo,x
-	sta stream_read_address_lo,x
-	lda stream_return_address_hi,x
-	sta stream_read_address_hi,x
+	LDA streamReturnAddrLow, X
+	STA streamReadAddrLow, X
+	LDA streamReturnAddrHigh, X
+	STA streamReadAddrHigh, X
 
-	rts
+	RTS
 
-.endproc
+.ENDPROC
 
 ;This opcode returns from the parent caller by popping two bytes off
 ;the stack and then doing rts.
-.proc stream_terminate
+.PROC stream_terminate
 
 	;Set the current stream to inactive.
-	lda #0
-	sta stream_flags,x
+	LDA #$00
+	STA streamFlags, X
 
-	cpx #soundeffect_one
-	bmi not_sound_effect
+	CPX #Audio_streams::SFX_1
+	BMI not_sound_effect
 
 	;Load channel this sfx writes to.
-	ldy stream_channel,x
+	LDA streamChannel, X
 	;Use this as index into streams to tell corresponding music channel
 	;to silence until the next note.
-	lda stream_flags,y
-	ora #STREAM_SILENCE_SET
-	sta stream_flags,y
+	LDA streamFlags, Y
+	ORA #STREAM_SILENCE_MASK
+	STA streamFlags, Y
 
 not_sound_effect:
-
 	;Pop current address off the stack.
-	pla
-	pla
-
+	PLA
+	PLA
 	;Return from parent caller.
-	rts
-.endproc
-
-.ENDIF
+	RTS
+.ENDPROC
