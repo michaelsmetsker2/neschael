@@ -88,7 +88,7 @@
 .PROC play_sound_frame
 	; if audioflag is disabled, dont play sound
 	LDA gameFlags
-	AND #%00100000
+	AND #AUDIO_FLAG_MASK
 	BEQ @done
 
 	; loop through all music stream
@@ -113,11 +113,11 @@
 	LDA streamRegister_1, X
 	STA shadowApuPorts, Y
 	LDA streamRegister_2, X
-	STA shadowApuPorts, Y
+	STA shadowApuPorts+1, Y
 	LDA streamRegister_3, X
-	STA shadowApuPorts, Y
+	STA shadowApuPorts+2, Y
 	LDA streamRegister_4, X
-	STA shadowApuPorts, Y
+	STA shadowApuPorts+3, Y
 
 @next_stream:
 	INX
@@ -252,6 +252,12 @@ no_triangle:
 	STA streamTempoHigh, X
 	STA streamTickerHigh, X
 no_noise:
+
+	; set audioFlag to start playback
+	LDA gameFlags
+	ORA #AUDIO_FLAG_MASK
+	STA gameFlags 
+
 	RTS
 .ENDPROC
 
@@ -510,7 +516,7 @@ no_more_sfx_streams_available:
 	STA streamTickerHigh, X
 
 	; decrement the note length counter, advance on zero
-	DEC streamNoteCounter
+	DEC streamNoteCounter, X
 	BNE @done
 
 	; reset the note's duration
@@ -557,7 +563,7 @@ no_more_sfx_streams_available:
 
 .ENDPROC
 
-.proc set_apu_ports
+.PROC set_apu_ports
 @square_1:
 	LDA shadowApuPorts
 	STA _SQ1_VOL
@@ -603,4 +609,4 @@ no_more_sfx_streams_available:
 	; TODO? Clear out all volume values from this frame in case a sound effect is killed suddenly.
 	
 	RTS
-.endproc
+.ENDPROC

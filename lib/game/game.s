@@ -60,8 +60,7 @@
   JSR load_level_palettes
 
     ; start the correct music
-  LDY #MUSIC_OFFSET
-  LDA (levelPtr), Y
+  LDA #$00
   JSR load_song
 
 @decompress_starting_nametables:

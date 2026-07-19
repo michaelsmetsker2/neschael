@@ -50,3 +50,5 @@ unlockFlags    = GAME_DATA + 12 ; currently unlocked abilities
   AND #%01111111
   STA gameFlags
 .ENDMACRO
+
+AUDIO_FLAG_MASK = %00100000

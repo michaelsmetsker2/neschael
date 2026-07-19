@@ -833,7 +833,6 @@ arpeggio_stop:
 	STA streamReadAddrHigh, X
 
 	RTS
-
 .ENDPROC
 
 ;This opcode returns from the parent caller by popping two bytes off
