@@ -265,16 +265,12 @@ no_noise:
 
 	; load sfx track into the song engine, expects 1 channel
  	; expects ACC to contain index of an effect in sfx_list
-	; Expects X to contain the stream, either Audio_streams::SFX_1 or SFX_2
 .PROC load_sfx
 
 	; pointer to sound effect to parse
 	sfxPtr = audio_scratch
 	streamPtr = audio_scratch+2
 	stream = audio_scratch+4
-	
-	LDA Audio_streams::SFX_1
-	STA stream
 
 	; set songPtr to the correct song
 	TAY
@@ -282,6 +278,10 @@ no_noise:
 	STA sfxPtr
 	LDA sfx_list_high, Y
 	STA sfxPtr+1
+
+	; set stream	
+	LDA #Audio_streams::SFX_1
+	STA stream
 
 	;Load square 1 stream.
 	LDY #Sfx_header::SQUARE_1_ADDR
