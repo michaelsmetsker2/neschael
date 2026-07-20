@@ -28,6 +28,7 @@
 
 .EXPORT audio_init
 .EXPORT load_song
+.EXPORT load_sfx
 .EXPORT play_sound_frame
 
 	; initializes sound on startup

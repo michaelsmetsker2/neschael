@@ -160,6 +160,10 @@
 	ORA #%10000000
 	STA playerFlags
 
+.IMPORT load_sfx
+	LDA #$00
+	JSR load_sfx 
+
 @slope_checking:
 		; check if the player if jumping from a slope
 	LDX #$04 ; assume flat, saves jumping cycles

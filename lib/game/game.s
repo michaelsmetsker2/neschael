@@ -60,7 +60,7 @@
   JSR load_level_palettes
 
     ; start the correct music
-  LDA #$00
+  LDA #$01
   JSR load_song
 
 @decompress_starting_nametables:

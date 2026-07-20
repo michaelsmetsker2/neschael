@@ -144,7 +144,10 @@ def generate_stream(track, order, channel, speed):
             #we support notes longer than 255 by using SLH as well as SLL
             real_note_length = note_length * speed
             if real_note_length > 255:
-                print("ERROR notes of length over 255 are currently unsupported")
+                print("ERROR notes of length over 255 are currently unsupported\n")
+                
+                print("  track=%s pattern=%s channel=%s row=%d (length=%d)" %
+                      (track["name"], order, channel, i, real_note_length))
                 note_output.append("SLL, $%02X" % (real_note_length & 0x00ff))
                 note_output.append("SLH, $%02X" % ((real_note_length & 0xff00) >> 8))
                 #always force note length to be output after a long note since we will
@@ -211,7 +214,7 @@ def convert_stream_to_sfx(stream):
             split_opcode = opcode.split(",")
             if len(split_opcode) == 2:
                 instrument_opcode = split_opcode[0]
-                instrument_index = int(split_opcode[1])
+                instrument_index = int(split_opcode[1].strip().lstrip("$"), 16)
                 if last_instrument_index == None and instrument_opcode == "STI":
                     last_note_volume_index = instruments[instrument_index]["volume"]
                     last_note_pitch_index = instruments[instrument_index]["pitch"]
@@ -511,9 +514,10 @@ def main():
             if total_bytes <= 256:
                 for byte in instrument_asm:
                     clean_byte = byte.strip(", \n\t")
-                    if clean_byte.isdigit():
-                        f.write("$%02X, " % int(clean_byte))
-                    else:
+                    try:
+                        int_value = int(clean_byte)
+                        f.write("$%02X, " % (int_value & 0xFF))
+                    except ValueError:
                         f.write(byte)
             else:
                 print("ERROR: Instrument %s could not fit into 256 bytes. To work around this, create two instruments with shorter envelopes where one instrument continues into the next.")

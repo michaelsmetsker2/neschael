@@ -16,153 +16,1181 @@
 .EXPORT instrument_list_high
 
 song_list_low:
-	.BYTE <_Song1
+	.BYTE <_k466
+	.BYTE <_k11
+	.BYTE <_soler42
+	.BYTE <_antagonist
+	.BYTE <_arps
 song_list_high:
-	.BYTE >_Song1
+	.BYTE >_k466
+	.BYTE >_k11
+	.BYTE >_soler42
+	.BYTE >_antagonist
+	.BYTE >_arps
 
 sfx_list_low:
+	.BYTE <_sfx_shot
+	.BYTE <_sfx_laser
+	.BYTE <_sfx_zap
+	.BYTE <_sfx_collide
 sfx_list_high:
+	.BYTE >_sfx_shot
+	.BYTE >_sfx_laser
+	.BYTE >_sfx_zap
+	.BYTE >_sfx_collide
 
 instrument_list_low:
-	.BYTE <_dru_0
-	.BYTE <_Instrument_1_1
-	.BYTE <silent_2
+	.BYTE <_Piano_0
+	.BYTE <_Instrument1_1
+	.BYTE <_Instrument2_2
+	.BYTE <_Instrument3_3
+	.BYTE <_Instrument4_4
+	.BYTE <_Note_cut_5
+	.BYTE <_Shot_6
+	.BYTE <_Instrument5_7
+	.BYTE <_Laser_8
+	.BYTE <_Instrument6_9
+	.BYTE <_Instrument7_10
+	.BYTE <_Instrument8_11
+	.BYTE <_Instrument9_12
+	.BYTE <_Sing_13
+	.BYTE <_Note_Cut_14
+	.BYTE <_Sing_15
+	.BYTE <_Triangle_On_16
+	.BYTE <_SingMinArp_17
+	.BYTE <_Guitar_18
+	.BYTE <_SingMajArp_19
+	.BYTE <_SingDimArp_20
+	.BYTE <_Zap_21
+	.BYTE <_Collide_22
+	.BYTE <_Drum1_23
+	.BYTE <_Drum2_24
+	.BYTE <_Drum3_25
+	.BYTE <_Triangle_On_26
+	.BYTE <silent_27
 instrument_list_high:
-	.BYTE >_dru_0
-	.BYTE >_Instrument_1_1
-	.BYTE >silent_2
+	.BYTE >_Piano_0
+	.BYTE >_Instrument1_1
+	.BYTE >_Instrument2_2
+	.BYTE >_Instrument3_3
+	.BYTE >_Instrument4_4
+	.BYTE >_Note_cut_5
+	.BYTE >_Shot_6
+	.BYTE >_Instrument5_7
+	.BYTE >_Laser_8
+	.BYTE >_Instrument6_9
+	.BYTE >_Instrument7_10
+	.BYTE >_Instrument8_11
+	.BYTE >_Instrument9_12
+	.BYTE >_Sing_13
+	.BYTE >_Note_Cut_14
+	.BYTE >_Sing_15
+	.BYTE >_Triangle_On_16
+	.BYTE >_SingMinArp_17
+	.BYTE >_Guitar_18
+	.BYTE >_SingMajArp_19
+	.BYTE >_SingDimArp_20
+	.BYTE >_Zap_21
+	.BYTE >_Collide_22
+	.BYTE >_Drum1_23
+	.BYTE >_Drum2_24
+	.BYTE >_Drum3_25
+	.BYTE >_Triangle_On_26
+	.BYTE >silent_27
 
-_dru_0:
+_Piano_0:
+	.BYTE $05, $13, $15, $17, ARP_TYPE_ABSOLUTE
+	.BYTE $0C, $0A, $06, $04, $03, $04, $05, $08, $0A, $08, $05, $03, $03, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument1_1:
+	.BYTE $05, $18, $1A, $1C, ARP_TYPE_ABSOLUTE
+	.BYTE $0B, $08, $07, $08, $0A, $08, $05, $03, $01, $01, $02, $04, $05, $05, $03, $02, $01, $01, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $40, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument2_2:
+	.BYTE $05, $0D, $0F, $11, ARP_TYPE_ABSOLUTE
+	.BYTE $0A, $0A, $0A, $0A, $0A, $0A, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $40, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument3_3:
+	.BYTE $05, $0B, $0D, $0F, ARP_TYPE_ABSOLUTE
+	.BYTE $0C, $05, $03, $01, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument4_4:
+	.BYTE $05, $18, $1A, $1C, ARP_TYPE_ABSOLUTE
+	.BYTE $0B, $08, $07, $08, $0A, $08, $05, $03, $01, $01, $02, $04, $05, $05, $03, $02, $01, $01, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Note_cut_5:
+	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
+	.BYTE $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Shot_6:
+	.BYTE $05, $26, $28, $2A, ARP_TYPE_ABSOLUTE
+	.BYTE $0F, $06, $0A, $0B, $0B, $0A, $09, $08, $07, $06, $05, $04, $03, $02, $02, $02, $02, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $00, $00, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument5_7:
+	.BYTE $05, $0E, $10, $12, ARP_TYPE_ABSOLUTE
+	.BYTE $0E, $0E, $0E, $0B, $04, $02, $02, $02, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Laser_8:
+	.BYTE $05, $16, $25, $27, ARP_TYPE_ABSOLUTE
+	.BYTE $0E, $0D, $0C, $0B, $0A, $09, $08, $08, $07, $06, $05, $04, $03, $02, $01, $00, ENV_STOP
+	.BYTE $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, $0A, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument6_9:
+	.BYTE $05, $0E, $10, $13, ARP_TYPE_ABSOLUTE
+	.BYTE $06, $09, $0B, $0B, $07, $06, $05, $05, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $80, $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Instrument7_10:
 	.BYTE $05, $0C, $0E, $10, ARP_TYPE_ABSOLUTE
-	.BYTE $0F, $0B, $07, $03, $01, $00, ENV_STOP
+	.BYTE $0F, $02, $00, $00, $00, $00, ENV_STOP
 	.BYTE $00, ENV_STOP
 	.BYTE $00, DUTY_ENV_STOP
 	.BYTE ENV_STOP
 
-_Instrument_1_1:
-	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
-	.BYTE $0F, ENV_STOP
-	.BYTE $00, ENV_STOP
-	.BYTE $00, DUTY_ENV_STOP
-	.BYTE ENV_STOP
-
-silent_2:
+_Instrument8_11:
 	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
 	.BYTE $00, ENV_STOP
 	.BYTE $00, ENV_STOP
 	.BYTE $00, DUTY_ENV_STOP
 	.BYTE ENV_STOP
 
-_Song1:
+_Instrument9_12:
+	.BYTE $05, $0E, $10, $12, ARP_TYPE_ABSOLUTE
+	.BYTE $09, $09, $09, $06, $02, $01, $01, $01, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Sing_13:
+	.BYTE $05, $1B, $30, $32, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, ENV_STOP
+	.BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $01, $01, $01, $01, $FF, $FF, $FF, $FF, ENV_LOOP,38
+	.BYTE $C0, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Note_Cut_14:
+	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
+	.BYTE $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Sing_15:
+	.BYTE $05, $1B, $30, $32, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, ENV_STOP
+	.BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $01, $01, $01, $01, $FF, $FF, $FF, $FF, ENV_LOOP,38
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Triangle_On_16:
+	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
+	.BYTE $01, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_SingMinArp_17:
+	.BYTE $05, $1B, $30, $32, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, ENV_STOP
+	.BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $01, $01, $01, $01, $FF, $FF, $FF, $FF, ENV_LOOP,38
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE $00, $03, $07, $0C, ENV_LOOP,50
+
+_Guitar_18:
+	.BYTE $05, $46, $5B, $5E, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $03, $04, $05, $05, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $06, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $03, $02, $02, $02, $02, $02, $02, $01, ENV_STOP
+	.BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $01, $01, $01, $01, $FF, $FF, $FF, $FF, ENV_LOOP,81
+	.BYTE $C0, $40, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_SingMajArp_19:
+	.BYTE $05, $1B, $30, $32, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, ENV_STOP
+	.BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $01, $01, $01, $01, $FF, $FF, $FF, $FF, ENV_LOOP,38
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE $00, $04, $07, $0C, ENV_LOOP,50
+
+_SingDimArp_20:
+	.BYTE $05, $1B, $1D, $1F, ARP_TYPE_ABSOLUTE
+	.BYTE $03, $04, $04, $05, $05, $05, $05, $05, $05, $05, $05, $04, $04, $04, $04, $04, $04, $04, $03, $03, $03, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $80, DUTY_ENV_STOP
+	.BYTE $00, $03, $06, $0C, ENV_LOOP,31
+
+_Zap_21:
+	.BYTE $05, $16, $18, $1A, ARP_TYPE_ABSOLUTE
+	.BYTE $0E, $0D, $0C, $0B, $0A, $09, $08, $08, $07, $06, $05, $04, $03, $02, $01, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $40, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Collide_22:
+	.BYTE $05, $16, $25, $27, ARP_TYPE_ABSOLUTE
+	.BYTE $0E, $0D, $0C, $0B, $0A, $09, $08, $08, $07, $06, $05, $04, $03, $02, $01, $00, ENV_STOP
+	.BYTE $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, $01, ENV_STOP
+	.BYTE $C0, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Drum1_23:
+	.BYTE $05, $0F, $11, $13, ARP_TYPE_FIXED
+	.BYTE $05, $04, $03, $03, $02, $02, $01, $01, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE $07, ENV_STOP
+
+_Drum2_24:
+	.BYTE $05, $0B, $0D, $0F, ARP_TYPE_ABSOLUTE
+	.BYTE $04, $03, $02, $01, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_Drum3_25:
+	.BYTE $05, $19, $1B, $1D, ARP_TYPE_FIXED
+	.BYTE $04, $04, $05, $05, $06, $06, $05, $05, $04, $04, $03, $03, $02, $02, $01, $01, $01, $01, $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE $00, $01, $02, $03, $04, $05, $06, $07, $08, ENV_STOP
+
+_Triangle_On_26:
+	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
+	.BYTE $01, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+silent_27:
+	.BYTE $05, $07, $09, $0B, ARP_TYPE_ABSOLUTE
+	.BYTE $00, ENV_STOP
+	.BYTE $00, ENV_STOP
+	.BYTE $00, DUTY_ENV_STOP
+	.BYTE ENV_STOP
+
+_k466:
 	.BYTE $00
-	.BYTE $01
-	.WORD _Song1_square1
-	.WORD _Song1_square2
+	.BYTE $07
+	.WORD _k466_square1
+	.WORD _k466_square2
+	.WORD _k466_triangle
 	.WORD $00
-	.WORD _Song1_noise
 
-_Song1_square1:
-_Song1_square1_loop:
-	.BYTE CAL,<(_Song1_square1_0),>(_Song1_square1_0)
-	.BYTE CAL,<(_Song1_square1_1),>(_Song1_square1_1)
-	.BYTE CAL,<(_Song1_square1_2),>(_Song1_square1_2)
-	.BYTE CAL,<(_Song1_square1_1),>(_Song1_square1_1)
-	.BYTE CAL,<(_Song1_square1_3),>(_Song1_square1_3)
-	.BYTE CAL,<(_Song1_square1_4),>(_Song1_square1_4)
-	.BYTE CAL,<(_Song1_square1_5),>(_Song1_square1_5)
+_k466_square1:
+_k466_square1_loop:
+	.BYTE CAL,<(_k466_square1_0),>(_k466_square1_0)
+	.BYTE CAL,<(_k466_square1_1),>(_k466_square1_1)
+	.BYTE CAL,<(_k466_square1_2),>(_k466_square1_2)
+	.BYTE CAL,<(_k466_square1_3),>(_k466_square1_3)
+	.BYTE CAL,<(_k466_square1_4),>(_k466_square1_4)
+	.BYTE CAL,<(_k466_square1_5),>(_k466_square1_5)
+	.BYTE CAL,<(_k466_square1_6),>(_k466_square1_6)
+	.BYTE CAL,<(_k466_square1_7),>(_k466_square1_7)
 	.BYTE GOT
-	.WORD _Song1_square1_loop
+	.WORD _k466_square1_loop
 
-_Song1_square2:
-_Song1_square2_loop:
-	.BYTE CAL,<(_Song1_square2_0),>(_Song1_square2_0)
-	.BYTE CAL,<(_Song1_square2_0),>(_Song1_square2_0)
-	.BYTE CAL,<(_Song1_square2_1),>(_Song1_square2_1)
-	.BYTE CAL,<(_Song1_square2_2),>(_Song1_square2_2)
-	.BYTE CAL,<(_Song1_square2_3),>(_Song1_square2_3)
-	.BYTE CAL,<(_Song1_square2_0),>(_Song1_square2_0)
-	.BYTE CAL,<(_Song1_square2_1),>(_Song1_square2_1)
+_k466_square2:
+_k466_square2_loop:
+	.BYTE CAL,<(_k466_square2_0),>(_k466_square2_0)
+	.BYTE CAL,<(_k466_square2_1),>(_k466_square2_1)
+	.BYTE CAL,<(_k466_square2_2),>(_k466_square2_2)
+	.BYTE CAL,<(_k466_square2_3),>(_k466_square2_3)
+	.BYTE CAL,<(_k466_square2_4),>(_k466_square2_4)
+	.BYTE CAL,<(_k466_square2_5),>(_k466_square2_5)
+	.BYTE CAL,<(_k466_square2_6),>(_k466_square2_6)
+	.BYTE CAL,<(_k466_square2_7),>(_k466_square2_7)
 	.BYTE GOT
-	.WORD _Song1_square2_loop
+	.WORD _k466_square2_loop
 
-_Song1_noise:
-_Song1_noise_loop:
-	.BYTE CAL,<(_Song1_noise_0),>(_Song1_noise_0)
-	.BYTE CAL,<(_Song1_noise_1),>(_Song1_noise_1)
-	.BYTE CAL,<(_Song1_noise_2),>(_Song1_noise_2)
-	.BYTE CAL,<(_Song1_noise_1),>(_Song1_noise_1)
-	.BYTE CAL,<(_Song1_noise_2),>(_Song1_noise_2)
-	.BYTE CAL,<(_Song1_noise_1),>(_Song1_noise_1)
-	.BYTE CAL,<(_Song1_noise_2),>(_Song1_noise_2)
+_k466_triangle:
+_k466_triangle_loop:
+	.BYTE CAL,<(_k466_triangle_0),>(_k466_triangle_0)
+	.BYTE CAL,<(_k466_triangle_1),>(_k466_triangle_1)
+	.BYTE CAL,<(_k466_triangle_2),>(_k466_triangle_2)
+	.BYTE CAL,<(_k466_triangle_3),>(_k466_triangle_3)
+	.BYTE CAL,<(_k466_triangle_3),>(_k466_triangle_3)
+	.BYTE CAL,<(_k466_triangle_3),>(_k466_triangle_3)
+	.BYTE CAL,<(_k466_triangle_3),>(_k466_triangle_3)
+	.BYTE CAL,<(_k466_triangle_3),>(_k466_triangle_3)
 	.BYTE GOT
-	.WORD _Song1_noise_loop
+	.WORD _k466_triangle_loop
 
-_Song1_square1_0:
-	.BYTE STI, $02, SLL,160, A0
+_k466_square1_0:
+	.BYTE STI, $1B, SL3, A0, STI, $00, GS4, C5, GS4, F4, C4, CS4
+	.BYTE GS3, AS3, G4, AS4, G4, E4, C4, CS4, AS3
 	.BYTE RET
 
-_Song1_square1_1:
-	.BYTE STI, $01, SLA, CS4, SLL,30, GS4, SLL,40, DS4, AS4, SLA
-	.BYTE GS4, AS4, F5, C4
+_k466_square1_1:
+	.BYTE STI, $00, SL3, C4, F4, GS4, F4, C4, GS3, F3, C3, CS4, E3
+	.BYTE F3, C4, G3, AS3, GS3, G3
 	.BYTE RET
 
-_Song1_square1_2:
-	.BYTE STI, $01, SLL,20, GS4, F4, STI, $02, SLL,40, A0, STI, $01
-	.BYTE SLL,20, GS4, F4, STI, $02, SLL,40, A0
+_k466_square1_2:
+	.BYTE STI, $05, SLL,18, C4, STI, $00, SL2, E4, F4, G4, F4, E4
+	.BYTE SLE, F4, SL2, E4, F4, G4
 	.BYTE RET
 
-_Song1_square1_3:
-	.BYTE STI, $01, SLL,20, C5, GS4, STI, $02, SLL,40, A0, STI, $01
-	.BYTE SLL,20, C5, GS4, STI, $02, SLL,40, A0
+_k466_square1_3:
+	.BYTE STI, $00, SL2, F4, E4, SLE, F4, SL2, D4, DS4, F4, DS4
+	.BYTE D4, SLE, C4, SL2, B3, C4, D4
 	.BYTE RET
 
-_Song1_square1_4:
-	.BYTE STI, $01, SLL,40, C5, GS4, DS5, SLA, AS4, C5, STI, $02
-	.BYTE A0, STI, $01, F5
+_k466_square1_4:
+	.BYTE STI, $00, SL2, C4, B3, SLE, C4, SL2, B3, C4, D4, SL3, G4
+	.BYTE F4, F4, DS4, DS4, D4, D4, C4
 	.BYTE RET
 
-_Song1_square1_5:
-	.BYTE STI, $01, SLL,20, GS5, F5, STI, $02, SLL,40, A0, STI, $01
-	.BYTE SLL,20, GS5, F5, STI, $02, SLL,40, A0
+_k466_square1_5:
+	.BYTE STI, $00, SLL,18, B3, SL2, C4, B3, C4, SLL,18, D4, SL2
+	.BYTE C4, B3, C4
 	.BYTE RET
 
-_Song1_square2_0:
-	.BYTE STI, $01, SLA, C4, AS3, F3, C4, AS3, F3, C4, AS3, F3, C4
-	.BYTE AS3, F3, C4, AS3, F3, STI, $02, A0
+_k466_square1_6:
+	.BYTE STI, $00, SLL,18, D4, SL2, D4, DS4, F4, DS4, D4, SLE, C4
+	.BYTE SL2, D4, DS4, F4
 	.BYTE RET
 
-_Song1_square2_1:
-	.BYTE STI, $01, SLA, C4, AS3, F3, C4, AS3, F3, C4, AS3, D4, C4
-	.BYTE AS3, F3, C4, AS3, F4, STI, $02, A0
+_k466_square1_7:
+	.BYTE STI, $00, SL3, G3, F4, DS4, C4, F4, D4, C4, B3, SLL,24
+	.BYTE C4
 	.BYTE RET
 
-_Song1_square2_2:
-	.BYTE STI, $01, SLA, C4, AS3, F3, F4, C4, AS3, F3, F4, C4, AS3
-	.BYTE DS3, C4, AS3, F3, C4, STI, $02, A0
+_k466_square2_0:
+	.BYTE STI, $00, SLC, F2, F2, G2, G2
 	.BYTE RET
 
-_Song1_square2_3:
-	.BYTE STI, $01, SLA, F4, AS3, F3, F4, AS3, F3, F4, AS3, F3, F4
-	.BYTE AS3, F3, F4, AS3, F3, STI, $02, A0
+_k466_square2_1:
+	.BYTE STI, $00, SLC, GS3, GS3, SL6, AS3, GS3, G3, C3
 	.BYTE RET
 
-_Song1_noise_0:
-	.BYTE STI, $02, SLL,80, A0, STI, $00, SLL,20, $00, SLA, $0F
-	.BYTE $07, STI, $02, SLL,20, A0, STI, $00, SLA, $07, STI, $02
-	.BYTE A0
+_k466_square2_2:
+	.BYTE STI, $00, SL3, F2, F3, GS3, F3, CS3, AS2, G2, E3, GS2
+	.BYTE F3, GS3, F3, CS3, AS2, G2, E3
 	.BYTE RET
 
-_Song1_noise_1:
-	.BYTE STI, $00, SLL,20, $00, SLA, $0F, $07, STI, $02, SLL,20
-	.BYTE A0, STI, $00, SLA, $07, STI, $02, SLL,30, A0, STI, $00
-	.BYTE SLA, $07, STI, $02, A0, STI, $00, SLL,20, $01, SLA, $07
-	.BYTE STI, $02, A0
+_k466_square2_3:
+	.BYTE STI, $00, SL3, GS2, F3, GS3, F3, D3, F3, G2, B2, C2, C3
+	.BYTE DS3, C3, GS2, C3, D2, B2
 	.BYTE RET
 
-_Song1_noise_2:
-	.BYTE STI, $00, SLL,20, $00, SLA, $0F, $07, STI, $02, SLL,20
-	.BYTE A0, STI, $00, SLA, $07, STI, $02, A0, STI, $00, SLL,20
-	.BYTE $00, SLA, $0F, $07, STI, $02, SLL,20, A0, STI, $00
-	.BYTE SLA, $07, STI, $02, A0
+_k466_square2_4:
+	.BYTE STI, $00, SL3, DS2, C3, DS3, C3, GS2, C3, D2, B2, SL6
+	.BYTE DS2, C3, F2, GS2
+	.BYTE RET
+
+_k466_square2_5:
+	.BYTE STI, $00, SL3, G2, F3, GS3, F3, D3, F3, GS2, F3, G2, F3
+	.BYTE GS3, F3, D3, F3, GS2, F3
+	.BYTE RET
+
+_k466_square2_6:
+	.BYTE STI, $00, SL3, G2, F3, GS3, F3, D3, F3, G2, B2, C2, C3
+	.BYTE DS3, C3, GS2, C3, F2, GS2
+	.BYTE RET
+
+_k466_square2_7:
+	.BYTE STI, $00, SLC, G1, G1, SLL,24, C1
+	.BYTE RET
+
+_k466_triangle_0:
+	.BYTE STI, $1B, SLL,24, A0, STI, $00, SLC, F3, E3
+	.BYTE RET
+
+_k466_triangle_1:
+	.BYTE STI, $00, SLC, F3, C3, SL6, CS3, C3, AS2, C3
+	.BYTE RET
+
+_k466_triangle_2:
+	.BYTE STI, $05, SLL,48, C4
+	.BYTE RET
+
+_k466_triangle_3:
+	.BYTE STI, $1B, SLL,48, A0
+	.BYTE RET
+
+_k11:
+	.BYTE $00
+	.BYTE $05
+	.WORD _k11_square1
+	.WORD _k11_square2
+	.WORD _k11_triangle
+	.WORD _k11_noise
+
+_k11_square1:
+_k11_square1_loop:
+	.BYTE CAL,<(_k11_square1_0),>(_k11_square1_0)
+	.BYTE CAL,<(_k11_square1_1),>(_k11_square1_1)
+	.BYTE CAL,<(_k11_square1_2),>(_k11_square1_2)
+	.BYTE CAL,<(_k11_square1_3),>(_k11_square1_3)
+	.BYTE CAL,<(_k11_square1_4),>(_k11_square1_4)
+	.BYTE CAL,<(_k11_square1_5),>(_k11_square1_5)
+	.BYTE CAL,<(_k11_square1_6),>(_k11_square1_6)
+	.BYTE GOT
+	.WORD _k11_square1_loop
+
+_k11_square2:
+_k11_square2_loop:
+	.BYTE CAL,<(_k11_square2_0),>(_k11_square2_0)
+	.BYTE CAL,<(_k11_square2_1),>(_k11_square2_1)
+	.BYTE CAL,<(_k11_square2_2),>(_k11_square2_2)
+	.BYTE CAL,<(_k11_square2_3),>(_k11_square2_3)
+	.BYTE CAL,<(_k11_square2_4),>(_k11_square2_4)
+	.BYTE CAL,<(_k11_square2_5),>(_k11_square2_5)
+	.BYTE CAL,<(_k11_square2_6),>(_k11_square2_6)
+	.BYTE GOT
+	.WORD _k11_square2_loop
+
+_k11_triangle:
+_k11_triangle_loop:
+	.BYTE CAL,<(_k11_triangle_0),>(_k11_triangle_0)
+	.BYTE CAL,<(_k11_triangle_1),>(_k11_triangle_1)
+	.BYTE CAL,<(_k11_triangle_2),>(_k11_triangle_2)
+	.BYTE CAL,<(_k11_triangle_3),>(_k11_triangle_3)
+	.BYTE CAL,<(_k11_triangle_4),>(_k11_triangle_4)
+	.BYTE CAL,<(_k11_triangle_5),>(_k11_triangle_5)
+	.BYTE CAL,<(_k11_triangle_6),>(_k11_triangle_6)
+	.BYTE GOT
+	.WORD _k11_triangle_loop
+
+_k11_noise:
+_k11_noise_loop:
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE CAL,<(_k11_noise_0),>(_k11_noise_0)
+	.BYTE GOT
+	.WORD _k11_noise_loop
+
+_k11_square1_0:
+	.BYTE STI, $01, SL8, G3, SL1, C4, B3, C4, B3, C4, B3, A3, B3
+	.BYTE SLC, C4, SL4, D4, DS4, F4, G4, C4, B3, A3, G3, F3
+	.BYTE RET
+
+_k11_square1_1:
+	.BYTE STI, $01, SL4, DS3, F3, G3, C3, B2, A2, G2, D4, DS4, F4
+	.BYTE G4, C4, B3, A3, G3, D4
+	.BYTE RET
+
+_k11_square1_2:
+	.BYTE STI, $04, SL4, DS4, G3, D4, G3, C4, SL2, B3, A3, B3, G3
+	.BYTE B3, D4, SL4, DS4, G3, D4, G3, C4, SL2, B3, A3, B3, G3, B3
+	.BYTE D4
+	.BYTE RET
+
+_k11_square1_3:
+	.BYTE STI, $04, SL4, F4, G3, DS4, G3, D4, SL2, C4, B3, C4, G3
+	.BYTE C4, DS4, SL4, F4, G3, DS4, G3, D4, SL2, C4, B3, C4, G3
+	.BYTE C4, DS4
+	.BYTE RET
+
+_k11_square1_4:
+	.BYTE STI, $01, SL2, DS4, D4, C4, AS3, C4, AS3, A3, G3, A3, G3
+	.BYTE FS3, E3, FS3, D3, E3, FS3, G3, D3, G3, AS3, SL4, D4, C4
+	.BYTE SL1, C4, AS3, C4, AS3, C4, AS3, A3, G3, AS3, A3, AS3, A3
+	.BYTE AS3, A3, G3, FS3
+	.BYTE RET
+
+_k11_square1_5:
+	.BYTE STI, $01, SL2, G3, D3, G3, AS3, SL4, D4, C4, SL1, C4, AS3
+	.BYTE C4, AS3, C4, AS3, A3, G3, AS3, A3, AS3, A3, AS3, A3, G3
+	.BYTE FS3, SL2, D4, G3, AS3, D4, SL4, G4, C4, SL1, C4, AS3, C4
+	.BYTE AS3, C4, AS3, A3, G3, AS3, A3, AS3, A3, AS3, A3, G3, FS3
+	.BYTE RET
+
+_k11_square1_6:
+	.BYTE STI, $01, SL2, G3, G4, F4, DS4, D4, C4, B3, A3, G3, G3
+	.BYTE F3, DS3, D3, C3, B2, A2, SL8, G2, D4, SL0, G4
+	.BYTE RET
+
+_k11_square2_0:
+	.BYTE STI, $01, SL8, C3, D3, SL4, DS3, D3, C3, B2, C3, D3, DS3
+	.BYTE F3, G3, A2, B2, G2
+	.BYTE RET
+
+_k11_square2_1:
+	.BYTE STI, $01, SL4, C2, D2, DS2, F2, SL8, G2, SL4, G1, B2, C3
+	.BYTE D3, DS3, F3, SL0, G3
+	.BYTE RET
+
+_k11_square2_2:
+	.BYTE STI, $04, SL8, G4, F4, DS4, D4, G4, F4, DS4, D4
+	.BYTE RET
+
+_k11_square2_3:
+	.BYTE STI, $04, SL8, GS4, G4, F4, DS4, GS4, G4, F4, DS4
+	.BYTE RET
+
+_k11_square2_4:
+	.BYTE STI, $01, SL4, C5, AS4, A4, G4, FS4, E4, D4, C4, SLC, AS3
+	.BYTE SL4, DS3, SL8, D3, C3
+	.BYTE RET
+
+_k11_square2_5:
+	.BYTE STI, $01, SLC, AS2, SL4, DS3, SL8, D3, C3, SLC, AS2, SL4
+	.BYTE C2, SL8, D2, D1
+	.BYTE RET
+
+_k11_square2_6:
+	.BYTE STI, $01, SLL,34, G1, SL2, D2, E2, FS2, G2, B1, C2, D2
+	.BYTE SL0, G1
+	.BYTE RET
+
+_k11_triangle_0:
+	.BYTE STI, $02, SL8, C3, D3, SL4, DS3, D3, C3, B2, C3, D3, DS3
+	.BYTE F3, G3, A2, B2, G2
+	.BYTE RET
+
+_k11_triangle_1:
+	.BYTE STI, $02, SL4, C2, D2, DS2, F2, SL8, G2, SL4, G1, B2, C3
+	.BYTE D3, DS3, F3, SL0, G3
+	.BYTE RET
+
+_k11_triangle_2:
+	.BYTE STI, $02, SL4, DS4, G3, D4, G3, C4, SL2, B3, A3, B3, G3
+	.BYTE B3, D4, SL4, DS4, G3, D4, G3, C4, SL2, B3, A3, B3, G3, B3
+	.BYTE D4
+	.BYTE RET
+
+_k11_triangle_3:
+	.BYTE STI, $02, SL4, F4, G3, DS4, G3, D4, SL2, C4, B3, C4, G3
+	.BYTE C4, DS4, SL4, F4, G3, DS4, G3, D4, SL2, C4, B3, C4, G3
+	.BYTE C4, DS4
+	.BYTE RET
+
+_k11_triangle_4:
+	.BYTE STI, $02, SL2, DS4, D4, C4, AS3, C4, AS3, A3, G3, A3, G3
+	.BYTE FS3, E3, FS3, D3, E3, FS3, G3, D3, G3, AS3, SL4, D4, C4
+	.BYTE SL1, C4, AS3, C4, AS3, C4, AS3, A3, G3, AS3, A3, AS3, A3
+	.BYTE AS3, A3, G3, FS3
+	.BYTE RET
+
+_k11_triangle_5:
+	.BYTE STI, $01, SLC, AS2, SL4, DS3, SL8, D3, C3, SLC, AS2, SL4
+	.BYTE C2, SL8, D2, D1
+	.BYTE RET
+
+_k11_triangle_6:
+	.BYTE STI, $01, SLL,34, G1, SL2, D2, E2, FS2, G2, B1, C2, D2
+	.BYTE SL0, G1
+	.BYTE RET
+
+_k11_noise_0:
+	.BYTE STI, $03, SL8, $03, $03, SL4, $03, $00, $03, $00, $03
+	.BYTE $00, $03, $00, $03, $00, $03, $00
+	.BYTE RET
+
+_soler42:
+	.BYTE $00
+	.BYTE $03
+	.WORD _soler42_square1
+	.WORD _soler42_square2
+	.WORD _soler42_triangle
+	.WORD _soler42_noise
+
+_soler42_square1:
+_soler42_square1_loop:
+	.BYTE CAL,<(_soler42_square1_0),>(_soler42_square1_0)
+	.BYTE CAL,<(_soler42_square1_1),>(_soler42_square1_1)
+	.BYTE CAL,<(_soler42_square1_2),>(_soler42_square1_2)
+	.BYTE CAL,<(_soler42_square1_3),>(_soler42_square1_3)
+	.BYTE CAL,<(_soler42_square1_4),>(_soler42_square1_4)
+	.BYTE CAL,<(_soler42_square1_5),>(_soler42_square1_5)
+	.BYTE CAL,<(_soler42_square1_6),>(_soler42_square1_6)
+	.BYTE CAL,<(_soler42_square1_7),>(_soler42_square1_7)
+	.BYTE CAL,<(_soler42_square1_8),>(_soler42_square1_8)
+	.BYTE CAL,<(_soler42_square1_9),>(_soler42_square1_9)
+	.BYTE CAL,<(_soler42_square1_10),>(_soler42_square1_10)
+	.BYTE CAL,<(_soler42_square1_11),>(_soler42_square1_11)
+	.BYTE CAL,<(_soler42_square1_12),>(_soler42_square1_12)
+	.BYTE CAL,<(_soler42_square1_13),>(_soler42_square1_13)
+	.BYTE GOT
+	.WORD _soler42_square1_loop
+
+_soler42_square2:
+_soler42_square2_loop:
+	.BYTE CAL,<(_soler42_square2_0),>(_soler42_square2_0)
+	.BYTE CAL,<(_soler42_square2_1),>(_soler42_square2_1)
+	.BYTE CAL,<(_soler42_square2_2),>(_soler42_square2_2)
+	.BYTE CAL,<(_soler42_square2_3),>(_soler42_square2_3)
+	.BYTE CAL,<(_soler42_square2_4),>(_soler42_square2_4)
+	.BYTE CAL,<(_soler42_square2_5),>(_soler42_square2_5)
+	.BYTE CAL,<(_soler42_square2_6),>(_soler42_square2_6)
+	.BYTE CAL,<(_soler42_square2_7),>(_soler42_square2_7)
+	.BYTE CAL,<(_soler42_square2_8),>(_soler42_square2_8)
+	.BYTE CAL,<(_soler42_square2_9),>(_soler42_square2_9)
+	.BYTE CAL,<(_soler42_square2_10),>(_soler42_square2_10)
+	.BYTE CAL,<(_soler42_square2_11),>(_soler42_square2_11)
+	.BYTE CAL,<(_soler42_square2_12),>(_soler42_square2_12)
+	.BYTE CAL,<(_soler42_square2_13),>(_soler42_square2_13)
+	.BYTE GOT
+	.WORD _soler42_square2_loop
+
+_soler42_triangle:
+_soler42_triangle_loop:
+	.BYTE CAL,<(_soler42_triangle_0),>(_soler42_triangle_0)
+	.BYTE CAL,<(_soler42_triangle_1),>(_soler42_triangle_1)
+	.BYTE CAL,<(_soler42_triangle_2),>(_soler42_triangle_2)
+	.BYTE CAL,<(_soler42_triangle_3),>(_soler42_triangle_3)
+	.BYTE CAL,<(_soler42_triangle_4),>(_soler42_triangle_4)
+	.BYTE CAL,<(_soler42_triangle_5),>(_soler42_triangle_5)
+	.BYTE CAL,<(_soler42_triangle_6),>(_soler42_triangle_6)
+	.BYTE CAL,<(_soler42_triangle_7),>(_soler42_triangle_7)
+	.BYTE CAL,<(_soler42_triangle_8),>(_soler42_triangle_8)
+	.BYTE CAL,<(_soler42_triangle_9),>(_soler42_triangle_9)
+	.BYTE CAL,<(_soler42_triangle_10),>(_soler42_triangle_10)
+	.BYTE CAL,<(_soler42_triangle_11),>(_soler42_triangle_11)
+	.BYTE CAL,<(_soler42_triangle_12),>(_soler42_triangle_12)
+	.BYTE CAL,<(_soler42_triangle_13),>(_soler42_triangle_13)
+	.BYTE GOT
+	.WORD _soler42_triangle_loop
+
+_soler42_noise:
+_soler42_noise_loop:
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_0),>(_soler42_noise_0)
+	.BYTE CAL,<(_soler42_noise_1),>(_soler42_noise_1)
+	.BYTE GOT
+	.WORD _soler42_noise_loop
+
+_soler42_square1_0:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2
+	.BYTE FS1
+	.BYTE RET
+
+_soler42_square1_1:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, A1, AS1, AS2, C2, D2, D3, FS3, D3, C3
+	.BYTE A2
+	.BYTE RET
+
+_soler42_square1_2:
+	.BYTE STI, $07, SL4, AS2, D3, G2, FS2, D3, D2, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2
+	.BYTE FS1
+	.BYTE RET
+
+_soler42_square1_3:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, A1, AS1, AS2, C2, D2, D3, FS3, D3, C3
+	.BYTE A2
+	.BYTE RET
+
+_soler42_square1_4:
+	.BYTE STI, $07, SL2, A2, STI, $0C, A2, STI, $07, A3, STI, $0C
+	.BYTE A3, STI, $07, C4, STI, $0C, C4, STI, $07, A3, STI, $0C
+	.BYTE A3, STI, $07, FS3, STI, $0C, FS3, STI, $07, D3, STI, $0C
+	.BYTE D3, STI, $07, G2, STI, $0C, G2, STI, $07, G3, STI, $0C
+	.BYTE G3, STI, $07, AS3, STI, $0C, AS3, STI, $07, G3, STI, $0C
+	.BYTE G3, STI, $07, E3, STI, $0C, E3, STI, $07, C3, STI, $0C
+	.BYTE C3, STI, $07, F2, STI, $0C, F2, STI, $07, F3, STI, $0C
+	.BYTE F3, STI, $07, A3, STI, $0C, A3, STI, $07, F3, STI, $0C
+	.BYTE F3, STI, $07, D3, STI, $0C, D3, STI, $07, AS2, STI, $0C
+	.BYTE AS2, STI, $07, E2, STI, $0C, E2, STI, $07, E3, STI, $0C
+	.BYTE E3, STI, $07, G3, STI, $0C, G3, STI, $07, E3, STI, $0C
+	.BYTE E3, STI, $07, CS3, STI, $0C, CS3, STI, $07, A2, STI, $0C
+	.BYTE A2
+	.BYTE RET
+
+_soler42_square1_5:
+	.BYTE STI, $07, SL4, D2, D3, F3, C2, C3, E3, AS1, AS2, D3, A1
+	.BYTE A2, C3, G1, G2, AS2, F1, F2, A2, E1, E2, G2, D1, D2, F2
+	.BYTE RET
+
+_soler42_square1_6:
+	.BYTE STI, $07, SL4, A0, CS1, E1, A1, CS2, E2, A1, CS2, E2, A2
+	.BYTE CS3, E3, A1, A2, B1, CS2, A2, D2, E2, A2, F2, G2, A2, F2
+	.BYTE RET
+
+_soler42_square1_7:
+	.BYTE STI, $07, SL4, E2, A2, D2, CS2, A2, D2, A1, A2, B1, CS2
+	.BYTE A2, D2, E2, A2, F2, G2, A2, F2, E2, A2, D2, CS2, A2, D2
+	.BYTE RET
+
+_soler42_square1_8:
+	.BYTE STI, $07, SL4, A1, A2, CS3, A2, E2, CS2, D2, D3, F3, A3
+	.BYTE F3, D3, G1, G2, AS2, D3, AS2, G2, A1, A2, D3, A1, A2, CS3
+	.BYTE RET
+
+_soler42_square1_9:
+	.BYTE STI, $07, SL4, D1, D2, F2, A2, F2, D2, A1, A2, B1, CS2
+	.BYTE A2, D2, E2, A2, F2, G2, A2, F2, E2, A2, D2, CS2, A2, D2
+	.BYTE RET
+
+_soler42_square1_10:
+	.BYTE STI, $07, SL4, A1, A2, B1, CS2, A2, D2, E2, A2, F2, G2
+	.BYTE A2, F2, E2, A2, D2, CS2, A2, D2, A1, A2, CS3, A2, E2, CS2
+	.BYTE RET
+
+_soler42_square1_11:
+	.BYTE STI, $07, SL2, D1, STI, $0C, D1, STI, $07, D2, STI, $0C
+	.BYTE D2, STI, $07, F2, STI, $0C, F2, STI, $07, A2, STI, $0C
+	.BYTE A2, STI, $07, F2, STI, $0C, F2, STI, $07, D2, STI, $0C
+	.BYTE D2, STI, $07, G1, STI, $0C, G1, STI, $07, G2, STI, $0C
+	.BYTE G2, STI, $07, AS2, STI, $0C, AS2, STI, $07, D3, STI, $0C
+	.BYTE D3, STI, $07, AS2, STI, $0C, AS2, STI, $07, G2, STI, $0C
+	.BYTE G2, STI, $07, A1, STI, $0C, A1, STI, $07, A2, STI, $0C
+	.BYTE A2, STI, $07, D3, STI, $0C, D3, STI, $07, A1, STI, $0C
+	.BYTE A1, STI, $07, A2, STI, $0C, A2, STI, $07, CS3, STI, $0C
+	.BYTE CS3, STI, $07, D2, STI, $0C, D2, STI, $07, D3, STI, $0C
+	.BYTE D3, STI, $07, F3, STI, $0C, F3, STI, $07, A3, STI, $0C
+	.BYTE A3, STI, $07, F3, STI, $0C, F3, STI, $07, D3, STI, $0C
+	.BYTE D3
+	.BYTE RET
+
+_soler42_square1_12:
+	.BYTE STI, $07, SL2, G1, STI, $0C, G1, STI, $07, G2, STI, $0C
+	.BYTE G2, STI, $07, AS2, STI, $0C, AS2, STI, $07, D3, STI, $0C
+	.BYTE D3, STI, $07, AS2, STI, $0C, AS2, STI, $07, G2, STI, $0C
+	.BYTE G2, STI, $07, A1, STI, $0C, A1, STI, $07, A2, STI, $0C
+	.BYTE A2, STI, $07, D3, STI, $0C, D3, STI, $07, A1, STI, $0C
+	.BYTE A1, STI, $07, A2, STI, $0C, A2, STI, $07, CS3, STI, $0C
+	.BYTE CS3, STI, $07, D2, STI, $0C, D2, STI, $07, A2, STI, $0C
+	.BYTE A2, STI, $07, CS2, STI, $0C, CS2, STI, $07, D2, STI, $0C
+	.BYTE D2, STI, $07, A2, STI, $0C, A2, STI, $07, CS2, STI, $0C
+	.BYTE CS2, STI, $07, D2, STI, $0C, D2, STI, $07, A2, STI, $0C
+	.BYTE A2, STI, $07, CS2, STI, $0C, CS2, STI, $07, D2, STI, $0C
+	.BYTE D2, STI, $07, A2, STI, $0C, A2, STI, $07, CS2, STI, $0C
+	.BYTE CS2
+	.BYTE RET
+
+_soler42_square1_13:
+	.BYTE STI, $07, SL4, D2, A2, CS2, D2, A2, CS2, D2, A2, CS2, D2
+	.BYTE A2, CS2, D2, E2, D2, C2, AS1, A1
+	.BYTE RET
+
+_soler42_square2_0:
+	.BYTE STI, $1B, SL0, A0, STI, $09, SL4, D3, SL2, D3, SL1, AS2
+	.BYTE D3, SL0, G3, SL4, D3, SL2, D3, SL1, AS2, D3, SL0, G3, SL4
+	.BYTE D3, SL2, D3, SL1, AS2, D3, SL8, G3, SL4, D3, SL8, D3, SL4
+	.BYTE C3
+	.BYTE RET
+
+_soler42_square2_1:
+	.BYTE STI, $09, SL1, C3, AS2, C3, SL5, AS2, SL4, A2, SL1, A2
+	.BYTE G2, A2, SL5, G2, SL4, A2, SL1, C3, AS2, C3, SL5, AS2, SL4
+	.BYTE A2, SL1, A2, G2, A2, SL5, G2, SL4, A2, SL1, C3, AS2, C3
+	.BYTE SL5, AS2, SL4, C3, SL1, DS3, D3, DS3, SL5, D3, SL4, E3
+	.BYTE SL1, G3, FS3, G3, SL5, FS3, SL4, G3, A3, AS3, C4
+	.BYTE RET
+
+_soler42_square2_2:
+	.BYTE STI, $09, SL4, C4, SL8, AS3, SL1, AS3, A3, AS3, SL7, A3
+	.BYTE SL1, G3, A3, SL0, G3, SL4, D3, SL2, D3, SL1, AS2, D3, SL0
+	.BYTE G3, SL4, D3, SL2, D3, SL1, AS2, D3, SL8, G3, SL4, D3, SL8
+	.BYTE D3, SL4, C3
+	.BYTE RET
+
+_soler42_square2_3:
+	.BYTE STI, $09, SL1, C3, AS2, C3, SL5, AS2, SL4, A2, SL1, A2
+	.BYTE G2, A2, SL5, G2, SL4, A2, SL1, C3, AS2, C3, SL5, AS2, SL4
+	.BYTE A2, SL1, A2, G2, A2, SL5, G2, SL4, A2, SL1, C3, AS2, C3
+	.BYTE SL5, AS2, SL4, C3, SL1, DS3, D3, DS3, SL5, D3, SL4, E3
+	.BYTE SL1, G3, FS3, G3, SL5, FS3, SL4, G3, SL8, A3, SL4, AS3
+	.BYTE RET
+
+_soler42_square2_4:
+	.BYTE STI, $09, SL1, A3, SLF, C4, SL1, AS3, SL3, D4, SL1, A3
+	.BYTE SL3, C4, SL1, A3, SL7, C4, SL1, G3, SL7, AS3, SL1, A3, SL3
+	.BYTE C4, SL1, G3, SL3, AS3, SL1, G3, SL7, AS3, SL1, F3, SL7
+	.BYTE A3, SL1, G3, SL3, AS3, SL1, F3, SL3, A3, SL1, F3, SL7
+	.BYTE A3, SL1, E3, SL7, G3, SL1, F3, SL3, A3, SL1, E3, SL3, G3
+	.BYTE RET
+
+_soler42_square2_5:
+	.BYTE STI, $09, SL1, G3, F3, G3, SL5, F3, SL4, A3, SL1, F3, E3
+	.BYTE F3, SL5, E3, SL4, A3, SL1, E3, D3, E3, SL5, D3, SL4, A3
+	.BYTE SL1, D3, C3, D3, SL5, C3, SL4, A3, SL1, C3, AS2, C3, SL5
+	.BYTE AS2, SL4, A3, SL1, AS2, A2, AS2, SL5, A2, SL4, A3, SL1
+	.BYTE A2, G2, A2, SL5, G2, SL4, A3, SL1, G2, F2, G2, SL5, F2
+	.BYTE SL4, A3
+	.BYTE RET
+
+_soler42_square2_6:
+	.BYTE STI, $09, SL0, E2, SL1, CS3, SL3, E3, SL1, CS3, SL3, E3
+	.BYTE SL1, A2, CS3, E3, SLD, A3, SL1, CS3, SL3, E3, SL1, CS3
+	.BYTE SL3, E3, SL1, A2, CS3, E3, SLL,17, A3, SL4, A3, SL1, D3
+	.BYTE CS3, D3, SL5, CS3, SL4, D3, SL8, E3, SL4, F3
+	.BYTE RET
+
+_soler42_square2_7:
+	.BYTE STI, $09, SL1, A3, G3, A3, SL5, G3, SL4, F3, SL8, E3, SL4
+	.BYTE F3, SL1, G3, F3, G3, SL5, F3, SLC, E3, SL4, A3, SL1, D3
+	.BYTE CS3, D3, SL5, CS3, SL4, D3, SL8, E3, SL4, F3, SL1, A3, G3
+	.BYTE A3, SL5, G3, SL4, F3, SL8, E3, SL4, F3
+	.BYTE RET
+
+_soler42_square2_8:
+	.BYTE STI, $09, SL1, G3, F3, G3, SL5, F3, SL8, E3, SL4, A3, G3
+	.BYTE SL8, G3, F3, SL4, D4, C4, SL8, C4, AS3, SL4, AS3, G3, SLC
+	.BYTE F3, SL1, CS3, F3, E3, F3, SL8, E3
+	.BYTE RET
+
+_soler42_square2_9:
+	.BYTE STI, $09, SL8, E3, SL6, D3, SL2, A3, G3, F3, E3, D3, SL4
+	.BYTE D3, SL0, CS3, SL4, A3, SL1, D3, CS3, D3, SL5, CS3, SL4
+	.BYTE D3, SL8, E3, SL4, F3, SL1, A3, G3, A3, SL5, G3, SL4, F3
+	.BYTE SL8, E3, SL4, F3
+	.BYTE RET
+
+_soler42_square2_10:
+	.BYTE STI, $09, SL1, G3, F3, G3, SL5, F3, SLC, E3, SL4, A3, SL1
+	.BYTE D3, CS3, D3, SL5, CS3, SL4, D3, SL8, E3, SL4, F3, SL1
+	.BYTE A3, G3, A3, SL5, G3, SL4, F3, SL8, E3, SL4, F3, SL1, G3
+	.BYTE F3, G3, SL5, F3, SL8, E3, SL4, A3, G3
+	.BYTE RET
+
+_soler42_square2_11:
+	.BYTE STI, $09, SL8, G3, F3, SL4, D4, C4, SL8, C4, AS3, SL4
+	.BYTE AS3, G3, SLC, F3, SL1, CS3, E3, F3, E3, F3, SL7, E3, SL8
+	.BYTE E3, D3, SL4, D4, C4
+	.BYTE RET
+
+_soler42_square2_12:
+	.BYTE STI, $09, SL8, C4, AS3, SL4, AS3, G3, SLC, F3, SL1, CS3
+	.BYTE E3, F3, E3, F3, SL7, E3, SL8, D2, SL4, E2, SL8, F2, SL4
+	.BYTE E2, SL8, D2, SL4, E2, SL8, F2, SL4, E2
+	.BYTE RET
+
+_soler42_square2_13:
+	.BYTE STI, $09, SL8, D2, SL4, CS2, SL8, D2, SL4, CS2, SL8, D2
+	.BYTE SL4, CS2, SL8, D2, SL4, CS2, D2, STI, $0B, SLL,20, F3
+	.BYTE RET
+
+_soler42_triangle_0:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2
+	.BYTE FS1
+	.BYTE RET
+
+_soler42_triangle_1:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, A1, AS1, AS2, C2, D2, D3, FS3, D3, C3
+	.BYTE A2
+	.BYTE RET
+
+_soler42_triangle_2:
+	.BYTE STI, $07, SL4, AS2, D3, G2, FS2, D3, D2, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1, G2
+	.BYTE FS1
+	.BYTE RET
+
+_soler42_triangle_3:
+	.BYTE STI, $07, SL4, G1, G2, FS1, G1, G2, FS1, G1, G2, FS1, G1
+	.BYTE G2, FS1, G1, G2, A1, AS1, AS2, C2, D2, D3, FS3, D3, C3
+	.BYTE A2
+	.BYTE RET
+
+_soler42_triangle_4:
+	.BYTE STI, $07, SL4, A2, A3, C4, A3, FS3, D3, G2, G3, AS3, G3
+	.BYTE E3, C3, F2, F3, A3, F3, D3, AS2, E2, E3, G3, E3, CS3, A2
+	.BYTE RET
+
+_soler42_triangle_5:
+	.BYTE STI, $07, SL4, D2, D3, F3, C2, C3, E3, AS1, AS2, D3, A1
+	.BYTE A2, C3, G1, G2, AS2, F1, F2, A2, E1, E2, G2, D1, D2, F2
+	.BYTE RET
+
+_soler42_triangle_6:
+	.BYTE STI, $07, SL4, A0, CS1, E1, A1, CS2, E2, A1, CS2, E2, A2
+	.BYTE CS3, E3, A1, A2, B1, CS2, A2, D2, E2, A2, F2, G2, A2, F2
+	.BYTE RET
+
+_soler42_triangle_7:
+	.BYTE STI, $09, SL4, E2, A2, D2, CS2, A2, D2, A1, A2, B1, CS2
+	.BYTE A2, D2, E2, A2, F2, G2, A2, F2, E2, A2, D2, CS2, A2, D2
+	.BYTE RET
+
+_soler42_triangle_8:
+	.BYTE STI, $07, SL4, A1, A2, CS3, A2, E2, CS2, D2, D3, F3, A3
+	.BYTE F3, D3, G1, G2, AS2, D3, AS2, G2, A1, A2, D3, A1, A2, CS3
+	.BYTE RET
+
+_soler42_triangle_9:
+	.BYTE STI, $07, SL4, D1, D2, F2, A2, F2, D2, A1, A2, B1, CS2
+	.BYTE A2, D2, E2, A2, F2, G2, A2, F2, E2, A2, D2, CS2, A2, D2
+	.BYTE RET
+
+_soler42_triangle_10:
+	.BYTE STI, $07, SL4, A1, A2, B1, CS2, A2, D2, E2, A2, F2, G2
+	.BYTE A2, F2, E2, A2, D2, CS2, A2, D2, A1, A2, CS3, A2, E2, CS2
+	.BYTE RET
+
+_soler42_triangle_11:
+	.BYTE STI, $07, SL4, D1, D2, F2, A2, F2, D2, G1, G2, AS2, D3
+	.BYTE AS2, G2, A1, A2, D3, A1, A2, CS3, D2, D3, F3, A3, F3, D3
+	.BYTE RET
+
+_soler42_triangle_12:
+	.BYTE STI, $07, SL4, G1, G2, AS2, D3, AS2, G2, A1, A2, D3, A1
+	.BYTE A2, CS3, D2, A2, CS2, D2, A2, CS2, D2, A2, CS2, D2, A2
+	.BYTE CS2
+	.BYTE RET
+
+_soler42_triangle_13:
+	.BYTE STI, $07, SL4, D2, A2, CS2, D2, A2, CS2, D2, A2, CS2, D2
+	.BYTE A2, CS2, D2, E2, D2, C2, AS1, A1
+	.BYTE RET
+
+_soler42_noise_0:
+	.BYTE STI, $0A, SL4, $00, $00, $05, $00, $00, $05, $00, $00
+	.BYTE $05, $00, $00, $05, $00, $00, $05, $00, $00, $05, $00
+	.BYTE $00, $05, $00, $00, $05
+	.BYTE RET
+
+_soler42_noise_1:
+	.BYTE STI, $0A, SL4, $00, $00, $05, $00, $00, $05, $00, $00
+	.BYTE $05, $00, $00, $05, $00, $00, $05, $00, $00, $05
+	.BYTE RET
+
+_antagonist:
+	.BYTE $00
+	.BYTE $05
+	.WORD _antagonist_square1
+	.WORD _antagonist_square2
+	.WORD _antagonist_triangle
+	.WORD $00
+
+_antagonist_square1:
+_antagonist_square1_loop:
+	.BYTE CAL,<(_antagonist_square1_0),>(_antagonist_square1_0)
+	.BYTE CAL,<(_antagonist_square1_0),>(_antagonist_square1_0)
+	.BYTE CAL,<(_antagonist_square1_1),>(_antagonist_square1_1)
+	.BYTE CAL,<(_antagonist_square1_1),>(_antagonist_square1_1)
+	.BYTE CAL,<(_antagonist_square1_2),>(_antagonist_square1_2)
+	.BYTE CAL,<(_antagonist_square1_2),>(_antagonist_square1_2)
+	.BYTE CAL,<(_antagonist_square1_3),>(_antagonist_square1_3)
+	.BYTE GOT
+	.WORD _antagonist_square1_loop
+
+_antagonist_square2:
+_antagonist_square2_loop:
+	.BYTE CAL,<(_antagonist_square2_0),>(_antagonist_square2_0)
+	.BYTE CAL,<(_antagonist_square2_1),>(_antagonist_square2_1)
+	.BYTE CAL,<(_antagonist_square2_2),>(_antagonist_square2_2)
+	.BYTE CAL,<(_antagonist_square2_2),>(_antagonist_square2_2)
+	.BYTE CAL,<(_antagonist_square2_3),>(_antagonist_square2_3)
+	.BYTE CAL,<(_antagonist_square2_3),>(_antagonist_square2_3)
+	.BYTE CAL,<(_antagonist_square2_4),>(_antagonist_square2_4)
+	.BYTE GOT
+	.WORD _antagonist_square2_loop
+
+_antagonist_triangle:
+_antagonist_triangle_loop:
+	.BYTE CAL,<(_antagonist_triangle_0),>(_antagonist_triangle_0)
+	.BYTE CAL,<(_antagonist_triangle_1),>(_antagonist_triangle_1)
+	.BYTE CAL,<(_antagonist_triangle_1),>(_antagonist_triangle_1)
+	.BYTE CAL,<(_antagonist_triangle_1),>(_antagonist_triangle_1)
+	.BYTE CAL,<(_antagonist_triangle_3),>(_antagonist_triangle_3)
+	.BYTE CAL,<(_antagonist_triangle_3),>(_antagonist_triangle_3)
+	.BYTE CAL,<(_antagonist_triangle_4),>(_antagonist_triangle_4)
+	.BYTE GOT
+	.WORD _antagonist_triangle_loop
+
+_antagonist_square1_0:
+	.BYTE STI, $0D, SL4, C2, C3, B2, C3, G2, C3, D3, DS3, FS2, D3
+	.BYTE C3, D3, F2, B2, A2, B2
+	.BYTE RET
+
+_antagonist_square1_1:
+	.BYTE STI, $0D, SL4, C3, C4, B3, C4, G3, C4, D4, DS4, FS3, D4
+	.BYTE C4, D4, F3, B3, A3, B3
+	.BYTE RET
+
+_antagonist_square1_2:
+	.BYTE STI, $0D, SL2, C4, B3, C4, DS4, SLL,24, G4, SL2, D4, C4
+	.BYTE D4, F4, SLL,24, B4
+	.BYTE RET
+
+_antagonist_square1_3:
+	.BYTE STI, $0D, SL2, GS4, G4, GS4, C5, SL0, DS5, SL8, F5, SL2
+	.BYTE D5, DS5, D5, C5, SLL,24, B4
+	.BYTE RET
+
+_antagonist_square2_0:
+	.BYTE STI, $0E, SLL,64, C2
+	.BYTE RET
+
+_antagonist_square2_1:
+	.BYTE STI, $1B, SLL,64, A0
+	.BYTE RET
+
+_antagonist_square2_2:
+	.BYTE STI, $0D, SL2, C2, D2, DS2, G2, SLL,24, C3, SL2, FS2, G2
+	.BYTE A2, C3, SL8, A3, GS3, G3
+	.BYTE RET
+
+_antagonist_square2_3:
+	.BYTE STI, $1B, SL8, A0, STI, $0D, SL2, G2, FS2, G2, C3, SL8
+	.BYTE DS3, F3, SL0, D3, SL2, G2, FS2, G2, B2, SL8, G3
+	.BYTE RET
+
+_antagonist_square2_4:
+	.BYTE STI, $0D, SL8, GS2, SL2, C3, AS2, C3, DS3, SL0, GS3, SL2
+	.BYTE F3, G3, F3, DS3, SLL,24, D3
+	.BYTE RET
+
+_antagonist_triangle_0:
+	.BYTE STI, $0E, SLL,64, C2
+	.BYTE RET
+
+_antagonist_triangle_1:
+	.BYTE STI, $0D, SL0, C2, DS2, D2, G2
+	.BYTE RET
+
+_antagonist_triangle_3:
+	.BYTE STI, $0D, SLL,32, C2, G2
+	.BYTE RET
+
+_antagonist_triangle_4:
+	.BYTE STI, $0D, SLL,24, GS2, SL8, F2, SLL,24, G2, SL8, G1
+	.BYTE RET
+
+_arps:
+	.BYTE $00
+	.BYTE $03
+	.WORD _arps_square1
+	.WORD _arps_square2
+	.WORD _arps_triangle
+	.WORD $00
+
+_arps_square1:
+_arps_square1_loop:
+	.BYTE CAL,<(_arps_square1_0),>(_arps_square1_0)
+	.BYTE CAL,<(_arps_square1_1),>(_arps_square1_1)
+	.BYTE GOT
+	.WORD _arps_square1_loop
+
+_arps_square2:
+_arps_square2_loop:
+	.BYTE CAL,<(_arps_square2_0),>(_arps_square2_0)
+	.BYTE CAL,<(_arps_square2_1),>(_arps_square2_1)
+	.BYTE GOT
+	.WORD _arps_square2_loop
+
+_arps_triangle:
+_arps_triangle_loop:
+	.BYTE CAL,<(_arps_triangle_0),>(_arps_triangle_0)
+	.BYTE CAL,<(_arps_triangle_1),>(_arps_triangle_1)
+	.BYTE GOT
+	.WORD _arps_triangle_loop
+
+_arps_square1_0:
+	.BYTE STI, $11, SL0, A2, D3, STI, $13, G2, C3
+	.BYTE RET
+
+_arps_square1_1:
+	.BYTE STI, $13, SL0, F2, STI, $14, B2, STI, $13, E2, STI, $11
+	.BYTE A2
+	.BYTE RET
+
+_arps_square2_0:
+	.BYTE STI, $0F, SL2, A3, G3, F3, E3, G3, F3, E3, G3, SL0, F3
+	.BYTE SL2, G3, F3, E3, D3, F3, E3, D3, F3, SL0, E3
+	.BYTE RET
+
+_arps_square2_1:
+	.BYTE STI, $0F, SL2, F3, E3, D3, C3, D3, C3, B2, A2, SL0, GS2
+	.BYTE SL2, B2, A2, GS2, FS2, GS2, E2, FS2, GS2, SL0, A2
+	.BYTE RET
+
+_arps_triangle_0:
+	.BYTE STI, $10, SL8, A2, C3, D3, A2, G2, B2, C3, G2
+	.BYTE RET
+
+_arps_triangle_1:
+	.BYTE STI, $10, SL8, F2, A2, B2, F2, E2, GS2, A2, E2
+	.BYTE RET
+
+_sfx_shot:
+	.WORD $00
+	.WORD $00
+	.WORD $00
+	.WORD _sfx_shot_noise
+
+_sfx_shot_noise:
+	.BYTE CAL,<(_sfx_shot_noise_0),>(_sfx_shot_noise_0)
+	.BYTE TRM
+_sfx_shot_noise_0:
+	.BYTE SLL,32, STI, $06, $08
+	.BYTE RET
+
+_sfx_laser:
+	.WORD _sfx_laser_square1
+	.WORD $00
+	.WORD $00
+	.WORD $00
+
+_sfx_laser_square1:
+	.BYTE CAL,<(_sfx_laser_square1_0),>(_sfx_laser_square1_0)
+	.BYTE TRM
+_sfx_laser_square1_0:
+	.BYTE SLL,16, STI, $08, B7
+	.BYTE RET
+
+_sfx_zap:
+	.WORD $00
+	.WORD $00
+	.WORD $00
+	.WORD _sfx_zap_noise
+
+_sfx_zap_noise:
+	.BYTE CAL,<(_sfx_zap_noise_0),>(_sfx_zap_noise_0)
+	.BYTE TRM
+_sfx_zap_noise_0:
+	.BYTE SLL,16, STI, $15, $04
+	.BYTE RET
+
+_sfx_collide:
+	.WORD $00
+	.WORD $00
+	.WORD $00
+	.WORD _sfx_collide_noise
+
+_sfx_collide_noise:
+	.BYTE CAL,<(_sfx_collide_noise_0),>(_sfx_collide_noise_0)
+	.BYTE TRM
+_sfx_collide_noise_0:
+	.BYTE SLL,16, STI, $16, $00
 	.BYTE RET
 
