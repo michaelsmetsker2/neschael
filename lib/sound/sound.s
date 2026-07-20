@@ -291,7 +291,7 @@ no_noise:
 	BEQ no_square_1
 	STA streamPtr+1
 	
-	LDX #stream
+	LDX stream
 	LDY #$00
 
 	JSR stream_initialize
@@ -306,7 +306,7 @@ no_noise:
 	INC stream
 no_square_1:
 
-	LDA #stream
+	LDA stream
 	CMP #(Audio_streams::SFX_2 + 1)
 	BNE skip0
 	JMP no_more_sfx_streams_available
@@ -321,7 +321,7 @@ skip0:
 	BEQ no_square_2
 	STA streamPtr+1
 	
-	LDX #stream
+	LDX stream
 	LDY #$01
 
 	JSR stream_initialize
@@ -336,7 +336,7 @@ skip0:
 	INC stream
 no_square_2:
 
-	LDA #stream
+	LDA stream
 	CMP #(Audio_streams::SFX_2 + 1)
 	BNE skip1
 	JMP no_more_sfx_streams_available
@@ -351,7 +351,7 @@ skip1:
 	BEQ no_triangle
 	STA streamPtr+1
 	
-	LDX #stream
+	LDX stream
 	LDY #$02
 
 	JSR stream_initialize
@@ -366,7 +366,7 @@ skip1:
 	INC stream
 no_triangle:
 
-	LDA #stream
+	LDA stream
 	CMP #(Audio_streams::SFX_2 + 1)
 	BEQ no_more_sfx_streams_available
 
@@ -379,7 +379,7 @@ no_triangle:
 	BEQ no_noise
 	STA streamPtr+1
 	
-	LDX #stream
+	LDX stream
 	LDY #$03
 
 	JSR stream_initialize
@@ -556,10 +556,10 @@ no_more_sfx_streams_available:
 
 	RTS
 
-.PROC indirect_jsr_helper
-	JMP (callbackAddr)
-	RTS
-.ENDPROC
+	.PROC indirect_jsr_helper
+		JMP (callbackAddr)
+		RTS
+	.ENDPROC
 
 .ENDPROC
 
