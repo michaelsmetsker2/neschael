@@ -413,7 +413,7 @@ opcode_table_high:
 	LDA streamFlags, X
 	ORA #STREAM_PITCH_LOADED_MASK
 	STA streamFlags, X
-	STA streamRegister_3, X
+	LDA streamRegister_3, X
 	AND #%10000000
 	ORA tempStorage
 	STA streamRegister_3, X
@@ -847,7 +847,8 @@ arpeggio_stop:
 	BMI not_sound_effect
 
 	;Load channel this sfx writes to.
-	LDA streamChannel, X
+	LDY streamChannel, X
+
 	;Use this as index into streams to tell corresponding music channel
 	;to silence until the next note.
 	LDA streamFlags, Y

@@ -160,6 +160,7 @@
 	ORA #%10000000
 	STA playerFlags
 
+	; TODO temp
 .IMPORT load_sfx
 	LDA #$00
 	JSR load_sfx 

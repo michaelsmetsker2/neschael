@@ -262,8 +262,7 @@ no_noise:
 	RTS
 .ENDPROC
 
-
-	; load sfx track into the song engine, expects 1 channel
+	; load sfx track into the song engine, expects 1-2 channels
  	; expects ACC to contain index of an effect in sfx_list
 .PROC load_sfx
 
@@ -271,6 +270,11 @@ no_noise:
 	sfxPtr = audio_scratch
 	streamPtr = audio_scratch+2
 	stream = audio_scratch+4
+
+	; disable old sound effect
+	LDA #$00
+	STA streamFlags + Audio_streams::SFX_1
+	STA streamFlags + Audio_streams::SFX_2
 
 	; set songPtr to the correct song
 	TAY
@@ -462,7 +466,7 @@ no_more_sfx_streams_available:
 	LDA (streamPtr), Y
 	STA streamNote, X
 :
-	; BUG wierd fallthrough behaviorm it compares the flag with opcode base
+	; LDA streamNote, X ; this is unneeded as the flags that can be checked are always under opcode threshold
 
 	; check if value is an opcode or a note
 	CMP #OPCODE_THRESHOLD
@@ -561,7 +565,6 @@ no_more_sfx_streams_available:
 		JMP (callbackAddr)
 		RTS
 	.ENDPROC
-
 .ENDPROC
 
 .PROC set_apu_ports
