@@ -15,7 +15,7 @@ test_level_2:
 	.BYTE $3F ; background color
 	.BYTE $00, $01, $02, $03 ; background palettes
 	.BYTE $04, $01, $02, $03 ; sprite palettes
-  .BYTE $00 ; music ID
+	.BYTE $01 ; music ID
   
 background_index:
 	.WORD background_0, background_1, background_2, background_3, background_4, background_5, background_6, background_7
