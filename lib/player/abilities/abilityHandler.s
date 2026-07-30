@@ -7,7 +7,6 @@
 
 .IMPORT vertical_boost
 
-
 .EXPORT cycle_abilities
 .EXPORT execute_ability_up
 .EXPORT execute_ability_down
@@ -15,7 +14,7 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/system/cpu.inc"
 
-  ; a new unlocked ability if start or select are pressed
+  ; cycles to a new unlocked ability if start or select are pressed
 .PROC cycle_abilities
   LDA btnPressed
   AND #_BUTTON_START

@@ -39,13 +39,13 @@
 ; $20-$3F:      Player data, states and animation, see lib/player/init.s      
   PLAYER_DATA:   .RES 32
 
-; $40-$BE :     Game data, see lib/player/game.inc ; TODO update $40 - ?? it is out of date
+; $40-$6F :     Game data, see lib/player/game.inc
   GAME_DATA:     .RES 48
 
-; $BF-$D7:      Tile data to be drawn in the hud during vblank
+; $70-$88:      Tile data to be drawn in the hud during vblank
   HUD_BUFFER:    .RES 25
 
-; $D8-$FF:      Memory reserved for the sound engine
+; $89-$FF:      Memory reserved for the sound engine
   AUDIO_DATA_ZP: .RES 55
 
 ;-------------------------------------------------------------------------------

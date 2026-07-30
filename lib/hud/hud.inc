@@ -5,6 +5,9 @@
 ; various consants, macros, and memory addresses realting to the heads up display/status bar and sprite zero hit.
 ;
 
+    ; offset in background CHR for the start of numbers and letters
+  NUMBERTILE_INDEX = $DC
+
   ; for use during NMI
 .MACRO UpdateHud
     ; set ppu addr to the start of the hud

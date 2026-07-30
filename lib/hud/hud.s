@@ -7,17 +7,21 @@
 
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/player/player.inc"
+.INCLUDE "lib/hud/hud.inc"
 
 .IMPORTZP HUD_BUFFER
-.IMPORT   shadowOam
+.IMPORT shadowOam
 
-.EXPORT   hud_init
+.EXPORT hud_init
 .EXPORT buffer_hud
 
-  ; draw the hud upon level load
-.PROC hud_init
+  ; FIXME waste of rom space?
+base_hud:
+  .BYTE $00, $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, $00, $00, $D4, $D5, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $D6, $D7, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01
 
-  HUD_START_OFFSET = $40 ; ppu offset from nametable 1, skips first two tile rows (overscan) 
+  ; sets sprite zero and draws hud background upon level load
+.PROC hud_init
 
   SPRITE_ZERO_Y    = $1D
   SPRITE_ZERO_TILE = $FF
@@ -34,12 +38,13 @@
   LDA #SPRITE_ZERO_X
   STA shadowOam+3
 
+    ; set the palette and for hud
 @set_hud_attr:
     ; set ppu increment mode to +1
   LDA #%00001000
   STA _PPUCTRL
 
-    ; set the palette for hud
+    ; sets ppuAddr to start of nametable 1
   LDA #>_ATTR_A
   STA _PPUADDR
   LDA #<_ATTR_A
@@ -52,21 +57,24 @@
   INY
   CPY #$08      ; loop through first row
   BNE @loop
+  
 
 @draw_base_hud:
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
-  LDA #HUD_START_OFFSET
+  LDA #$40
   STA _PPUADDR
 
     ; draw starting hud tiles
-  LDY #$C0
+  LDY #$00
 @tile_loop:
-  STY _PPUDATA
+
+  LDA base_hud, Y
+  STA _PPUDATA
   INY
 
-  CPY #$00
+  CPY #$40
   BNE @tile_loop
 
   RTS
@@ -74,13 +82,12 @@
 
   ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
-    ; offset in background CHR for the start of numbers and letters
-  NUMBERTILE_INDEX = $DC
+
 
 @buffer_speed:
   LDX velocityX
   LDY velocityX+1
-    ; twos compliment if velocity is negative
+    ; two's compliment if velocity is negative
   TYA
   BPL @low_byte
   TXA
