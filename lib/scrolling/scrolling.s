@@ -122,7 +122,7 @@
   RTS
 .ENDPROC
 
-  ; TODO o need a mask table for ability masking, genericize.
+  ; TODO could genericize if needed elsewhere?
 mask_table: ; table of bit masks for finding the corosponding spawn column bit
   .BYTE %00000001, %00000010, %00000100, %00001000, %00010000, %00100000, %01000000, %10000000
   

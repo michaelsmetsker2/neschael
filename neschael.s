@@ -13,6 +13,8 @@
 .IMPORT level_init
 
 .IMPORT play_sound_frame
+.IMPORT update_timer
+
 .IMPORT read_joypad_1
 .IMPORT cycle_abilities
 
@@ -44,7 +46,9 @@ game_loop:
 
     ; first thing after NMI (and zero hit) so timing is consistant
   JSR play_sound_frame
-  
+
+  JSR update_timer
+
   JSR read_joypad_1
   JSR cycle_abilities
 

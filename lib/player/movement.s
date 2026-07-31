@@ -195,8 +195,8 @@
 	ASL
 	ROL
 	AND #%00000001 		; 1 is left, 0 right
-	EOR $00 					; 1 for down, 0 for up
-	ASL 							; 0 for down, 2 for up
+	EOR $00 			; 1 for down, 0 for up
+	ASL 				; 0 for down, 2 for up
 	STA $00
 	
 	TYA

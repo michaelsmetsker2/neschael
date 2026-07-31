@@ -30,11 +30,18 @@ levelPtr       = GAME_DATA + 8  ; 16 bit, points to the level data of the curren
 spriteCount    = GAME_DATA + 10 ; ammount of sprites used by entities, determines whether to spawn more
 oamOffset      = GAME_DATA + 11 ; offset to start drawing sprites in OAM, persists between frames for shuffling
 
-  ; bit 0-7:  unused
+  ; bit 0-3:  up abilities
+  ; bit 4-7:  down abilities
 unlockFlags    = GAME_DATA + 12 ; currently unlocked abilities
 
-; TODO currently selected abilities
+  ; the id 0-3 of the ability currently selected
+currentAbilityUp   = GAME_DATA + 13 
+currentAbilityDown = GAME_DATA + 14
 
+  ; timer values
+timerFrames    = GAME_DATA + 15
+timerSeconds   = GAME_DATA + 16
+timerMinutes   = GAME_DATA + 17
 
 ; TODO gameState ; for main menu, game, credits?
 

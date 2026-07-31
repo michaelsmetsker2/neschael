@@ -83,6 +83,7 @@ base_hud:
   ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
 
+  ; ability pointers?
 
 @buffer_speed:
   LDX velocityX

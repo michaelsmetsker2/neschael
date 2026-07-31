@@ -2,7 +2,7 @@
 ; neshael
 ; lib/sound/sound.s
 ;
-; modified version of ggsound by ; TODO
+; modified version of ggsound by gradualgames on github
 ; main sound engine, and subproccesses to interface with it
 
 .INCLUDE "data/system/apu.inc"

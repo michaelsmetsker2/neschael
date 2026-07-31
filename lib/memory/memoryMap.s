@@ -30,23 +30,23 @@
 .EXPORT entityPool
 
 ;-------------------------------------------------------------------------------
-; Zero Page
+; Zero Page ; TODO fix sizes in comments
 ;-------------------------------------------------------------------------------
 .SEGMENT "ZEROPAGE" ; first page of memory, faster I/O
 ; $00-$1F:      General use Subroutine Scratch Memory
   SCRATCH:       .RES 32
 
-; $20-$3F:      Player data, states and animation, see lib/player/init.s      
-  PLAYER_DATA:   .RES 32
+; $20-$30:      Player data, states and animation, see lib/player/init.s      
+  PLAYER_DATA:   .RES 17
 
-; $40-$6F :     Game data, see lib/player/game.inc
+; $31-$6F :     Game data, see lib/player/game.inc
   GAME_DATA:     .RES 48
 
 ; $70-$88:      Tile data to be drawn in the hud during vblank
   HUD_BUFFER:    .RES 25
 
 ; $89-$FF:      Memory reserved for the sound engine
-  AUDIO_DATA_ZP: .RES 55
+  AUDIO_DATA_ZP: .RES 8
 
 ;-------------------------------------------------------------------------------
 ; $0100-$01FF:  The Stack

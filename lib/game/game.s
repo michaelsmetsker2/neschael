@@ -28,11 +28,15 @@
 .EXPORT game_init
 .EXPORT read_joypad_1
 .EXPORT level_init
+.EXPORT update_timer
 
 .PROC game_init
 
   JSR audio_init
-  ; by default set all abilities to unlocked for testing? 
+  ; FIXME temp, sets all abilities to unlocked for testing
+  ; TODO make a build flag or precompile variable for a debug mode
+  LDA #%01110111
+  STA unlockFlags
 
   RTS
 .ENDPROC
@@ -157,5 +161,10 @@
   EOR btnDown
   and btnDown
   STA btnPressed  ; Fill buttonPressed with only new presses
+  RTS
+.ENDPROC
+
+.PROC update_timer
+  ; TODO
   RTS
 .ENDPROC

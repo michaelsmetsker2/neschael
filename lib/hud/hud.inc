@@ -13,10 +13,9 @@
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
-  LDA #$50
+  LDA #$50 ; TODO formalize starting offset?
   STA _PPUADDR
 
-    ; draw starting hud tiles
   LDY #$00
 @tile_loop:
   LDA HUD_BUFFER, Y
