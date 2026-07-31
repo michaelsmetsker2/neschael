@@ -1,8 +1,8 @@
 ;
 ; neschael
-; lib/player/abilities/abilities
+; lib/player/abilities/verticalBoost.s
 ;
-; contains the proccesses executed when activating an up or down ability
+; contains the proccesses for the vertical boost up ability
 ;
 
 .INCLUDE "lib/player/player.inc"

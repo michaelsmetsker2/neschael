@@ -165,6 +165,6 @@
 .ENDPROC
 
 .PROC update_timer
-  ; TODO
+  ; TODO implement
   RTS
 .ENDPROC

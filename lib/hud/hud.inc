@@ -8,12 +8,15 @@
     ; offset in background CHR for the start of numbers and letters
   NUMBERTILE_INDEX = $DC
 
+    ; ppu offset from start of nametable for start of the hud
+  STARTING_OFFSET = $50
+
   ; for use during NMI
 .MACRO UpdateHud
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
-  LDA #$50 ; TODO formalize starting offset?
+  LDA #STARTING_OFFSET
   STA _PPUADDR
 
   LDY #$00

@@ -8,11 +8,23 @@
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/system/cpu.inc"
 
+.IMPORTZP SCRATCH
+
 .IMPORT vertical_boost
+.IMPORT glide_ability
 
 .EXPORT cycle_abilities
 .EXPORT execute_ability_up
 .EXPORT execute_ability_down
+
+ability_up_table_low:
+  .BYTE <vertical_boost, <glide_ability, <glide_ability
+ability_up_table_high:
+  .BYTE >vertical_boost, >glide_ability, >glide_ability
+
+ability_down_table_low:
+
+ability_down_table_high:
 
   ; masks for the unlockFlags to see if an ability is unlocked or not
 ability_masks_up:
@@ -69,11 +81,20 @@ ability_masks_down:
 .ENDPROC
 
 .PROC execute_ability_up
+  ; pointer to the proccess of the correct ability
+  abilityPtr = SCRATCH
 
-  JMP vertical_boost ; TODO temp
-  RTS
+  LDY currentAbilityUp
+  LDA ability_up_table_low, Y
+  STA abilityPtr
+  LDA ability_up_table_high, Y
+  STA abilityPtr+1
+
+  JMP (abilityPtr)
+
 .ENDPROC
 
 .PROC execute_ability_down
+  ; TODO implement
   RTS
 .ENDPROC

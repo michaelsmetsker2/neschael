@@ -5,7 +5,6 @@
 ; handles the players movement physics and input
 ; todo this file has potential cycle saves by using tail calls
 ;
-; TODO go through *everything* and make use of the overflow flag
 
 .SEGMENT "CODE"
 
