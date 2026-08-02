@@ -19,11 +19,15 @@
 .IMPORT execute_ability_up
 .IMPORT execute_ability_down
 
+.IMPORT update_jump_glide
+
+.IMPORT load_sfx
+
 .EXPORT update_player_movement
 
 .PROC update_player_movement
 	JSR set_target_velocity_x
-	JSR handle_abilities
+	JSR trigger_abilities
 	JSR accelerate_x
 	JSR update_vertical_motion  ; y is after set_target_velocity_x so heading is already updated for jump's speed boost
 																; and before apply_velocity_x so the jump boost can be applied frame one
@@ -72,14 +76,14 @@
 	; apply give the player the correct velocity to push them toward their target
 .PROC accelerate_x
 		; Having a target of 0 (holding nothing) in air will not slow you down
-		; NOTE probably inneficient to check this first
 	LDA targetVelocityX         
 	ORA targetVelocityX+1
 	BNE @accelerate             ;branch if target is not zero
 	LDA motionState
-	;CMP #MotionState::Airborne ; redundant as Airborne is zero
-	BNE @accelerate             ; branch if on the ground
+	CMP #MotionState::Grounded
+	BCS @accelerate             ; branch if on the ground
 	RTS                         ; return early
+
 @accelerate:
 	; find the difference between the target and current velocities
 	SEC
@@ -141,10 +145,10 @@
 
 	; sets the correct velocity and states for the players y movement
 .PROC update_vertical_motion
-		; skip to update jump velocity if player is currently airborne
+		; skip to update jump velocity if player is currently in the air
 	LDA motionState  
-	CMP #MotionState::Airborne
-	BNE @check_jump
+	CMP #MotionState::Grounded
+	BCS @check_jump
 	JMP update_jump_velocity
 
 @check_jump:
@@ -159,8 +163,7 @@
 	ORA #%10000000
 	STA playerFlags
 
-	; TODO temp
-.IMPORT load_sfx
+	; TODO temp sound effect
 	LDA #$00
 	JSR load_sfx 
 
@@ -276,10 +279,17 @@
 		.BYTE >Jump::HORIZONTAL_BOOST_SHALLOW_DEC
 		.BYTE >Jump::HORIZONTAL_BOOST_FLAT
 
-
 .ENDPROC
 
 .PROC update_jump_velocity ; updates mid air velocity
+.EXPORT update_jump_standard
+
+	LDA motionState
+	CMP #MotionState::Gliding
+	BNE update_jump_standard
+	JMP update_jump_glide
+
+update_jump_standard:
 		; Determine whether to decelerate slow or fast based on button hold
 	LDY #$00                    ; lookup table offset for BASE_FALL_SPEED
 	BIT playerFlags
@@ -327,15 +337,15 @@ fall_speeds_high:
 .ENDPROC
 
 	; check for ability or charge button presses
-.PROC handle_abilities
+.PROC trigger_abilities
 
-	LDX btnDown
+	; for ability activations, only check for new presses
+	LDX btnPressed
 @check_up:
 	TXA
 	AND #_BUTTON_UP
 	BEQ @check_down
 	JMP execute_ability_up
-
 @check_down:
 	TXA
 	AND #_BUTTON_DOWN
@@ -343,7 +353,7 @@ fall_speeds_high:
 	JMP execute_ability_down
 
 @check_b: ; check input for b button
-	TXA
+	LDA btnDown
 	AND #_BUTTON_B
 	BEQ @decay
 	JMP handle_charge

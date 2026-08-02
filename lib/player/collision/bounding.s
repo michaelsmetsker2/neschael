@@ -199,35 +199,35 @@
 	PLAYER_HEAD_OFFSET           = $0  ; zero pixels to players head
 	PLAYER_FEET_OFFSET           = $08 ; 7 pixels down to players feet, plus one to check ground
 
-	tmpCollisionData						 = SCRATCH
+	tmpCollisionData			 = SCRATCH
 
 @check_left: ; check collision at top or bottom left
   	; find player world position
 	CLC                       
 	LDA screenPosX
-	ADC positionX+1           ; high byte is pixel position
+	ADC positionX+1				; high byte is pixel position
 	STA tmpCollisionPointX
 	LDA screenPosX+1
-	ADC #$00									; add carry
+	ADC #$00					; add carry
 	STA tmpCollisionPointX+1
 
-		; load the accumulator with the appropriate Y offset (head of feet)
+		; load the acc with the appropriate Y offset (head or feet)
 	LDA #PLAYER_FEET_OFFSET     ; used if player is grounded or moving down
 	LDX motionState
-	CPX #MotionState::Airborne
-	BNE @add_offset_y
+	CPX #MotionState::Grounded
+	BCS @add_offset_y
 	BIT velocityY+1
 	BPL @add_offset_y
-  LDA #PLAYER_HEAD_OFFSET			; player is airborne and moving up
-@add_offset_y:								; add the offset to the proposed position	
+	LDA #PLAYER_HEAD_OFFSET			; player not grounded and moving up
+@add_offset_y:						; add the offset to the proposed position	
 	CLC
 	ADC tmpProposedPosFinal+1   ; add offset to the pixel position
 	STA tmpCollisionPointY
 
-	JSR find_collision ; load accumulator with collision data
+	JSR find_collision ; load acc with collision data
   STA tmpCollisionData
   
-@check_collision_right: ; check the collision at the players right foot
+@check_right: ; check the collision at player's top or bottom right
 	CLC
 	LDA tmpCollisionPointX
 	ADC #PLAYER_RIGHT_FOOT_OFFSET

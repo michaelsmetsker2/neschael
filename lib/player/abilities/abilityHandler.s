@@ -11,26 +11,25 @@
 .IMPORTZP SCRATCH
 
 .IMPORT vertical_boost
-.IMPORT glide_ability
+.IMPORT glide_init
 
 .EXPORT cycle_abilities
 .EXPORT execute_ability_up
 .EXPORT execute_ability_down
 
 ability_up_table_low:
-  .BYTE <vertical_boost, <glide_ability, <glide_ability
+  .BYTE <vertical_boost, <glide_init, <glide_init
 ability_up_table_high:
-  .BYTE >vertical_boost, >glide_ability, >glide_ability
+  .BYTE >vertical_boost, >glide_init, >glide_init
 
 ability_down_table_low:
-
 ability_down_table_high:
 
   ; masks for the unlockFlags to see if an ability is unlocked or not
 ability_masks_up:
-  .BYTE %00000001, %00000010, %00000100, %00001000
+  .BYTE %00000001, %00000010, %00000100
 ability_masks_down:
-  .BYTE %00010000, %00100000, %01000000, %10000000
+  .BYTE %00010000, %00100000, %01000000
 
   ; cycles to a new unlocked ability if start or select are pressed
 .PROC cycle_abilities
@@ -91,7 +90,6 @@ ability_masks_down:
   STA abilityPtr+1
 
   JMP (abilityPtr)
-
 .ENDPROC
 
 .PROC execute_ability_down

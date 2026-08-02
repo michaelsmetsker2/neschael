@@ -19,64 +19,19 @@
   ; ID: 0, no collision
 .SCOPE Empty
   .PROC col_x
-    RTS
+		RTS
   .ENDPROC
 
   .PROC col_y
-	.IF 0 ; FIXME determine if needed
-			; if the player is currently on a slope
+
+      ; sets the motionState to airborne of we are on the ground, for walking off ledges
 		LDA motionState
-		CMP #SLOPE_STATES_START
-		BCS @slope_check
-	.ENDIF
-      ; sets the motionState, for edge case for walking off a platform
-  	LDA #MotionState::Airborne
+		CMP #MotionState::Grounded
+		BCC :+
+		LDA #MotionState::Airborne
 		STA motionState
+:
 		RTS
-		
-	.IF 0
-	@slope_check:
-		LDA tmpCollisionPointY
-		AND #%11111000
-		STA tmpCollisionPointY
-
-		INC tmpCollisionPointY
-		
-
-		INC	tmpProposedPosFinal+1 
-		JMP ShallowSlope::Up::col_y
-
-
-		JSR find_collision
-
-	@determine_slope:
-		LDA $0F
-		BEQ @reset_state                ; just air, quick return for most cases
-
-		DEC tmpProposedPosFinal+1       ; assume a slope is hit, correct if otherwise
-	
-		CMP #CollisionType::steepSlopeUp
-		BNE :+
-		JMP SteepSlope::Up::col_y
-	:	CMP #CollisionType::shallowSlopeUp
- 		BNE :+
-		JMP ShallowSlope::Up::col_y
-	:	CMP #CollisionType::steepSlopeDown
- 		BNE :+
-		JMP SteepSlope::Down::col_y
-	:	CMP #CollisionType::shallowSlopeDown
-		BNE :+
-		JMP ShallowSlope::Down::col_y
-	
-	: INC tmpProposedPosFinal+1 		; correct position if assumed wrong
-			; fall through on unknown
-	@reset_state: ; set the motion state and return
-	  LDA #MotionState::Airborne
-    STA motionState
-	@return:
-		RTS
-	.ENDIF
-
   .ENDPROC
 .ENDSCOPE
 

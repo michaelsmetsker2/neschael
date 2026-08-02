@@ -28,7 +28,7 @@
   playerFlags     = PLAYER_DATA + 15  ; holds various player flags in various bit positions
                                         ; 0-1 slopeJump   if the player is jumping on a slope, set to 2, disables x collision to avoid snagging for 2 frames
                                         ; 2-4 unused
-                                        ; 5   chargeState if player is charging boost 0 for no
+                                        ; 5   chargeState if player is charging boost, 1 for yes, 0 for no
                                         ; 6   heading     0 for right, 1 for left
                                         ; 7   slowFall    flag if the player has been holding A since the start of the jump
   SLOPE_JUMP_MASK   = %00000011
@@ -39,7 +39,7 @@
 
 
 .SCOPE Jump
-      ; TODO adjust these
+      ; TODO adjust these and formalize
 
     INITIAL_VELOCITY_FLAT        = $FC00 ; signed fixed point 8.8
     INITIAL_VELOCITY_STEEP_INC   = $FB38
@@ -68,14 +68,15 @@
     LEFT_WALK_TARGET  = $FEB0 ; signed 8.8 fixed point
 .ENDSCOPE
 
-
 .ENUM MotionState
   Airborne = 0
-  Grounded = 1
+  Gliding  = 1
+  Grounded = 2
     ; add new values here if needed
   SteepSlopeUp = 3
   ShallowSlopeUp = 4
   SteepSlopeDown = 5
   ShallowSlopeDown = 6
 .ENDENUM
+
   SLOPE_STATES_START = MotionState::SteepSlopeUp ; this motionstate and all above are slopes
