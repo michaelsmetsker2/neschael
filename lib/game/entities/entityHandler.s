@@ -128,7 +128,10 @@
   RTS
 .ENDPROC
 
-  ; this will need to be passed the entity ID and the parameters
+  ; automatically creates and entity from level data.
+  ; expects roEntityData to be set.
+    ; to create an entity manually, set $04 to #$00 and manually set $0A to the entity ID to create.
+    ; NOTE this will break functionality of the standard generic populate slot proccess
 .PROC create_entity
 
   roMetatileIndex       = $01 ; read only, index of the metacolumn index of the entity relative to the background, inhereted from check_entities
@@ -167,12 +170,15 @@
   ADC #<entityPool
   STA tmpSlotPtr
 
+    ; if given $00, expect entity data to be set manually
+  LDY roEntityData
+  BEQ :+
     ; id of the entity
   LDY #$01
   LDA (roEntityData), y
   TAY
   STA entityId ; copy to x register to save for later
-  
+:
     ; create pointer to the entity type
   LDA entity_index_low, Y
   STA tmpEntityTypePointer

@@ -7,7 +7,7 @@
 
 .IMPORT shadowOam
 
-; entity level map 
+; entity level map aka entityData
 ; Byte 1:
   ; bits 0-3 metaColumn index relative to the screen
   ; bits 4-7 metatile y position 

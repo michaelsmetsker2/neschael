@@ -9,7 +9,6 @@
 .INCLUDE "lib/game/gameData.inc"
 
 .IMPORT game_init
-
 .IMPORT level_init
 
 .IMPORT play_sound_frame
@@ -26,13 +25,12 @@
 .IMPORT clear_oam
 .IMPORT update_player_sprite
 .IMPORT update_entities
-
 .IMPORT buffer_hud
+
+.EXPORT main ; jumped to from reset (entrypoint)
 
 ;  start of ROM (PRG) data
 .SEGMENT "CODE"
-
-.EXPORT main ; jumped to from reset entrypoint
 
   ; main entry point after the system from reset interrupt
 .PROC main

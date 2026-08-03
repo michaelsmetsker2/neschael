@@ -11,6 +11,8 @@
 .IMPORT update_jump_standard
 .IMPORT reset_charge
 
+.IMPORT create_entity
+
 .EXPORT glide_init
 .EXPORT update_jump_glide
 
@@ -21,7 +23,13 @@
     CMP #MotionState::Grounded
     BCS @done
 
-    ; TODO init a visual effect of some kind?
+    ; TODO make entity of visual effects
+    ; TODO formalize
+    LDA #$01 ; entity ID for glideFlames
+    STA $0A
+    LDA #$00
+    STA $04
+    JSR create_entity
 
     ; set state to gliding
     LDA #MotionState::Gliding

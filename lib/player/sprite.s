@@ -22,6 +22,7 @@
 	LEFT_WALK_SPRITE  = $03
 	RISING_SPRITE     = $04
 	FALLING_SPRITE    = $05
+	GLIDING_SPRITE    = $06
 
 	; store heading in scratch memory to avoid recalculating it
 	tmpHeading 		   = SCRATCH
@@ -32,9 +33,16 @@
 	; update the currently displayed player sprite based on motion_state and time and tail call remaining proccesses
 		; check if grounded
 	LDA motionState
-	CMP #MotionState::Airborne
-	BNE @grounded
-@Airborne:        ; check direction
+	CMP #MotionState::Grounded
+	BCS @grounded
+
+@gliding:
+	CMP #MotionState::Gliding
+	BNE @airborne
+	LDA #GLIDING_SPRITE
+	JMP @write
+
+@airborne:        ; check direction
 	LDA velocityY+1
 	BEQ @low_speed
 	BIT velocityY+1
