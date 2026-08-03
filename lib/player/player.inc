@@ -58,9 +58,11 @@
 
     SLOW_FALL_DECCEL       = $25   ; deceleration while holding A
     BASE_FALL_DECCEL       = $6B   ; deceleration while free falling
+    GLIDE_VELOCITY         = $005A ; the constant fall speed when gliding
     
     DECELERATION_THRESHOLD = $FE   ; force slow falling when velocity is greater than this
     MAX_FALL_SPEED         = $07FF ; max fall speed to prevent tunneling
+
 .ENDSCOPE
 
 .SCOPE Velocities
@@ -80,3 +82,6 @@
 .ENDENUM
 
   SLOPE_STATES_START = MotionState::SteepSlopeUp ; this motionstate and all above are slopes
+
+  ; TODO make a seperate ability include file
+  GLIDE_CHARGE_DRAIN = $02

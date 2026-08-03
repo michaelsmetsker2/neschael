@@ -24,7 +24,7 @@
 	FALLING_SPRITE    = $05
 
 	; store heading in scratch memory to avoid recalculating it
-	tmpHeading 		    = SCRATCH
+	tmpHeading 		   = SCRATCH
 	
 	PLAYER_OAM_ADDRESS = shadowOam + 4 ; first reserved sprite after sprite zero
 

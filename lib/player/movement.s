@@ -18,6 +18,7 @@
 
 .IMPORT execute_ability_up
 .IMPORT execute_ability_down
+.IMPORT reset_charge
 
 .IMPORT update_jump_glide
 
@@ -500,16 +501,9 @@ fall_speeds_high:
 	BCS @done
 	DEC storedCharge+1
 	BPL @done
-	
-		;stored charge is now negative, end the current charge
-	LDA #$00
-	STA storedCharge
-	STA storedCharge+1
-@reset_chargestate:
-	LDA playerFlags
-	AND #%11011111
-	STA playerFlags
-
+	; charge is negative, reset
+	JSR reset_charge
 @done:
+
 	RTS
 .ENDPROC

@@ -6,6 +6,7 @@
 ;
 
 .INCLUDE "lib/game/gameData.inc"
+.INCLUDE "lib/player/player.inc"
 .INCLUDE "data/system/cpu.inc"
 
 .IMPORTZP SCRATCH
@@ -16,6 +17,7 @@
 .EXPORT cycle_abilities
 .EXPORT execute_ability_up
 .EXPORT execute_ability_down
+.EXPORT reset_charge
 
 ability_up_table_low:
   .BYTE <vertical_boost, <glide_init, <glide_init
@@ -26,10 +28,11 @@ ability_down_table_low:
 ability_down_table_high:
 
   ; masks for the unlockFlags to see if an ability is unlocked or not
+    ; fourth is necessary 
 ability_masks_up:
-  .BYTE %00000001, %00000010, %00000100
+  .BYTE %00000001, %00000010, %00000100, %00001000
 ability_masks_down:
-  .BYTE %00010000, %00100000, %01000000
+  .BYTE %00010000, %00100000, %01000000, %10000000
 
   ; cycles to a new unlocked ability if start or select are pressed
 .PROC cycle_abilities
@@ -42,7 +45,7 @@ ability_masks_down:
   LDA currentAbilityDown
   CLC
   ADC #$01
-  AND #%00000011
+  ;AND #%00000011 ; not necessary as fourth ability is always not unlocked
   ; check if ability is unlocked
   TAY
   LDA ability_masks_down, Y
@@ -94,5 +97,17 @@ ability_masks_down:
 
 .PROC execute_ability_down
   ; TODO implement
+  RTS
+.ENDPROC
+
+  ; resets stored charge and disables the chargeFlag 
+.PROC reset_charge
+	LDA #$00
+	STA storedCharge
+	STA storedCharge+1
+@reset_chargestate:
+	LDA playerFlags
+	AND #%11011111
+	STA playerFlags
   RTS
 .ENDPROC
