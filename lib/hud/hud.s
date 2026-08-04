@@ -17,7 +17,7 @@
 
   ; FIXME waste of rom space?
 base_hud:
-  .BYTE $00, $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, $00, $00, $D4, $D5, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+  .BYTE $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, _S, _P, _E, _E, _D, $00, _B, _O, _O, _S, _T, $00, _T, _I, _M, _E, $00, _L, _E, _V, _E, _L, $00
   .BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $D6, $D7, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01
 
   ; sets sprite zero and draws hud background upon level load
@@ -58,7 +58,6 @@ base_hud:
   CPY #$08      ; loop through first row
   BNE @loop
   
-
 @draw_base_hud:
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
@@ -83,7 +82,7 @@ base_hud:
   ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
 
-  ; ability pointers?
+  ; ability pointers
 
 @buffer_speed:
   LDX velocityX
