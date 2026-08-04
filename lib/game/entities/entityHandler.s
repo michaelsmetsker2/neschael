@@ -22,9 +22,11 @@
 .EXPORT clear_oam
 
 
-  ; loop through entity pool and set all to inactive
+  ; loop through entity pool and set all to inactive, and reset sprite count
 .PROC entities_init
   LDX #$00
+  STX spriteCount
+
 @loop:
   LDA #$00
   STA entityPool, X        ; clear status byte
@@ -176,9 +178,9 @@
     ; id of the entity
   LDY #$01
   LDA (roEntityData), y
-  TAY
-  STA entityId ; copy to x register to save for later
+  STA entityId
 :
+  LDY entityId
     ; create pointer to the entity type
   LDA entity_index_low, Y
   STA tmpEntityTypePointer

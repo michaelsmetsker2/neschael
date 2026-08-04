@@ -107,6 +107,7 @@ glide_flames:
 .PROC remove_func
 		; subtract the sprite ammount from the count
 	DEC spriteCount
+
 		; set the entity slot to inactive
 	LDA #$00
 	TAY

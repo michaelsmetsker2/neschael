@@ -45,6 +45,9 @@ game_loop:
     ; first thing after NMI (and zero hit) so timing is consistant
   JSR play_sound_frame
 
+  LDA spriteCount
+  STA $0600 ; FIXME
+
   JSR update_timer
 
   JSR read_joypad_1
