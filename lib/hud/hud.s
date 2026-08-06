@@ -8,6 +8,7 @@
 .INCLUDE "data/system/ppu.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "lib/hud/hud.inc"
+.INCLUDE "lib/game/gameData.inc"
 
 .IMPORTZP HUD_BUFFER
 .IMPORT shadowOam
@@ -17,8 +18,8 @@
 
   ; FIXME waste of rom space?
 base_hud:
-  .BYTE $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, _S, _P, _E, _E, _D, $00, _B, _O, _O, _S, _T, $00, _T, _I, _M, _E, $00, _L, _E, _V, _E, _L, $00
-  .BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $D6, $D7, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01
+  .BYTE $00, _L, _E, _V, _E, _L, $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, _S, _P, _E, _E, _D, $00, _B, _O, _O, _S, _T, $00, _T, _I, _M, _E, $00
+  .BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01
 
   ; sets sprite zero and draws hud background upon level load
 .PROC hud_init
@@ -38,8 +39,7 @@ base_hud:
   LDA #SPRITE_ZERO_X
   STA shadowOam+3
 
-    ; set the palette and for hud
-@set_hud_attr:
+@set_hud_attr: ; pallete data
     ; set ppu increment mode to +1
   LDA #%00001000
   STA _PPUCTRL
@@ -65,10 +65,9 @@ base_hud:
   LDA #$40
   STA _PPUADDR
 
-    ; draw starting hud tiles
   LDY #$00
 @tile_loop:
-
+  ; set each tile
   LDA base_hud, Y
   STA _PPUDATA
   INY
@@ -82,7 +81,22 @@ base_hud:
   ; adds relevent data to a buffer to be quickly added to the hud during NMI
 .PROC buffer_hud
 
-  ; ability pointers
+  LDA #$00
+  STA UP_SELECT_HUD
+  STA UP_SELECT_HUD+1
+  STA UP_SELECT_HUD+2
+  STA DOWN_SELECT_HUD
+  STA DOWN_SELECT_HUD+1
+  STA DOWN_SELECT_HUD+2
+
+  ; clear old, start anew
+  LDA #_A
+  LDY currentAbilityUp
+  STA UP_SELECT_HUD, Y
+
+  LDY currentAbilityDown
+  STA DOWN_SELECT_HUD, Y
+
 
 @buffer_speed:
   LDX velocityX
@@ -107,12 +121,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+2
+  STA HUD_BUFFER+12
   
   TXA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+3
+  STA HUD_BUFFER+13
 
 @high_byte:
   TYA
@@ -121,15 +135,15 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER
+  STA HUD_BUFFER+10
   
   TYA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+1
+  STA HUD_BUFFER+11
 
   LDA #$00
-  STA HUD_BUFFER+4
+  STA HUD_BUFFER+14
 
 @buffer_charge:
 
@@ -141,12 +155,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+7
+  STA HUD_BUFFER+17
   
   LDA storedCharge
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+8
+  STA HUD_BUFFER+18
 
 @hb:
   LDA storedCharge+1
@@ -155,12 +169,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+5
+  STA HUD_BUFFER+15
   
   LDA storedCharge+1
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+6
+  STA HUD_BUFFER+16
 
 
   RTS

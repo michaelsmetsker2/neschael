@@ -43,7 +43,7 @@
   GAME_DATA:     .RES 48
 
 ; $70-$88:      Tile data to be drawn in the hud during vblank
-  HUD_BUFFER:    .RES 25
+  HUD_BUFFER:    .RES 31
 
 ; $89-$FF:      Memory reserved for the sound engine
   AUDIO_DATA_ZP: .RES 8

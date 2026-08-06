@@ -36,7 +36,11 @@
   _Z = $FF
 
     ; ppu offset from start of nametable for start of the hud
-  STARTING_OFFSET = $6A
+  STARTING_OFFSET = $61
+
+  UP_SELECT_HUD = HUD_BUFFER
+  DOWN_SELECT_HUD = HUD_BUFFER+4
+
 
   ; for use during NMI
 .MACRO UpdateHud
@@ -52,6 +56,6 @@
   STA _PPUDATA
   INY
 
-  CPY #$09
+  CPY #$1E
   BNE @tile_loop
 .ENDMACRO
