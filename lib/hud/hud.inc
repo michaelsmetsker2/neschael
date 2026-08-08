@@ -8,6 +8,7 @@
     ; offset in background CHR for the start of numbers and letters
   NUMBERTILE_INDEX = $DC
   LETTERTIEL_INDEX = $E6
+
   _A = $E6
   _B = $E7
   _C = $E8
@@ -41,7 +42,6 @@
   UP_SELECT_HUD = HUD_BUFFER
   DOWN_SELECT_HUD = HUD_BUFFER+4
 
-
   ; for use during NMI
 .MACRO UpdateHud
     ; set ppu addr to the start of the hud
@@ -56,6 +56,6 @@
   STA _PPUDATA
   INY
 
-  CPY #$1E
+  CPY #$1E ; TODO formalize?
   BNE @tile_loop
 .ENDMACRO
