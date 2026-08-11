@@ -7,7 +7,7 @@
 
     ; offset in background CHR for the start of numbers and letters
   NUMBERTILE_INDEX = $DC
-  LETTERTIEL_INDEX = $E6
+  LETTERTILE_INDEX = $E6
 
   _A = $E6
   _B = $E7
@@ -36,18 +36,23 @@
   _Y = $FE
   _Z = $FF
 
-    ; ppu offset from start of nametable for start of the hud
-  STARTING_OFFSET = $61
+    ; ppu offset from start of nametable for various hud positions
+  BASE_HUD_START_OFFSET = $40
+  ACTIVE_HUD_OFFSET     = $61 ; start of active hud elements
+  HUD_END_OFFSET        = $7F ; for position zero sprite
 
-  UP_SELECT_HUD = HUD_BUFFER
-  DOWN_SELECT_HUD = HUD_BUFFER+4
+    ; HUD BUFFER offsets, for positions in the active hud
+  UP_SELECT_HUD   = HUD_BUFFER+6
+  DOWN_SELECT_HUD = HUD_BUFFER+10
+  SPEED_HUD       = HUD_BUFFER+15
+  BOOST_HUD       = HUD_BUFFER+21
 
   ; for use during NMI
 .MACRO UpdateHud
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
-  LDA #STARTING_OFFSET
+  LDA #ACTIVE_HUD_OFFSET
   STA _PPUADDR
 
   LDY #$00

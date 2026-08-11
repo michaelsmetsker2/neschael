@@ -33,9 +33,12 @@
 .PROC game_init
 
   JSR audio_init
-  ; FIXME temp, sets all abilities to unlocked for testing
-  ; TODO make a build flag or precompile variable for a debug mode
+
+.IFDEF DEBUG
+  ; sets all abilities to unlocked
   LDA #%01110111
+.ENDIF
+
   STA unlockFlags
 
   RTS
@@ -164,7 +167,23 @@
   RTS
 .ENDPROC
 
+  ; updates the timer
 .PROC update_timer
-  ; TODO implement
+
+  ; advance frame counter
+  INC timerFrames
+  LDA timerFrames
+  CMP #$3C ; 60 frames in a second
+  BNE @done
+
+  ; reset frames
+  LDA #$00
+  STA timerFrames
+  ; increment seconds
+  INC timerSeconds
+  ; TODO seconds high byte instead of minutes (for simplicity)
+
+
+@done:
   RTS
 .ENDPROC

@@ -16,10 +16,8 @@
 .EXPORT hud_init
 .EXPORT buffer_hud
 
-  ; FIXME waste of rom space?
 base_hud:
   .BYTE $00, _L, _E, _V, _E, _L, $00, $DC, $DD, $DE, $00, $DC, $DD, $DE, $00, _S, _P, _E, _E, _D, $00, _B, _O, _O, _S, _T, $00, _T, _I, _M, _E, $00
-  .BYTE $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01
 
   ; sets sprite zero and draws hud background upon level load
 .PROC hud_init
@@ -62,7 +60,7 @@ base_hud:
     ; set ppu addr to the start of the hud
   LDA #>_NAMETABLE_A
   STA _PPUADDR
-  LDA #$40
+  LDA #BASE_HUD_START_OFFSET
   STA _PPUADDR
 
   LDY #$00
@@ -72,8 +70,18 @@ base_hud:
   STA _PPUDATA
   INY
 
-  CPY #$40
+  CPY #$20
   BNE @tile_loop
+
+@place_end_tile:
+  ; set ppu address to end of the hud
+  LDA #>_NAMETABLE_A
+  STA _PPUADDR
+  LDA #HUD_END_OFFSET
+  STA _PPUADDR
+
+  LDA #$01 ; formalize tile to place
+  STA _PPUDATA
 
   RTS
 .ENDPROC
@@ -121,12 +129,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+12
+  STA SPEED_HUD+2
   
   TXA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+13
+  STA SPEED_HUD+3
 
 @high_byte:
   TYA
@@ -135,15 +143,15 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+10
+  STA SPEED_HUD
   
   TYA
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+11
+  STA SPEED_HUD+1
 
   LDA #$00
-  STA HUD_BUFFER+14
+  STA SPEED_HUD+4
 
 @buffer_charge:
 
@@ -155,12 +163,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+17
+  STA BOOST_HUD+2
   
   LDA storedCharge
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+18
+  STA BOOST_HUD+3
 
 @hb:
   LDA storedCharge+1
@@ -169,13 +177,12 @@ base_hud:
   LSR A
   LSR A
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+15
+  STA BOOST_HUD
   
   LDA storedCharge+1
   AND #%00001111
   ADC #NUMBERTILE_INDEX
-  STA HUD_BUFFER+16
-
+  STA BOOST_HUD+1
 
   RTS
 .ENDPROC
