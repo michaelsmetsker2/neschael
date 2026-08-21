@@ -6,7 +6,7 @@
 ;
 
 .INCLUDE "lib/game/entities/entityData.inc"
-.INCLUDE "lib/game/gamedata.inc"
+.INCLUDE "lib/game/gameData.inc"
 .INCLUDE "data/system/ppu.inc"
 
 .IMPORTZP SCRATCH

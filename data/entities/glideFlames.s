@@ -12,9 +12,12 @@
 
 .EXPORT glide_flames
 
+	tmpAnimationTimer    = UpdateParams::SAFE_SCRATCH
 	tmpPositionY         = UpdateParams::SAFE_SCRATCH+1
 
 SPRITE_COUNT = $01 ; how sprites to allocate in oam for this
+
+BASE_SPRITE  = $10 ; sprite to increment by animation timer
 
 		; sprite header
 glide_flames:
@@ -23,6 +26,13 @@ glide_flames:
 
 	; this proccess should only be called from the entityHandler, The memory it inherites is in the UpdateParams scope
 .PROC update_func
+
+	; check if we are still holding the glide button
+	LDA btnDown
+	AND #_BUTTON_UP
+	BNE :+
+	JMP remove_func
+:
 
 	LDA motionState
 	CMP #MotionState::Grounded
