@@ -25,7 +25,9 @@ ability_up_table_high:
   .BYTE >vertical_boost, >glide_init, >glide_init
 
 ability_down_table_low:
+  .BYTE <vertical_boost, <glide_init, <glide_init
 ability_down_table_high:
+  .BYTE >vertical_boost, >glide_init, >glide_init
 
   ; masks for the unlockFlags to see if an ability is unlocked or not
     ; fourth is necessary 
@@ -96,6 +98,17 @@ ability_masks_down:
 .ENDPROC
 
 .PROC execute_ability_down
+  ; pointer to the proccess of the correct ability
+  abilityPtr = SCRATCH
+
+  LDY currentAbilityDown
+  LDA ability_down_table_low, Y
+  STA abilityPtr
+  LDA ability_down_table_high, Y
+  STA abilityPtr+1
+
+  JMP (abilityPtr)
+
   ; TODO implement
   RTS
 .ENDPROC

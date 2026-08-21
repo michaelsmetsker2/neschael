@@ -2,76 +2,33 @@
 ; neschael
 ; data/entities/glideFlames.s
 ;
-; entity for the visual component of the flames for the glide ability
+; entity entity spawned by using the bomb ability
 ;
+
+; TODO this is all unfinished
 
 .INCLUDE "lib/game/entities/entityData.inc"
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
 .INCLUDE "data/system/cpu.inc"
 
-.EXPORT glide_flames
+.EXPORT bomb_entity
 
+	tmpAnimationTimer    = UpdateParams::SAFE_SCRATCH
 	tmpPositionY         = UpdateParams::SAFE_SCRATCH+1
 
 SPRITE_COUNT = $01 ; how sprites to allocate in oam for this
 
 		; sprite header
-glide_flames:
+bomb_entity:
 	.WORD update_func-1, init_func-1, remove_func-1
 	.BYTE SPRITE_COUNT
 
 	; this proccess should only be called from the entityHandler, The memory it inherites is in the UpdateParams scope
 .PROC update_func
 
-	LDA motionState
-	CMP #MotionState::Grounded
-	BCC :+
-	JMP remove_func
-:
+    ; increment the position gravity and collision and such?
 
-	LDA positionY+1
-	STA tmpPositionY
-	INC tmpPositionY
-
-	; increment and clamp animation timer, (0-3)
-	LDY #Slot::PARAM_OFFSET
-	LDA (UpdateParams::slotPtr), Y
-	CLC
-	ADC #$01
-	AND #%00000111
-	STA (UpdateParams::slotPtr), Y
-	; CLC should still be clear
-	LSR
-	CLC
-	ADC #BASE_SPRITE
-	STA tmpAnimationTimer
-
-	LDY oamOffset
-	; Y
-	LDA tmpPositionY
-	STA unreservedOam, Y
-	INY
-	; Tile
-	LDA tmpAnimationTimer
-	STA unreservedOam, Y
-	INY
-	; Attribute
-	LDA #$00 
-	STA unreservedOam, Y
-	INY
-	; X
-	LDA positionX+1
-	STA unreservedOam, Y
-	INY
-	STY oamOffset
-
-	; safe increment of oamOffset
-	LDA oamOffset
-	CMP #SPRITE_CAP * 4
-	BCC @done
-	LDA #$00
-	STA oamOffset
 @done:
 	RTS
 .ENDPROC
