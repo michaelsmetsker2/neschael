@@ -1,21 +1,18 @@
 ;
 ; neschael
-; data/entities/glideFlames.s
+; data/entities/bombEntity.s
 ;
 ; entity entity spawned by using the bomb ability
 ;
 
-; TODO this is all unfinished
-
 .INCLUDE "lib/game/entities/entityData.inc"
 .INCLUDE "lib/game/gameData.inc"
 .INCLUDE "lib/player/player.inc"
-.INCLUDE "data/system/cpu.inc"
 
 .EXPORT bomb_entity
 
-	tmpAnimationTimer    = UpdateParams::SAFE_SCRATCH
-	tmpPositionY         = UpdateParams::SAFE_SCRATCH+1
+	tmpSpriteX    = UpdateParams::SAFE_SCRATCH    ; 16 bit, relative x position to the screen scroll
+	tmpSpriteY    = UpdateParams::SAFE_SCRATCH+2
 
 SPRITE_COUNT = $01 ; how sprites to allocate in oam for this
 
@@ -26,6 +23,43 @@ bomb_entity:
 
 	; this proccess should only be called from the entityHandler, The memory it inherites is in the UpdateParams scope
 .PROC update_func
+
+	LDY #Slot::Y_POS_OFFSET
+	LDA (UpdateParams::slotPtr), y
+
+	; TODO temp updating Y pos
+	CLC
+	ADC #$02
+	STA tmpSpriteY
+	STA (UpdateParams::slotPtr), y
+
+
+    ; populate sprite values
+	LDY oamOffset
+	; Y
+	LDA tmpSpriteY
+	STA unreservedOam, Y
+	INY
+	; Tile
+	LDA #$04
+	STA unreservedOam, Y
+	INY
+	; Attribute
+	LDA #$00 
+	STA unreservedOam, Y
+	INY
+	; X
+	LDA #$30
+	STA unreservedOam, Y
+	INY
+	STY oamOffset
+
+	; safe increment of oamOffset
+	LDA oamOffset
+	CMP #SPRITE_CAP * 4
+	BCC @done
+	LDA #$00
+	STA oamOffset
 
     ; increment the position gravity and collision and such?
 
@@ -42,12 +76,18 @@ bomb_entity:
 	LDY #$00
 	STA (InitParams::slotPtr), Y
 
-	; clear param 1 (animation timer)
-	LDA #$00
-	LDY #Slot::PARAM_OFFSET
+		; Store current player X and Y positions in slot for bomb startingn pos
+	LDY #Slot::X_POS_OFFSET
+	LDA positionX
 	STA (InitParams::slotPtr), Y
-	
-	; garbage data in slot is fine update takes place on frame one and most is unused
+	INY
+	LDA positionX+1
+	STA (InitParams::slotPtr), Y
+	INY
+	LDA positionY+1
+	STA (InitParams::slotPtr), Y
+
+	; garbage in remainging bytes is fine
 
 	RTS
 .ENDPROC

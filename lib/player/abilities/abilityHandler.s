@@ -13,6 +13,7 @@
 
 .IMPORT vertical_boost
 .IMPORT glide_init
+.IMPORT bomb_init
 
 .EXPORT cycle_abilities
 .EXPORT execute_ability_up
@@ -25,9 +26,9 @@ ability_up_table_high:
   .BYTE >vertical_boost, >glide_init, >glide_init
 
 ability_down_table_low:
-  .BYTE <vertical_boost, <glide_init, <glide_init
+  .BYTE <bomb_init, <glide_init, <glide_init
 ability_down_table_high:
-  .BYTE >vertical_boost, >glide_init, >glide_init
+  .BYTE >bomb_init, >glide_init, >glide_init
 
   ; masks for the unlockFlags to see if an ability is unlocked or not
     ; fourth is necessary 

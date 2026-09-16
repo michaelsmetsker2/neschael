@@ -31,7 +31,7 @@ test_entity:
   LDA (UpdateParams::slotPtr), y
   STA tmpSpriteY
 
-  LDA #$20
+  LDA #$20 ; placeholder sprite
   STA tmpSpriteTile
 
     ; calculate relative screen position, subtract the screen scroll from the entities position

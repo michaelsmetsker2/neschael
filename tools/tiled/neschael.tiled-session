@@ -5,11 +5,11 @@
     },
     "activeFile": "levels/testLv3.tmx",
     "expandedProjectPaths": [
-        "levels/testlevel",
-        "levels/test_level",
         ".",
-        "levels",
-        "metas"
+        "metas",
+        "levels/test_level",
+        "levels/testlevel",
+        "levels"
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -73,8 +73,8 @@
             "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 793.6666666666667,
-                "y": -83.66666666666663
+                "x": 338.33333333333326,
+                "y": 29
             }
         },
         "levels/testLvl.tmx": {

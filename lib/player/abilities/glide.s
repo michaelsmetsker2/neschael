@@ -23,11 +23,11 @@
     CMP #MotionState::Grounded
     BCS @done
 
-    ; TODO make entity of visual effects
+    ; make entity of visual effects
     ; TODO formalize
     LDA #$01 ; entity ID for glideFlames
     STA $0A
-    LDA #$00
+    LDA #$00 ; set to manually spawn entity
     STA $04
     JSR create_entity
 
