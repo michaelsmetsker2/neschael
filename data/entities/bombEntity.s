@@ -24,17 +24,34 @@ bomb_entity:
 	; this proccess should only be called from the entityHandler, The memory it inherites is in the UpdateParams scope
 .PROC update_func
 
+@update_position_x:
+	LDY #Slot::X_POS_OFFSET
+	LDA (UpdateParams::slotPtr), Y
+	STA tmpSpriteX
+   
+    ; calculate pixel position relative to start of screen, subtract the screen scroll from the entities world position
+	SEC
+	SBC screenPosX
+	STA tmpSpriteX ; low byte (pixel)
+
+	INY ; increments to the high byte
+	LDA (UpdateParams::slotPtr), Y
+	SBC screenPosX+1
+	STA tmpSpriteX+1 ; high byte (nametable)	
+
+	LDY #Slot::X_POS_OFFSET
+	STA (UpdateParams::slotPtr), Y
+
+eupdate_position_y:
 	LDY #Slot::Y_POS_OFFSET
 	LDA (UpdateParams::slotPtr), y
-
-	; TODO temp updating Y pos
 	CLC
 	ADC #$02
 	STA tmpSpriteY
 	STA (UpdateParams::slotPtr), y
 
 
-    ; populate sprite values
+@update_sprite_values:
 	LDY oamOffset
 	; Y
 	LDA tmpSpriteY
@@ -49,7 +66,7 @@ bomb_entity:
 	STA unreservedOam, Y
 	INY
 	; X
-	LDA #$30
+	LDA tmpSpriteX
 	STA unreservedOam, Y
 	INY
 	STY oamOffset
@@ -78,10 +95,12 @@ bomb_entity:
 
 		; Store current player X and Y positions in slot for bomb startingn pos
 	LDY #Slot::X_POS_OFFSET
-	LDA positionX
+	;LDA positionX
+	LDA #$30 ; TODO temp
 	STA (InitParams::slotPtr), Y
 	INY
-	LDA positionX+1
+	;LDA positionX+1
+	LDA #$30 ; TODO temp
 	STA (InitParams::slotPtr), Y
 	INY
 	LDA positionY+1
